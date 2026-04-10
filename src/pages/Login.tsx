@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/mockDb';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, isFirebaseConfigured } from '../services/firebase';
 import '../styles/login.css';
 
 export default function Login() {
@@ -12,14 +13,26 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isFirebaseConfigured || !auth) {
+      setError("Erro interno: O arquivo firebase.ts não possui as chaves válidas. Configure-o primeiro.");
+      return;
+    }
+
     setLoading(true);
     setError('');
     
     try {
-      await authService.login(usuario, senha);
+      // Usa email fantasma para autenticação no Firebase
+      const emailFantasma = `${usuario.trim().toLowerCase()}@cps.app`;
+      await signInWithEmailAndPassword(auth, emailFantasma, senha);
       navigate('/');
     } catch (err: any) {
-      setError(err.message);
+      if (err.code === 'auth/invalid-credential') {
+        setError('Usuário ou senha inválidos.');
+      } else {
+        setError('Falha de conexão com Firebase: ' + err.message);
+      }
     } finally {
       setLoading(false);
     }
