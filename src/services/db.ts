@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, query, where, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, updateDoc, doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface Turma {
@@ -6,6 +6,7 @@ export interface Turma {
   nome: string;
   dataInicio: string;
   concluida: boolean;
+  datasSemanas?: Record<number, string>;
 }
 
 export interface SemanaCheck {
@@ -57,13 +58,50 @@ export const dbService = {
     }
   },
 
-  updateTurma: async (turmaId: string, novoNome: string) => {
+  updateTurma: async (turmaId: string, novoNome: string, novaDataInicio?: string) => {
     if (!db) return false;
     try {
-      await updateDoc(doc(db, "turmas", turmaId), { nome: novoNome });
+      const data: any = { nome: novoNome };
+      if (novaDataInicio) data.dataInicio = novaDataInicio;
+      await updateDoc(doc(db, "turmas", turmaId), data);
       return true;
     } catch (e) {
       console.error("Erro ao editar turma:", e);
+      return false;
+    }
+  },
+
+  deleteTurma: async (turmaId: string) => {
+    if (!db) return false;
+    try {
+      await deleteDoc(doc(db, "turmas", turmaId));
+      return true;
+    } catch (e) {
+      console.error("Erro ao excluir turma:", e);
+      return false;
+    }
+  },
+
+  updateSemanaData: async (turmaId: string, semana: number, dataPersonalizada?: string) => {
+    if (!db) return false;
+    try {
+      const turmaRef = doc(db, "turmas", turmaId);
+      const turmaSnap = await getDoc(turmaRef);
+      if (!turmaSnap.exists()) return false;
+
+      const data = turmaSnap.data();
+      const datasSemanas = data.datasSemanas || {};
+
+      if (dataPersonalizada) {
+        datasSemanas[semana] = dataPersonalizada;
+      } else {
+        delete datasSemanas[semana];
+      }
+
+      await updateDoc(turmaRef, { datasSemanas });
+      return true;
+    } catch (e) {
+      console.error("Erro ao editar data da semana:", e);
       return false;
     }
   },

@@ -1,73 +1,121 @@
-# React + TypeScript + Vite
+# CPS - Casados Para Sempre
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema de gestão e acompanhamento para grupos do programa "Casados Para Sempre".
 
-Currently, two official plugins are available:
+## 🚀 Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Gestão de Turmas**: Crie e gerencie turmas com datas de início
+- **Acompanhamento Semanal**: Registro de presença, vitaminas e tarefas por casal
+- **Ranking e Desempenho**: Visualização de pontuação geral e por categorias (Presença, Vitaminas, Tarefas)
+- **Autenticação**: Login seguro via Firebase
+- **Design Moderno**: Interface com glassmorphism e tema escuro
+- **Alarme do Avião**: Recurso sonoro configurável para notificações
 
-## React Compiler
+## 🛠️ Tecnologias
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- TypeScript
+- Vite
+- Firebase (Auth + Firestore)
+- React Router DOM
+- Lucide React (ícones)
 
-## Expanding the ESLint configuration
+## 📋 Pré-requisitos
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (v18 ou superior)
+- npm ou yarn
+- Conta no Firebase (para produção)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## ⚙️ Configuração
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. **Configure o Firebase:**
+
+   O projeto já está configurado com as variáveis de ambiente no arquivo `.env`. Se precisar usar seu próprio projeto Firebase:
+
+   - Acesse [console.firebase.google.com](https://console.firebase.google.com)
+   - Crie um novo projeto ou selecione um existente
+   - Em "Configurações do Projeto", obtenha as credenciais
+   - Atualize o arquivo `.env` com suas chaves:
+
+   ```env
+   VITE_FIREBASE_API_KEY=sua_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=seu_auth_domain
+   VITE_FIREBASE_PROJECT_ID=seu_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=seu_storage_bucket
+   VITE_FIREBASE_MESSAGING_SENDER_ID=seu_messaging_sender_id
+   VITE_FIREBASE_APP_ID=seu_app_id
+   ```
+
+3. **Configure a autenticação no Firebase:**
+   - No console do Firebase, ative a autenticação por "Email/Senha"
+   - Crie usuários manualmente ou permita cadastro
+
+## 🚀 Como Rodar
+
+**Desenvolvimento:**
+```bash
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+O servidor iniciará em `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Build de Produção:**
+```bash
+npm run build
 ```
+
+**Preview da Build:**
+```bash
+npm run preview
+```
+
+## 📱 Uso
+
+1. **Login**: Use as credenciais configuradas no Firebase (mock padrão: `lider` / `123456`)
+2. **Home**: Crie uma nova turma ou selecione uma existente
+3. **Turma**: Adicione casais e gerencie as semanas
+4. **Acompanhamento**: Registre presença, vitaminas e tarefas de cada casal
+5. **Desempenho**: Visualize o ranking por categoria
+6. **Ajustes**: Configure notificações e o "Alarme do Avião"
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── components/       # Componentes reutilizáveis (Layout, ProtectedRoute)
+├── contexts/         # Contextos React (Auth, Sound)
+├── pages/            # Páginas da aplicação
+│   ├── Home.tsx
+│   ├── Login.tsx
+│   ├── TurmaDetail.tsx
+│   ├── Acompanhamento.tsx
+│   ├── Desempenho.tsx
+│   └── Ajustes.tsx
+├── services/         # Serviços (Firebase, DB, Mock)
+├── styles/           # Arquivos CSS
+└── App.tsx           # Configuração de rotas
+```
+
+## 🔥 Firebase
+
+O sistema utiliza Firebase para:
+- Autenticação de usuários
+- Armazenamento de turmas, casais e checkpoints semanais
+
+## 📝 Scripts Disponíveis
+
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Inicia servidor de desenvolvimento |
+| `npm run build` | Compila para produção |
+| `npm run lint` | Executa ESLint |
+| `npm run preview` | Preview da build de produção |
+
+## 📄 Licença
+
+Projeto privado - Uso interno

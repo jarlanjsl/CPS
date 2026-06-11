@@ -18,8 +18,8 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Tenta carregar o arquivo real (que o usuário deve colocar na pasta public/aviao.mp3)
-    audioRef.current = new Audio('/aviao.mp3');
+    // Tenta carregar o arquivo real (que o usuário deve colocar na pasta public/aviao.m4a ou aviao.mp3)
+    audioRef.current = new Audio('/aviao.m4a');
   }, []);
 
   const generateSyntheticAirplane = () => {
@@ -77,9 +77,8 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (soundFrequency === '30MIN') {
         delay = 30 * 60 * 1000;
       } else if (soundFrequency === 'RANDOM') {
-        // Entre 15 e 45 minutos no cenário real, usaremos entre 5 e 15 segundos aqui para teste rápido!
-        // IMPORTANTE: Em prod deveria ser `Math.random() * (45 - 15) + 15 * 60 * 1000`
-        delay = Math.floor(Math.random() * (15 - 5 + 1) + 5) * 1000;
+        // Entre 5 e 10 minutos
+        delay = Math.floor(Math.random() * (10 - 5 + 1) + 5) * 60 * 1000;
         console.log(`Próximo avião automático em ${delay/1000} segundos...`);
       }
 

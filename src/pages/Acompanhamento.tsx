@@ -9,14 +9,33 @@ export default function Acompanhamento() {
   const [casais, setCasais] = useState<Casal[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [dataSemana, setDataSemana] = useState<string>('');
   
   // Mapear checks. Formato: { "casalId": { presenca: true, ... } }
   const [checks, setChecks] = useState<Record<string, SemanaCheck>>({});
 
   useEffect(() => {
     if (id) {
-      dbService.getCasais(id).then(res => {
+      Promise.all([
+        dbService.getCasais(id),
+        dbService.getTurmas()
+      ]).then(([res, turmas]) => {
         setCasais(res);
+        
+        // Buscar data da semana
+        const turma = turmas.find(t => t.id === id);
+        if (turma) {
+          const semanaNum = parseInt(semanaId || '1');
+          if (turma.datasSemanas && turma.datasSemanas[semanaNum]) {
+            setDataSemana(new Date(turma.datasSemanas[semanaNum]).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }));
+          } else if (turma.dataInicio) {
+            const dataInicio = new Date(turma.dataInicio);
+            const diasParaAdicionar = (semanaNum - 1) * 7;
+            const novaData = new Date(dataInicio);
+            novaData.setDate(novaData.getDate() + diasParaAdicionar);
+            setDataSemana(novaData.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }));
+          }
+        }
         
         // Povoando state com as escolhas antigas que possam estar no Firebase (Idempotência)
         const initialState: Record<string, SemanaCheck> = {};
@@ -64,7 +83,14 @@ export default function Acompanhamento() {
           <Link to={`/turma/${id}`} style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem' }}>
             ← Voltar
           </Link>
-          <h1 style={{ marginTop: '0.5rem', color: 'var(--text-main)' }}>Semana {semanaId}</h1>
+          <h1 style={{ marginTop: '0.5rem', color: 'var(--text-main)' }}>
+            Semana {semanaId}
+            {dataSemana && (
+              <span style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '0.25rem' }}>
+                {dataSemana}
+              </span>
+            )}
+          </h1>
         </div>
         <button onClick={salvar} className="btn-primary" disabled={saving}>
           {saving ? 'Gravando...' : 'Salvar'}

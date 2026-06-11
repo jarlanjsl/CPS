@@ -55,12 +55,12 @@ export default function Ajustes() {
               onChange={(e) => setSoundFrequency(e.target.value as any)}
               style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontFamily: 'inherit' }}>
               <option value="MANUAL">Apenas disparos manuais</option>
-              <option value="RANDOM">Aleatório (Entre 5 e 15 segs - para testar!)</option>
+              <option value="RANDOM">Aleatório (Entre 5 e 10 minutos)</option>
               <option value="30MIN">A cada 30 minutos</option>
             </select>
             {soundFrequency === 'RANDOM' && (
                <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--primary-light)' }}>
-                 Cuidado! O avião passará aleatoriamente num curto prazo agora!
+                 Cuidado! O avião passará aleatoriamente entre 5 e 10 minutos!
                </p>
             )}
           </div>
