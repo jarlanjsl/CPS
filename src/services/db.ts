@@ -433,6 +433,7 @@ export const dbService = {
     }
   },
 
+  // ===== HU-25: Sorteio de Vitaminas (Roleta) =====
   // Filtra as vitaminas ativas em uma semana específica (consumido pela roleta HU-25).
   getVitaminasDaSemana: async (turmaId: string, semana: number): Promise<Vitamina[]> => {
     if (!db) return [];
@@ -448,6 +449,79 @@ export const dbService = {
     } catch (e) {
       console.error("Erro ao carregar vitaminas da semana:", e);
       return [];
+    }
+  },
+
+  // Persiste o snapshot do sorteio (uma vitamina pra ele + uma pra ela) na semana do casal
+  // e recalcula a pontuação total atomicamente via runTransaction.
+  sortearVitaminas: async (
+    casalId: string,
+    semanaId: string,
+    vitaminaEle: Vitamina,
+    vitaminaEla: Vitamina
+  ): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      const casalRef = doc(db, "casais", casalId);
+
+      await runTransaction(db, async (transaction) => {
+        const casalSnap = await transaction.get(casalRef);
+        if (!casalSnap.exists()) return;
+
+        const data = casalSnap.data();
+        const semanas = { ...(data.semanas || {}) };
+        const semanaAtual: SemanaCheck = semanas[semanaId] || {
+          presenca: false,
+          tarefas: false,
+          tarefasExtras: false
+        };
+
+        const agora = new Date().toISOString();
+        const sorteioVitaminas: SorteioVitaminas = {
+          ele: {
+            vitaminaId: vitaminaEle.id,
+            nome: vitaminaEle.nome,
+            descricao: vitaminaEle.descricao,
+            check: false,
+            sorteadoEm: agora
+          },
+          ela: {
+            vitaminaId: vitaminaEla.id,
+            nome: vitaminaEla.nome,
+            descricao: vitaminaEla.descricao,
+            check: false,
+            sorteadoEm: agora
+          }
+        };
+
+        semanaAtual.sorteioVitaminas = sorteioVitaminas;
+        semanas[semanaId] = semanaAtual;
+
+        // Recalcular pontuação total do casal (soma todas as semanas).
+        // Inclui branch legacy para `vitaminas: boolean` (compat retroativa) e
+        // os novos checks individuais de sorteioVitaminas (ele/ela).
+        let pontuacaoRecalculada = 0;
+        Object.values(semanas).forEach((sem: any) => {
+          if (sem.presenca) pontuacaoRecalculada += 1;
+          if (sem.vitaminas) pontuacaoRecalculada += 1; // legacy
+          if (sem.tarefas) pontuacaoRecalculada += 1;
+          if (sem.tarefasExtras) pontuacaoRecalculada += 1;
+          if (sem.sorteioVitaminas) {
+            if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
+            if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
+          }
+        });
+
+        transaction.update(casalRef, {
+          semanas,
+          pontuacaoTotal: pontuacaoRecalculada
+        });
+      });
+
+      return true;
+    } catch (e) {
+      console.error("Erro ao sortear vitaminas:", e);
+      return false;
     }
   }
 };

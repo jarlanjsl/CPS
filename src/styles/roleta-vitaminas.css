@@ -1,0 +1,253 @@
+/* ===== HU-25: Roleta de Vitaminas ===== */
+
+.roleta-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.roleta-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 6px solid var(--card-border);
+  box-shadow:
+    0 0 0 2px rgba(99, 102, 241, 0.35),
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    inset 0 0 24px rgba(0, 0, 0, 0.45);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* Estado parado: sem transição (instantâneo) */
+.roleta-inner.is-idle {
+  transition: none;
+}
+
+/* Estado girando: desaceleração natural (cubic-bezier ease-out forte) */
+.roleta-inner.is-spinning {
+  transition: transform 2.5s cubic-bezier(0.17, 0.67, 0.3, 0.99);
+}
+
+/* Cap central (cubinho) */
+.roleta-cubo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+/* Ponteiro fixo no topo */
+.roleta-ponteiro {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 22px solid var(--primary-light);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  z-index: 4;
+}
+
+/* Label de cada setor (texto sempre horizontal, posicionado via trig) */
+.roleta-setor-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  text-align: center;
+  max-width: 78px;
+  line-height: 1.1;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ===== Modal de Sorteio ===== */
+
+.sorteio-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1.5rem;
+}
+
+.sorteio-modal {
+  width: 100%;
+  max-width: 720px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.sorteio-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.sorteio-roletas {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.sorteio-roleta-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sorteiro-roleta-titulo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sorteio-resultado-card {
+  min-height: 64px;
+  width: 280px;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  text-align: center;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.sorteio-resultado-card.is-vencedor {
+  border-color: var(--success);
+  background: var(--success-bg);
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.25);
+}
+
+.sorteio-resultado-card.placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.sorteio-resultado-nome {
+  font-weight: 700;
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+.sorteio-resultado-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.25;
+}
+
+.sorteio-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sorteio-select {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--card-border);
+  color: #fff;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sorteio-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* Toast */
+.sorteio-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--success);
+  color: #fff;
+  padding: 0.9rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: sorteio-toast-in 0.25s ease-out;
+}
+
+@keyframes sorteio-toast-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 540px) {
+  .roleta-container {
+    width: 230px;
+    height: 230px;
+  }
+  .sorteio-resultado-card {
+    width: 230px;
+  }
+}
