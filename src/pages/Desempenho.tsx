@@ -1,9 +1,16 @@
 import { Star, LoaderCircle, Trophy, Leaf, CheckSquare, CalendarDays } from 'lucide-react';
 import { dbService, type Casal, type Turma } from '../services/db';
 import { useEffect, useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import AvatarCasado from '../components/AvatarCasado';
+import {
+  type Categoria,
+  getPontosSemana,
+  getPontosAcumulado,
+  calcularDeltas,
+} from './ranking-utils';
 
-type Categoria = 'GERAL' | 'PRESENCA' | 'VITAMINA' | 'TAREFAS';
+const MAX_SEMANAS = 14;
 
 export default function Desempenho() {
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -12,6 +19,7 @@ export default function Desempenho() {
   const [loading, setLoading] = useState(true);
   const [categoria, setCategoria] = useState<Categoria>('GERAL');
   const [fotoAmpliada, setFotoAmpliada] = useState<Casal | null>(null);
+  const [semanaSelecionada, setSemanaSelecionada] = useState<number | 'TODAS'>('TODAS');
 
   useEffect(() => {
     dbService.getTurmas().then(res => {
@@ -35,37 +43,36 @@ export default function Desempenho() {
     });
   }, [selectedTurmaId]);
 
-  // Função para calcular a pontuação ativa com base na aba escolhida
+  // Helper: obtém os pontos de um casal conforme a semana/categoria selecionada
   const getPontos = (c: Casal, cat: Categoria): number => {
-    if (cat === 'GERAL') return c.pontuacaoTotal || 0;
-    
-    let soma = 0;
-    const semanas = c.semanas || {};
-    
-    Object.values(semanas).forEach(sem => {
-      if (cat === 'PRESENCA' && sem.presenca) soma += 1;
-      if (cat === 'VITAMINA') {
-        // HU-27: vitamina vale 0, 1 ou 2 pts (checks individuais Ele/Ela).
-        // else if preserva a compat retroativa com `vitaminas: true` (legacy).
-        if (sem.sorteioVitaminas) {
-          if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) soma += 1;
-          if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) soma += 1;
-        } else if (sem.vitaminas) {
-          soma += 1; // legacy
-        }
-      }
-      if (cat === 'TAREFAS') {
-        if (sem.tarefas) soma += 1;
-        if (sem.tarefasExtras) soma += 1; // max 2 pontos por semana nesse quesito
-      }
-    });
-    
-    return soma;
+    if (semanaSelecionada === 'TODAS') {
+      // Para GERAL acumulado, usa pontuacaoTotal do servidor (fonte canônica).
+      // Para outras categorias, soma semanal projetada client-side.
+      if (cat === 'GERAL') return c.pontuacaoTotal || 0;
+      return getPontosAcumulado(c, cat, MAX_SEMANAS);
+    }
+    return getPontosSemana(c, semanaSelecionada, cat);
   };
 
+  // Ranking da semana/categoria selecionada
   const casaisOrdenados = useMemo(() => {
     return [...casais].sort((a, b) => getPontos(b, categoria) - getPontos(a, categoria));
-  }, [casais, categoria]);
+  }, [casais, categoria, semanaSelecionada]);
+
+  // Ranking da semana anterior (para cálculo de deltas)
+  const casaisOrdenadosSemanaAnterior = useMemo(() => {
+    if (semanaSelecionada === 'TODAS' || semanaSelecionada === 1) return [];
+    return [...casais].sort(
+      (a, b) =>
+        getPontosSemana(b, semanaSelecionada - 1, categoria) -
+        getPontosSemana(a, semanaSelecionada - 1, categoria)
+    );
+  }, [casais, categoria, semanaSelecionada]);
+
+  // Deltas de posição (subiu/desceu/manteve)
+  const deltas = useMemo(() => {
+    return calcularDeltas(casaisOrdenados, casaisOrdenadosSemanaAnterior);
+  }, [casaisOrdenados, casaisOrdenadosSemanaAnterior]);
 
   return (
     <>
@@ -99,9 +106,41 @@ export default function Desempenho() {
       ) : turmas.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           
+          {/* HU-24: Seletor de Semanas */}
+          <div className="glass-effect" style={{ padding: '1rem 1.5rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <label htmlFor="semana-select" style={{ color: 'var(--text-muted)', fontSize: '0.9rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                Semana:
+              </label>
+              <select
+                id="semana-select"
+                value={semanaSelecionada === 'TODAS' ? 'TODAS' : String(semanaSelecionada)}
+                onChange={(e) => setSemanaSelecionada(e.target.value === 'TODAS' ? 'TODAS' : Number(e.target.value))}
+                style={{
+                  flex: 1,
+                  background: 'rgba(15,23,42,0.8)',
+                  border: '1px solid var(--primary-dark)',
+                  color: 'white',
+                  padding: '0.5rem',
+                  borderRadius: '8px',
+                  fontFamily: 'inherit',
+                  fontWeight: 600,
+                }}
+                aria-label="Selecionar semana para o ranking"
+              >
+                <option value="TODAS">Todas as Semanas (Acumulado)</option>
+                {Array.from({ length: MAX_SEMANAS }, (_, i) => i + 1).map(num => (
+                  <option key={num} value={String(num)}>Semana {num}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="glass-effect" style={{ padding: '1.5rem', textAlign: 'center' }}>
             <Star size={40} className="text-muted" style={{ color: '#fbbf24', margin: '0 auto 0.5rem' }} />
-            <h2 style={{ fontSize: '1.5rem', margin: '0 0 1rem 0' }}>Ranking da Turma</h2>
+            <h2 style={{ fontSize: '1.5rem', margin: '0 0 1rem 0' }}>
+              {semanaSelecionada === 'TODAS' ? 'Ranking da Turma' : `Ranking — Semana ${semanaSelecionada}`}
+            </h2>
             
             {/* Tabs de Filtro */}
             <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
@@ -138,31 +177,63 @@ export default function Desempenho() {
             </div>
           ) : (
             <>
-              {/* Listagem Ordenada por Categoria Selecionada */}
-              {casaisOrdenados.map((c, index) => {
-                const pontos = getPontos(c, categoria);
-                return (
-                  <div key={c.id} className="glass-effect" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', minWidth: '35px', color: index === 0 ? '#fbbf24' : index === 1 ? '#e2e8f0' : index === 2 ? '#b45309' : 'var(--text-muted)' }}>
-                      #{index + 1}
-                    </div>
-                    <AvatarCasado
-                      nomeEle={c.nomeEle}
-                      nomeEla={c.nomeEla}
-                      fotoUrl={c.fotoUrl}
-                      size={40}
-                      onClick={() => setFotoAmpliada(c)}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{c.nomeEle} & {c.nomeEla}</h3>
-                    </div>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--primary-light)' }}>
-                      {pontos}
-                      <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-muted)', marginLeft: '4px' }}>pts</span>
-                    </div>
-                  </div>
-                );
-              })}
+              {/* HU-24: Listagem com animação de transição e indicadores de variação */}
+              <AnimatePresence mode="popLayout">
+                {casaisOrdenados.map((c, index) => {
+                  const pontos = getPontos(c, categoria);
+                  const delta = deltas.get(c.id) || 0;
+                  const showDeltas = semanaSelecionada !== 'TODAS' && semanaSelecionada !== 1;
+
+                  return (
+                    <motion.div
+                      key={c.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      className="glass-effect"
+                      style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}
+                    >
+                      {/* Posição no ranking */}
+                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', minWidth: '35px', color: index === 0 ? '#fbbf24' : index === 1 ? '#e2e8f0' : index === 2 ? '#b45309' : 'var(--text-muted)' }}>
+                        #{index + 1}
+                      </div>
+
+                      {/* HU-24: Indicador de variação de posição */}
+                      {showDeltas && (
+                        <div
+                          aria-label={delta > 0 ? `Subiu ${delta} posições` : delta < 0 ? `Desceu ${Math.abs(delta)} posições` : 'Manteve posição'}
+                          style={{
+                            fontSize: '0.9rem',
+                            fontWeight: 'bold',
+                            color: delta > 0 ? '#10b981' : delta < 0 ? '#ef4444' : 'var(--text-muted)',
+                            minWidth: '40px',
+                            textAlign: 'center',
+                          }}
+                        >
+                          {delta > 0 ? `↑${delta}` : delta < 0 ? `↓${Math.abs(delta)}` : '—'}
+                        </div>
+                      )}
+
+                      <AvatarCasado
+                        nomeEle={c.nomeEle}
+                        nomeEla={c.nomeEla}
+                        fotoUrl={c.fotoUrl}
+                        size={40}
+                        onClick={() => setFotoAmpliada(c)}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{c.nomeEle} & {c.nomeEla}</h3>
+                      </div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--primary-light)' }}>
+                        {pontos}
+                        <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-muted)', marginLeft: '4px' }}>pts</span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </>
           )}
         </div>
