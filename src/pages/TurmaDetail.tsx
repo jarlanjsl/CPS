@@ -34,6 +34,13 @@ export default function TurmaDetail() {
   const [casalTipo, setCasalTipo] = useState<'LIDER' | 'ALUNO'>('ALUNO');
   const [processando, setProcessando] = useState(false);
 
+  // States para Edição de Casal
+  const [isEditCasalOpen, setIsEditCasalOpen] = useState(false);
+  const [editCasalId, setEditCasalId] = useState('');
+  const [editNomeEle, setEditNomeEle] = useState('');
+  const [editNomeEla, setEditNomeEla] = useState('');
+  const [editCasalTipo, setEditCasalTipo] = useState<'LIDER' | 'CO-LIDER' | 'ALUNO'>('ALUNO');
+
   const carregarDados = () => {
     if (!id) return;
     setLoading(true);
@@ -128,6 +135,25 @@ export default function TurmaDetail() {
     }
   };
 
+  const handleEditCasal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editCasalId || !editNomeEle.trim() || !editNomeEla.trim()) return;
+
+    setProcessando(true);
+    const { success, error } = await dbService.updateCasal(editCasalId, {
+      nomeEle: editNomeEle,
+      nomeEla: editNomeEla,
+      tipo: editCasalTipo
+    });
+    setProcessando(false);
+    if (success) {
+      setIsEditCasalOpen(false);
+      carregarDados();
+    } else {
+      alert(error || "Erro ao editar casal.");
+    }
+  };
+
   // Calcular data de cada semana baseado na data de início
   const calcularDataSemana = (semana: number): string => {
     if (!turma?.dataInicio) return '';
@@ -211,10 +237,26 @@ export default function TurmaDetail() {
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <div>
-                <div style={{ fontWeight: 500 }}>{c.nomeEle} & {c.nomeEla}</div>
-                {c.tipo === 'LIDER' && <span style={{ fontSize: '0.75rem', color: 'var(--primary-light)' }}>Líder</span>}
-                {c.tipo === 'CO-LIDER' && <span style={{ fontSize: '0.75rem', color: '#fbbf24' }}>Co-Líder</span>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div>
+                  <div style={{ fontWeight: 500 }}>{c.nomeEle} & {c.nomeEla}</div>
+                  {c.tipo === 'LIDER' && <span style={{ fontSize: '0.75rem', color: 'var(--primary-light)' }}>Líder</span>}
+                  {c.tipo === 'CO-LIDER' && <span style={{ fontSize: '0.75rem', color: '#fbbf24' }}>Co-Líder</span>}
+                  {c.tipo === 'ALUNO' && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Aluno</span>}
+                </div>
+                <button
+                  onClick={() => {
+                    setEditCasalId(c.id);
+                    setEditNomeEle(c.nomeEle);
+                    setEditNomeEla(c.nomeEla);
+                    setEditCasalTipo(c.tipo);
+                    setIsEditCasalOpen(true);
+                  }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                  title="Editar casal"
+                >
+                  <Pencil size={14} />
+                </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pontos</span>
@@ -538,6 +580,45 @@ export default function TurmaDetail() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* MODAL: EDITAR CASAL */}
+      {isEditCasalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '1.5rem'
+        }}>
+          <form className="glass-effect" onSubmit={handleEditCasal} style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
+            <button type="button" onClick={() => setIsEditCasalOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ fontSize: '1.25rem', marginTop: 0 }}>Editar Casal</h2>
+            
+            <input 
+              autoFocus
+              placeholder="Nome dEle" value={editNomeEle} onChange={e => setEditNomeEle(e.target.value)}
+              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+            />
+             <input 
+              placeholder="Nome dEla" value={editNomeEla} onChange={e => setEditNomeEla(e.target.value)}
+              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+            />
+             <select 
+              value={editCasalTipo} onChange={e => setEditCasalTipo(e.target.value as any)}
+              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+            >
+              <option value="ALUNO" style={{ color: 'black' }}>Casal Membro/Aluno</option>
+              <option value="LIDER" style={{ color: 'black' }}>Casal Líder (Não pontua)</option>
+              <option value="CO-LIDER" style={{ color: 'black' }}>Casal Co-Líder (Não pontua)</option>
+            </select>
+
+            <button type="submit" className="btn-primary" disabled={processando || !editNomeEle.trim() || !editNomeEla.trim()}>
+              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Salvar'}
+            </button>
+          </form>
         </div>
       )}
 
