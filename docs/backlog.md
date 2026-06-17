@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
 > Última atualização: 17/06/2026
-> Versão: 2.0
+> Versão: 3.0
 > Responsável: Agile Master
 
 ---
@@ -16,6 +16,7 @@
 | 17/06/2026 | 1.3 | Sprint 2: HU-08 e HU-10 implementadas e validadas |
 | 17/06/2026 | 1.4 | Sprint 2 concluído: HU-03, HU-08, HU-09, HU-10 entregues |
 | 17/06/2026 | 2.0 | Sprint 2 validado pelo QA: 4/4 aprovadas |
+| 17/06/2026 | 3.0 | Adicionadas HU-20 a HU-30 (identidade visual, fotos, ranking animado, vitaminas) |
 
 ---
 
@@ -38,6 +39,8 @@
 
 > **Sprint 1**: Todos os 5 critérios de aceite validados. Logout chama `auth.logout()` antes de navegar com `replace: true`.
 
+### HU-02: Adicionar Error Boundary
+
 **Como** líder de turma, **eu quero** ver uma mensagem de erro amigável quando algo falhar, **para** não ficar preso em uma tela branca sem saber o que aconteceu.
 
 **Critérios de Aceite**:
@@ -50,6 +53,8 @@
 **Prioridade**: Alta | **Estimativa**: S | **Status**: Concluída ✅
 
 > **Sprint 1**: Todos os 5 critérios de aceite validados. Fallback com dark theme + glassmorphism funciona. Ícone AlertTriangle em vermelho (correto no dark theme).
+
+### HU-03: Remover credenciais Firebase do histórico Git
 
 **Como** administrador do sistema, **eu quero** que as credenciais Firebase não estejam no histórico do Git, **para** evitar acesso não autorizado ao banco de dados.
 
@@ -80,6 +85,8 @@
 **Prioridade**: Alta | **Estimativa**: S | **Status**: Concluída ✅
 
 > **Sprint 1**: Todos os 5 critérios de aceite validados. Transação atômica com `runTransaction` protege o documento. **Contexto**: edições concorrentes na mesma semana/mesmo casal seguem last-write-wins — o modelo de dados salva a semana inteira, não checkboxes individuais.
+
+### HU-05: Implementar testes automatizados
 
 **Como** desenvolvedor, **eu quero** ter uma suíte de testes automatizados, **para** poder refatorar e evoluir o código com confiança.
 
@@ -338,11 +345,264 @@
 
 ---
 
+## 🔵 EIXO 4 — IDENTIDADE VISUAL
+
+---
+
+### HU-20: Nova identidade visual do app
+
+**Como** líder de turma, **eu quero** uma nova identidade visual para o app, **para** transmitir profissionalismo e alinhamento com a marca do ministério.
+
+**Critérios de Aceite**:
+1. Aplicar paleta de cores oficial do 2=1 Brasil no design system:
+   - 🔵 **Primária:** `#214991` (azul escuro) — headers, botões, títulos
+   - 🟢 **Secundária:** `#44C1D7` (ciano/teal) — hover, ícones, badges
+   - 🟡 **Destaque:** `#FFC801` (dourado) — acentos, detalhes, logo
+   - 🔵 **Fundo claro:** `#ECF9FB` (azul claro) — cards e seções
+   - ⚪ **Texto/background:** `#FFFFFF` (branco)
+2. Inserir logotipo no header e na tela de login com duas alianças douradas (`#FFC801`) e texto "Casados Para Sempre" em azul escuro (`#214991`)
+3. Atualizar ícone PWA e manifest com a nova identidade
+4. Garantir contraste e acessibilidade (WCAG AA) com as novas cores no dark theme
+5. Atualizar variáveis CSS mantendo a consistência do design system glassmorphism
+
+**Prioridade**: Média | **Estimativa**: M | **Status**: Backlog
+
+> **Design aprovado pelo usuário em 17/06/2026.** Logo: duas alianças douradas entrelaçadas com texto "Casados Para Sempre" (fonte Outfit). Paleta extraída do site 2igual1brasil.com.br.
+
+---
+
+## 🟡 EIXO 2 — EVOLUÇÃO
+
+---
+
+### HU-21: Ordenar turmas por data de criação
+
+**Como** líder de turma, **eu quero** que as turmas sejam ordenadas pela data de criação (mais recentes primeiro), **para** encontrar rapidamente a turma que estou acompanhando.
+
+**Critérios de Aceite**:
+1. A listagem de turmas na Home deve ser ordenada por `createdAt` decrescente
+2. Turmas concluídas também devem seguir a mesma ordenação dentro da seção delas
+3. A ordenação deve ser feita via Firestore query (`orderBy('createdAt', 'desc')`)
+4. Manter compatibilidade com a paginação/separação entre ativas e concluídas
+
+**Prioridade**: Alta | **Estimativa**: S | **Status**: Backlog
+
+---
+
+### HU-22: Adicionar foto para cada casal
+
+**Como** líder de turma, **eu quero** adicionar uma foto para cada casal no momento do cadastro, **para** identificá-los visualmente.
+
+**Critérios de Aceite**:
+1. No formulário de cadastro/edição do casal, adicionar campo de upload de foto
+2. A foto deve ser armazenada no Firebase Storage
+3. Exibir preview da foto antes do upload
+4. Suporte para captura via câmera (mobile) e galeria
+5. Tamanho máximo de 5MB por foto
+6. A foto deve ser redimensionada para 400x400px no upload
+7. Exibir placeholder com iniciais do casal quando não houver foto
+8. Opção de remover/alterar a foto existente
+
+**Prioridade**: Alta | **Estimativa**: M | **Status**: Backlog
+
+---
+
+### HU-23: Exibir fotos no ranking
+
+**Como** líder de turma, **eu quero** ver as fotos dos casais no ranking, **para** identificar rapidamente cada participante.
+
+**Critérios de Aceite**:
+1. Cada linha do ranking deve exibir a foto do casal (ou placeholder com iniciais)
+2. A foto deve ter tamanho consistente (40x40px na lista)
+3. Ao clicar na foto, exibir versão ampliada em modal
+4. Ranking deve manter o desempenho mesmo com fotos carregando (lazy loading)
+
+**Prioridade**: Média | **Estimativa**: S | **Status**: Backlog
+
+---
+
+### HU-24: Animação de evolução no ranking
+
+**Como** líder de turma, **eu quero** ver uma animação de sobe/desce no ranking a cada nova semana preenchida, **para** visualizar a evolução das posições dos casais ao longo do tempo.
+
+**Critérios de Aceite**:
+1. Ao navegar entre as semanas, o ranking deve animar as transições de posição
+2. Casais que subiram devem ter indicativo visual (seta verde + nº posições)
+3. Casais que desceram devem ter indicativo visual (seta vermelha + nº posições)
+4. Casais que mantiveram posição devem ter indicativo visual (traço cinza)
+5. A animação deve ser suave (CSS transitions ou Framer Motion)
+6. A seta/número deve aparecer ao lado da posição atual
+7. Deve funcionar tanto no ranking geral quanto nos rankings por categoria
+
+**Prioridade**: Média | **Estimativa**: L | **Status**: Backlog
+
+---
+
+## 🎲 EIXO 5 — VITAMINAS
+
+---
+
+### HU-25: Roleta animada para sortear vitaminas
+
+**Como** líder de turma, **eu quero** uma roleta animada para sortear uma vitamina para cada pessoa do casal (vitamina dele + vitamina dela) a cada aula/semana, **para** engajar os alunos com o sorteio.
+
+**Critérios de Aceite**:
+1. Na tela da turma, adicionar botão "Girar Roleta" para cada aula/semana
+2. Ao clicar, exibir roleta animada com as vitaminas configuradas da semana
+3. A roleta deve sortear **uma vitamina para ele** e **uma vitamina para ela** separadamente
+4. A animação deve durar entre 2-3 segundos com desaceleração natural
+5. Exibir o resultado com destaque visual (confete/toast) após a roleta parar
+6. O resultado do sorteio deve ser salvo automaticamente no Firestore
+7. O líder pode sortear novamente se necessário (com confirmação)
+8. A roleta deve ter as vitaminas da seção editável (HU-26) como opções
+
+**Prioridade**: Alta | **Estimativa**: L | **Status**: Backlog
+
+---
+
+### HU-26: Seção editável de vitaminas da semana
+
+**Como** líder de turma, **eu quero** uma seção editável para gerenciar quais vitaminas estão disponíveis na roleta a cada semana, **para** adaptar os desafios conforme o andamento da turma.
+
+**Critérios de Aceite**:
+1. Na tela de detalhe da turma, adicionar seção "Vitaminas da Semana"
+2. Permitir cadastrar novas vitaminas com nome e descrição
+3. Permitir editar e excluir vitaminas existentes
+4. A lista de vitaminas cadastradas alimenta a roleta (HU-25)
+5. As vitaminas podem ser reaproveitadas entre semanas ou ser únicas por semana
+6. Persistir a configuração no Firestore
+
+**Prioridade**: Alta | **Estimativa**: M | **Status**: Backlog
+
+---
+
+### HU-27: Check individual de execução das vitaminas
+
+**Como** líder de turma, **eu quero** que cada vitamina sorteada tenha check separado para ele e para ela, **para** registrar a execução individual de cada um.
+
+**Critérios de Aceite**:
+1. Na tela de acompanhamento semanal, exibir as vitaminas sorteadas com dois checkboxes: "Ele ✅" e "Ela ✅"
+2. O líder pode marcar/desmarcar cada check individualmente
+3. A pontuação da vitamina deve ser contabilizada por check (0, 1 ou 2 pontos)
+4. O progresso deve ser salvo em tempo real no Firestore
+
+**Prioridade**: Alta | **Estimativa**: S | **Status**: Backlog
+
+---
+
+### HU-28: Aluno acessa histórico de vitaminas
+
+**Como** aluno, **eu quero** acessar o histórico de vitaminas sorteadas para mim e ver quais já foram cumpridas, **para** acompanhar meu próprio desempenho.
+
+**Critérios de Aceite**:
+1. Criar tela/perfil do aluno com seção "Minhas Vitaminas"
+2. Exibir lista das vitaminas sorteadas por semana
+3. Cada item deve mostrar: semana, vitamina, status (cumprida/pendente)
+4. Ordenar da mais recente para a mais antiga
+
+**Prioridade**: Média | **Estimativa**: S | **Status**: Backlog
+
+---
+
+## ⏳ EIXO 6 — FUTURO (A ESPECIFICAR)
+
+---
+
+### HU-29: Login com papéis (aluno/co-líder com visões diferentes)
+
+**Como** aluno ou co-líder, **eu quero** acessar o app com uma visão adaptada ao meu papel, **para** ver apenas as funcionalidades que me interessam.
+
+**Critérios de Aceite**:
+> *A serem especificados*
+
+**Prioridade**: Média | **Estimativa**: XL | **Status**: Backlog ⏳
+
+---
+
+### HU-30: Alertas e lembretes de atividades e vitaminas
+
+**Como** líder de turma, **eu quero** receber alertas e lembretes sobre atividades e vitaminas pendentes, **para** não esquecer de acompanhar a turma.
+
+**Critérios de Aceite**:
+> *A serem especificados*
+
+**Prioridade**: Média | **Estimativa**: L | **Status**: Backlog ⏳
+
+---
+
+## 🗺️ Roadmap — Planejamento de Sprints
+
+### Sprint 3 — Identidade Visual + Ordenação + Fotos 🎨
+
+| HU | Descrição | Estimativa |
+|----|-----------|:----------:|
+| HU-21 | Ordenar turmas por data (mais recentes primeiro) | 🟢 S |
+| HU-20 | Nova identidade visual (cores + logo) | 🟡 M |
+| HU-22 | Foto para cada casal (upload Firebase Storage) | 🟡 M |
+| HU-23 | Fotos no ranking | 🟢 S |
+| **Total** | | **≈ 5 pontos** |
+
+> **Justificativa:** HU-22 é pré-requisito da HU-23. HU-20 e HU-21 são independentes e podem rodar em paralelo.
+
+---
+
+### Sprint 4 — Vitamina da Semana 🎰
+
+| HU | Descrição | Estimativa |
+|----|-----------|:----------:|
+| HU-25 | Roleta animada para sortear vitaminas | 🔴 L |
+| HU-26 | Seção editável de vitaminas da semana | 🟡 M |
+| HU-27 | Check individual (dele + dela) por vitamina | 🟢 S |
+| HU-28 | Aluno acessa histórico de vitaminas | 🟢 S |
+| **Total** | | **≈ 7 pontos** |
+
+> **Justificativa:** HU-25 e HU-26 são as peças centrais. HU-27 e HU-28 dependem delas. A roleta animada é a mais complexa (L) e dá o maior valor visual.
+
+---
+
+### Sprint 5 — Animação do Ranking 📈
+
+| HU | Descrição | Estimativa |
+|----|-----------|:----------:|
+| HU-24 | Animação sobe/desce do ranking semana a semana | 🔴 L |
+| **Total** | | **≈ 5 pontos** |
+
+> **Justificativa:** História independente. Pode ser combinada com ajustes finos que surgirem dos sprints anteriores.
+
+---
+
+### Sprint 6+ — Futuro
+
+| HU | Descrição | Status |
+|----|-----------|:------:|
+| HU-29 | Login com papéis (aluno/co-líder) | ⏳ A especificar |
+| HU-30 | Alertas e lembretes de atividades/vitaminas | ⏳ A especificar |
+| HU-05 | Testes automatizados | Backlog |
+| HU-06 | Extrair inline styles | Backlog |
+| HU-11 | Sistema de notificações real | Backlog |
+| HU-12 | Completar PWA | Backlog |
+| HU-13 | Notificações push | Backlog |
+| HU-14 | RBAC | Backlog |
+| HU-15 | Cloud Functions | Backlog |
+| HU-16 | Repository Pattern | Backlog |
+| HU-17 | Relatórios | Backlog |
+| HU-18 | Suporte offline | Backlog |
+| HU-19 | Reset de senha e registro | Backlog |
+
+---
+
 ## 📊 Resumo
 
-| Eixo | Total | S | M | L | XL | Concluídas |
-|---|---|---|---|---|---|---|
-| 🔴 Estabilização | 7 | 3 | 2 | 1 | 0 | **7/7 ✅** |
-| 🟡 Evolução | 6 | 1 | 2 | 2 | 1 | 1/6 |
-| 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0/6 |
-| **Total** | **19** | **4** | **5** | **6** | **3** | **8/19 (42%)** |
+| Eixo | Total | S | M | L | XL | ⏳ | Concluídas |
+|---|---|---|---|---|---|---|---|
+| 🔴 Estabilização | 7 | 3 | 2 | 1 | 0 | 0 | **7/7 ✅** |
+| 🟡 Evolução | 4 | 1 | 1 | 1 | 0 | 0 | 3/4 |
+| 🔵 Identidade Visual | 1 | 0 | 1 | 0 | 0 | 0 | 0/1 |
+| 🎲 Vitaminas | 4 | 2 | 1 | 1 | 0 | 0 | 0/4 |
+| 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0 | 0/6 |
+| ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 0/2 |
+| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **10/24 (42%)** |
+
+> **Sprint atual:** `sprint/2-gestao-casais` (encerrado)  
+> **Próximo sprint:** Sprint 3 — branch a criar a partir de `master`  
+> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 75%
