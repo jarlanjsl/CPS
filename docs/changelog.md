@@ -7,6 +7,52 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [Sprint 4] - 2026-06-17
+
+### Added
+
+- Sistema completo de Vitaminas da Semana com catálogo editável, roleta animada, check individual e histórico (HU-25, HU-26, HU-27, HU-28)
+- Catálogo de vitaminas embutido em `turmas.vitaminas: Record<string, Vitamina>` com CRUD completo (HU-26)
+  - `dbService`: addVitamina, updateVitamina, deleteVitamina, setVitaminaSemanas, getVitaminas, getVitaminasDaSemana
+  - Componente `VitaminasSection.tsx` com listagem, modais de cadastro/edição, toggle de semanas ativas (chips 1-14)
+  - Vitaminas reaproveitáveis entre semanas ou únicas por semana (campo `semanas: number[]`)
+- Roleta animada para sortear vitaminas com CSS puro (HU-25)
+  - Componente `RoletaVitaminas.tsx`: roleta circular com setores (conic-gradient), animação `transform: rotate()` + `cubic-bezier(0.17, 0.67, 0.3, 0.99)` (2.5s)
+  - Componente `SorteioVitaminasModal.tsx`: duas roletas independentes (Ele e Ela), confete via `canvas-confetti`, save automático
+  - `dbService.sortearVitaminas`: grava sorteio via `runTransaction` em `casais.semanas[semanaId].sorteioVitaminas` com snapshot denormalizado
+  - Botão "Girar Roleta" integrado em cada card de semana em `TurmaDetail.tsx`
+  - Dependência `canvas-confetti` adicionada
+- Check individual de execução das vitaminas (Ele ✅ / Ela ✅) (HU-27)
+  - `dbService.saveVitaminaCheck`: save em tempo real via `runTransaction`, atualiza apenas o check da pessoa preservando o snapshot
+  - `Acompanhamento.tsx`: card "Vitaminas Sorteadas" com checkboxes individuais por pessoa (real-time)
+  - `Desempenho.tsx`: categoria VITAMINA agora soma 0/1/2 pontos (era 0/1)
+- Tela de histórico de vitaminas do aluno (HU-28)
+  - Página `MinhasVitaminas.tsx` com lista ordenada (mais recente → mais antiga) e badges de status (Cumprida/Pendente/Não sorteada)
+  - `dbService.getHistoricoVitaminas`: projeção do documento do casal (sem nova collection)
+  - Rota `/aluno/:casalId/vitaminas` em `App.tsx`
+  - Botão "Histórico de Vitaminas" nos cards de casal em `TurmaDetail.tsx`
+- ADR-004: catálogo e sorteio de vitaminas via embedding (estende ADR-002)
+
+### Changed
+
+- `db.ts`: Interfaces `Vitamina`, `VitaminaSorteio`, `SorteioVitaminas` adicionadas; `SemanaCheck` estendida com `sorteioVitaminas?` e `vitaminas?` (deprecated); `Turma` estendida com `vitaminas?`
+- `db.ts`: `saveChecklist` atualizado com nova fórmula de pontuação (vitamina vale 0/1/2 em vez de 0/1) + branch legacy `else if (sem.vitaminas)` para compat retroativa; preserva `sorteioVitaminas` ao salvar (merge em vez de clobber)
+- `db.ts`: `sortearVitaminas` recalcula `pontuacaoTotal` com a mesma fórmula canônica
+- `Desempenho.tsx`: categoria VITAMINA soma 0/1/2 pts com branch legacy; máx por categoria VITAMINA agora 28 pts (era 14)
+- `Acompanhamento.tsx`: checkbox "Vitaminas Feitas" (boolean) substituído pelo card "Vitaminas Sorteadas" com checks individuais
+- `architecture.md`: modelo de dados atualizado (Vitamina, SorteioVitaminas, VitaminaSorteio); pontuação máxima 70 pts (era 56); ADR-004 adicionado
+- Pontuação máxima por semana: 5 pts (era 4); pontuação máxima por casal: 70 pts (era 56)
+
+### Deprecated
+
+- `SemanaCheck.vitaminas: boolean` — campo deprecated (mantido para compat retroativa com semanas gravadas antes do Sprint 4). Remoção prevista para Sprint 6+.
+
+### Security
+
+- Sem alteração nas regras do Firestore — embedding em `turmas.vitaminas` e `casais.semanas.sorteioVitaminas` é coberto pelas regras existentes de `turmas/{id}` e `casais/{id}`
+
+---
+
 ## [Sprint 3] - 2026-06-17
 
 ### Added

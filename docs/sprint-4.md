@@ -227,30 +227,55 @@ App.tsx                                       ✗     ← só HU-28
 
 ## 🏁 Sprint Review
 
-> *A ser preenchido ao final do sprint (REGRA 7).*
-
-**Data:** ___/___/______
+**Data:** 17/06/2026
 
 **Histórias concluídas:**
-- [ ] HU-26 — Seção editável de vitaminas da semana
-- [ ] HU-25 — Roleta animada para sortear vitaminas
-- [ ] HU-27 — Check individual de execução
-- [ ] HU-28 — Aluno acessa histórico de vitaminas
+- [x] HU-26 — Seção editável de vitaminas da semana ✅ (6/6 critérios)
+- [x] HU-25 — Roleta animada para sortear vitaminas ✅ (8/8 critérios)
+- [x] HU-27 — Check individual de execução ✅ (4/4 critérios)
+- [x] HU-28 — Aluno acessa histórico de vitaminas ✅ (4/4 critérios)
 
-**QA:** ___/___ aprovadas
+**QA:** 4/4 histórias aprovadas ✅ (22/22 critérios de aceite atendidos)
+
+**Métricas:**
+- Commits: 6 (T0 + 4 features + correção doc HU-20)
+- Merges: 4 (HU-26, HU-25, HU-27, HU-28)
+- Conflitos resolvidos: 3 (db.ts x2, TurmaDetail.tsx x1)
+- Novos arquivos: 6 (VitaminasSection, RoletaVitaminas, SorteioVitaminasModal, MinhasVitaminas, 3 CSS)
+- Novos métodos dbService: 8 (addVitamina, updateVitamina, deleteVitamina, setVitaminaSemanas, getVitaminas, getVitaminasDaSemana, sortearVitaminas, saveVitaminaCheck, getHistoricoVitaminas)
+- Nova dependência: canvas-confetti
+- Build: passando (tsc 0 erros, vite build OK)
 
 **Lições aprendidas:**
-> *A ser preenchido.*
+- O que deu bem:
+  - Tech Lead commitou T0 (interfaces) antes de despachar especialistas — base sólida para ambos os lados
+  - Rodada 1 e Rodada 2 em paralelo dentro de cada rodada — economia de tempo
+  - Embedding (sem novas collections) funcionou perfeitamente — zero mudança nas regras Firestore
+  - Fórmula de pontuação canônica compartilhada entre 4 pontos (saveChecklist, sortearVitaminas, saveVitaminaCheck, Desempenho) — consistência garantida
+  - QA encontrou zero bugs bloqueantes em ambas as rodadas
+  - saveChecklist preserva sorteioVitaminas com merge (spread) em vez de clobber — coexistência real-time + Salvar funciona
+- O que melhorar:
+  - Concorrência de agentes no mesmo workspace causou troca de branch sob o desenvolvedor da HU-27 (recuperado, mas gera risco)
+  - Conflitos de merge em db.ts aconteceram em ambas as rodadas — agents adicionam métodos ao final do objeto
+  - Prop `key` na interface do RoletaVitaminas é anti-pattern React (não bloqueante, mas dívida técnica)
 
 ## 🔄 Retrospectiva
 
-> *A ser preenchida ao final do sprint.*
-
 ### O que funcionou
-> *A ser preenchido.*
+- 🟢 **T0 do Tech Lead**: commitar interfaces antes de despachar especialistas evitou divergência de tipos
+- 🟢 **Embedding sobre subcollection**: zero mudança nas regras Firestore, transação atômica cobre sorteio + pontuação
+- 🟢 **Fórmula canônica de pontuação**: mesma lógica em 4 pontos (saveChecklist, sortearVitaminas, saveVitaminaCheck, Desempenho) — QA validou consistência
+- 🟢 **Snapshot denormalizado no sorteio**: histórico preserva nome/descrição mesmo se a vitamina for editada depois
+- 🟢 **Merge preserva sorteioVitaminas**: saveChecklist faz spread merge, não clobber — coexistência de fluxos real-time + Salvar
+- 🟢 **QA rigoroso em 2 rodadas**: 22/22 critérios validados, zero bugs bloqueantes
 
 ### O que melhorar
-> *A ser preenchido.*
+- 🔴 **Concorrência de agentes no workspace**: dois agentes despachados em paralelo compartilham o mesmo working directory. O agente da HU-28 fez checkout que afetou o agente da HU-27. Mitigação: despachar agentes paralelos em workdirs separados, ou serializar quando há risco de conflito
+- 🟡 **Conflitos recorrentes em db.ts**: ambas as rodadas tiveram conflito em db.ts (métodos adicionados ao final). Mitigação: tech-lead poderia commitar stubs de métodos vazios no T0, e os agentes apenas preenchem o corpo
+- 🟡 **Prop `key` em interface React**: anti-pattern não bloqueante mas deve ser corrigido em sprint futuro
 
 ### Ações para o próximo sprint
-> *A ser preenchido.*
+1. Avaliar separação de workdirs para agentes paralelos (ou serializar quando há sobreposição de arquivos)
+2. Considerar commit de stubs de métodos no T0 para reduzir conflitos de merge
+3. Corrigir prop `key` na interface do RoletaVitaminas (task técnica menor)
+4. Considerar testes automatizados para dbService (dívida técnica apontada pelo QA — HU-05 no backlog)

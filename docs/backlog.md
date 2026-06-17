@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
 > Última atualização: 17/06/2026
-> Versão: 5.0
+> Versão: 6.0
 > Responsável: Agile Master
 
 ---
@@ -20,6 +20,7 @@
 | 17/06/2026 | 4.0 | Sprint 3 concluído: HU-20, HU-21, HU-22, HU-23 aprovadas pelo QA |
 | 17/06/2026 | 4.1 | Correção doc HU-20: paleta 2=1 Brasil revertida para original (indigo) por decisão do usuário; apenas Logo.tsx permaneceu |
 | 17/06/2026 | 5.0 | Sprint 4 iniciado: HU-25, HU-26, HU-27, HU-28 em progresso (Vitaminas da Semana) |
+| 17/06/2026 | 6.0 | Sprint 4 concluído: HU-25, HU-26, HU-27, HU-28 aprovadas pelo QA (22/22 critérios) |
 
 ---
 
@@ -465,9 +466,9 @@
 7. O líder pode sortear novamente se necessário (com confirmação)
 8. A roleta deve ter as vitaminas da seção editável (HU-26) como opções
 
-**Prioridade**: Alta | **Estimativa**: L | **Status**: Em Progresso 🔄
+**Prioridade**: Alta | **Estimativa**: L | **Status**: Concluída ✅
 
-> **Sprint 4**: Roleta animada com CSS puro (cubic-bezier) + canvas-confetti. Sorteia uma vitamina para ele e uma para ela. Salva via transação Firestore em `casais.semanas[semanaId].sorteioVitaminas`.
+> **Sprint 4**: Roleta animada com CSS puro (cubic-bezier) + canvas-confetti. Sorteia uma vitamina para ele e uma para ela. Salva via transação Firestore em `casais.semanas[semanaId].sorteioVitaminas`. Componentes `RoletaVitaminas.tsx` + `SorteioVitaminasModal.tsx`. QA: 8/8 critérios aprovados.
 
 ---
 
@@ -483,9 +484,9 @@
 5. As vitaminas podem ser reaproveitadas entre semanas ou ser únicas por semana
 6. Persistir a configuração no Firestore
 
-**Prioridade**: Alta | **Estimativa**: M | **Status**: Em Progresso 🔄
+**Prioridade**: Alta | **Estimativa**: M | **Status**: Concluída ✅
 
-> **Sprint 4**: Catálogo de vitaminas embutido em `turmas.vitaminas: Record<string, Vitamina>`. CRUD via `dbService` com `updateDoc` dot notation. Componente `VitaminasSection.tsx` com chips toggle de semanas ativas.
+> **Sprint 4**: Catálogo de vitaminas embutido em `turmas.vitaminas: Record<string, Vitamina>`. CRUD via `dbService` com `updateDoc` dot notation. Componente `VitaminasSection.tsx` com chips toggle de semanas ativas. QA: 6/6 critérios aprovados.
 
 ---
 
@@ -499,9 +500,9 @@
 3. A pontuação da vitamina deve ser contabilizada por check (0, 1 ou 2 pontos)
 4. O progresso deve ser salvo em tempo real no Firestore
 
-**Prioridade**: Alta | **Estimativa**: S | **Status**: Em Progresso 🔄
+**Prioridade**: Alta | **Estimativa**: S | **Status**: Concluída ✅
 
-> **Sprint 4**: Checks individuais `sorteioVitaminas.ele.check` e `.ela.check` (0/1/2 pontos). Save real-time via transação. Pontuação máxima por semana muda de 4 para 5.
+> **Sprint 4**: Checks individuais `sorteioVitaminas.ele.check` e `.ela.check` (0/1/2 pontos). Save real-time via `dbService.saveVitaminaCheck` (transação). Card "Vitaminas Sorteadas" em Acompanhamento. Categoria VITAMINA no ranking atualizada. Pontuação máxima por semana: 5 (era 4). QA: 4/4 critérios aprovados.
 
 ---
 
@@ -515,9 +516,9 @@
 3. Cada item deve mostrar: semana, vitamina, status (cumprida/pendente)
 4. Ordenar da mais recente para a mais antiga
 
-**Prioridade**: Média | **Estimativa**: S | **Status**: Em Progresso 🔄
+**Prioridade**: Média | **Estimativa**: S | **Status**: Concluída ✅
 
-> **Sprint 4**: Histórico é projeção do documento do casal — percorre `semanas` em ordem desc. Tela `MinhasVitaminas.tsx` na rota `/aluno/:casalId/vitaminas`. Sem nova collection.
+> **Sprint 4**: Histórico é projeção do documento do casal — `dbService.getHistoricoVitaminas` percorre `semanas` em ordem desc. Tela `MinhasVitaminas.tsx` na rota `/aluno/:casalId/vitaminas` com badges de status. Sem nova collection. QA: 4/4 critérios aprovados.
 
 ---
 
@@ -563,17 +564,17 @@
 
 ---
 
-### Sprint 4 — Vitamina da Semana 🎰 (EM ANDAMENTO)
+### Sprint 4 — Vitamina da Semana 🎰 (CONCLUÍDO ✅)
 
 | HU | Descrição | Estimativa | Status |
 |----|-----------|:----------:|:------:|
-| HU-26 | Seção editável de vitaminas da semana | 🟡 M | Em Progresso |
-| HU-25 | Roleta animada para sortear vitaminas | 🔴 L | Em Progresso |
-| HU-27 | Check individual (dele + dela) por vitamina | 🟢 S | Em Progresso |
-| HU-28 | Aluno acessa histórico de vitaminas | 🟢 S | Em Progresso |
-| **Total** | | **≈ 7 pontos** | |
+| HU-26 | Seção editável de vitaminas da semana | 🟡 M | ✅ Concluída |
+| HU-25 | Roleta animada para sortear vitaminas | 🔴 L | ✅ Concluída |
+| HU-27 | Check individual (dele + dela) por vitamina | 🟢 S | ✅ Concluída |
+| HU-28 | Aluno acessa histórico de vitaminas | 🟢 S | ✅ Concluída |
+| **Total** | | **≈ 7 pontos** | **4/4 ✅** |
 
-> **Justificativa:** HU-26 é pré-requisito do catálogo da HU-25. HU-27 e HU-28 dependem do sorteio da HU-25. Execução em 2 rodadas: Rodada 1 (HU-26 + HU-25), Rodada 2 (HU-27 + HU-28). Tech Lead commita interfaces (T0) antes de despachar especialistas.
+> **Justificativa:** HU-26 é pré-requisito do catálogo da HU-25. HU-27 e HU-28 dependem do sorteio da HU-25. Execução em 2 rodadas: Rodada 1 (HU-26 + HU-25), Rodada 2 (HU-27 + HU-28). Tech Lead commita interfaces (T0) antes de despachar especialistas. QA: 22/22 critérios aprovados.
 
 ---
 
@@ -615,12 +616,11 @@
 | 🔴 Estabilização | 7 | 3 | 2 | 1 | 0 | 0 | **7/7 ✅** |
 | 🟡 Evolução | 4 | 1 | 1 | 1 | 0 | 0 | **4/4 ✅** |
 | 🔵 Identidade Visual | 1 | 0 | 1 | 0 | 0 | 0 | **1/1 ✅** |
-| 🎲 Vitaminas | 4 | 2 | 1 | 1 | 0 | 0 | 0/4 |
+| 🎲 Vitaminas | 4 | 2 | 1 | 1 | 0 | 0 | **4/4 ✅** |
 | 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0 | 0/6 |
 | ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 0/2 |
-| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **14/24 (58%)** |
+| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **18/24 (75%)** |
 
-> **Sprint atual:** `sprint/4-vitaminas` (em andamento)  
+> **Sprint atual:** `sprint/4-vitaminas` (encerrado)  
 > **Próximo sprint:** Sprint 5 — Animação do Ranking 📈  
-> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100%  
-> **Sprint 4 em progresso:** 🎲 Vitaminas — HU-25, HU-26, HU-27, HU-28
+> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100%
