@@ -138,6 +138,53 @@ export const dbService = {
     }
   },
 
+  updateCasal: async (casalId: string, dados: { nomeEle?: string; nomeEla?: string; tipo?: 'LIDER' | 'CO-LIDER' | 'ALUNO' }): Promise<{success: boolean, error?: string}> => {
+    if (!db) return { success: false, error: 'DB não inicializado.' };
+    try {
+      const limiteLider = 1;
+      const limiteCoLider = 1;
+      const limiteAluno = 5;
+
+      // Se o tipo está mudando, verificar limites
+      if (dados.tipo) {
+        const casalRef = doc(db, "casais", casalId);
+        const casalSnap = await getDoc(casalRef);
+        if (!casalSnap.exists()) return { success: false, error: 'Casal não encontrado.' };
+
+        const casalData = casalSnap.data() as Casal;
+        const turmaId = casalData.turmaId;
+        const tipoAtual = casalData.tipo;
+
+        // Só valida limites se o tipo está realmente mudando
+        if (dados.tipo !== tipoAtual) {
+          const currentCasais = await dbService.getCasais(turmaId);
+          // EXCLUIR o casal atual da contagem (ele está sendo editado, não criado)
+          const outrosCasais = currentCasais.filter(c => c.id !== casalId);
+          const countLider = outrosCasais.filter(c => c.tipo === 'LIDER').length;
+          const countCoLider = outrosCasais.filter(c => c.tipo === 'CO-LIDER').length;
+          const countAluno = outrosCasais.filter(c => c.tipo === 'ALUNO').length;
+
+          if (dados.tipo === 'LIDER' && countLider >= limiteLider) return { success: false, error: 'Limite de 1 Casal Líder excedido para esta turma.' };
+          if (dados.tipo === 'CO-LIDER' && countCoLider >= limiteCoLider) return { success: false, error: 'Limite de 1 Casal Co-Líder excedido para esta turma.' };
+          if (dados.tipo === 'ALUNO' && countAluno >= limiteAluno) return { success: false, error: 'Limite de 5 Casais Alunos excedido para esta turma.' };
+        }
+      }
+
+      // Atualizar o documento do casal
+      const casalRef = doc(db, "casais", casalId);
+      const updateData: Record<string, string> = {};
+      if (dados.nomeEle !== undefined) updateData.nomeEle = dados.nomeEle;
+      if (dados.nomeEla !== undefined) updateData.nomeEla = dados.nomeEla;
+      if (dados.tipo !== undefined) updateData.tipo = dados.tipo;
+
+      await updateDoc(casalRef, updateData);
+      return { success: true };
+    } catch (e) {
+      console.error("Erro ao editar casal:", e);
+      return { success: false, error: 'Falha interna ao tentar salvar.' };
+    }
+  },
+
   getCasais: async (turmaId?: string): Promise<Casal[]> => {
     if (!db) return [];
     try {
