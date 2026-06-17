@@ -7,6 +7,44 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [Sprint 3] - 2026-06-17
+
+### Added
+
+- Ordenação de turmas por data de criação (mais recentes primeiro) via `orderBy('createdAt', 'desc')` (HU-21)
+- Nova identidade visual com paleta de cores oficial 2=1 Brasil (HU-20)
+  - Primária: `#214991` (azul escuro), Secundária: `#44C1D7` (ciano), Destaque: `#FFC801` (dourado)
+  - Logotipo SVG com duas alianças douradas + texto "Casados Para Sempre"
+  - Componente `Logo.tsx` reutilizável
+- Upload de foto para cada casal no Firebase Storage com redimensionamento 400×400 via Canvas (HU-22)
+  - Serviço `storage.ts` com upload, delete e validação de 5MB
+  - Componente `AvatarCasado.tsx` com foto ou placeholder gradiente com iniciais
+  - Preview antes do upload, suporte a câmera mobile
+- Exibição de fotos dos casais no ranking com lazy loading e modal ampliado (HU-23)
+- Script de migração `migrateCreatedAt.ts` para adicionar campo `createdAt` em turmas existentes
+- Arquivo `migrate.html` para execução facilitada da migração via navegador
+
+### Changed
+
+- `db.ts`: Método `getTurmas` agora usa `orderBy('createdAt', 'desc')`; `createTurma` salva `createdAt`
+- `db.ts`: Interface `Casal` ganhou campo `fotoUrl?`; `createCasal` agora retorna `id`
+- `firebase.ts`: Adicionado `getStorage` e export `storage`
+- `index.css`: Variáveis CSS atualizadas com nova paleta 2=1 Brasil; adicionado `--accent` e `--bg-light`
+- `Layout.tsx`: Header agora exibe o logotipo `Logo.tsx`
+- `Login.tsx`: Tela de login agora exibe o logotipo
+- `Home.tsx`: Ordenação de turmas refletida automaticamente via Firestore
+- `TurmaDetail.tsx`: Adicionado upload de foto na criação e edição de casais; avatar nos cards
+- `Desempenho.tsx`: Ranking exibe fotos dos casais com lazy loading e modal ampliado
+- `home.css`, `login.css`: Cores atualizadas para nova paleta
+- `index.html`: `theme-color: #214991`
+- `manifest.json`: Cores e nome atualizados
+
+### Security
+
+- Firebase Storage configurado com regras de produção (apenas autenticados, máx 5MB, apenas imagens)
+
+---
+
 ## [Sprint 2] - 2026-06-17
 
 ### Added

@@ -76,10 +76,42 @@ HU-22 ─── pré-requisito → HU-23
 
 ## 🏁 Sprint Review
 
-*[A ser preenchido ao final do sprint]*
+**Data:** 17/06/2026
 
----
+**Histórias concluídas:**
+- [x] HU-21 — Ordenar turmas por data de criação ✅
+- [x] HU-20 — Nova identidade visual (cores + logo) ✅
+- [x] HU-22 — Adicionar foto para cada casal (Firebase Storage) ✅
+- [x] HU-23 — Exibir fotos no ranking ✅
+
+**QA:** 4/4 histórias aprovadas ✅
+
+**Lições aprendidas:**
+- O que deu bem:
+  - 3 agentes rodando em paralelo na Rodada 1 (HU-20, HU-21, HU-22) — economia de tempo significativa
+  - Firebase Storage configurado e funcionando com redimensionamento Canvas
+  - Componente `AvatarCasado` reutilizado na HU-23 sem retrabalho
+  - Design da nova identidade visual bem recebido
+- O que melhorar:
+  - Agentes não commitaram código nas branches corretas — todo o código ficou no working directory
+  - Necessário verificar commits dos agentes antes de dar como concluído
+  - QA encontrou arquivo `migrateCreatedAt.ts` ausente (commit perdido)
+  - Processo de merge manual após agentes poderia ser mais automatizado
 
 ## 🔄 Retrospectiva
 
-*[A ser preenchida ao final do sprint]*
+### O que funcionou
+- 🟢 **Paralelismo real**: HU-20, HU-21 e HU-22 rodaram simultaneamente
+- 🟢 **Reuso de componente**: `AvatarCasado` criado na HU-22 e reusado na HU-23 sem alterações
+- 🟢 **QA rigoroso**: Encontrou problemas de commit que passariam despercebidos
+- 🟢 **Pré-requisitos bem definidos**: Storage e migração resolvidos antes da implementação
+
+### O que melhorar
+- 🔴 **Commits dos agentes**: Agentes precisam commitar nas branches corretas, não apenas deixar no working directory
+- 🟡 **Verificação pós-agente**: Agile Master deve validar commits antes de liberar merge
+- 🟡 **Documentação de dependências**: HU-22 precisou de Firebase Storage (upgrade Blaze) — antecipar em sprints futuros
+
+### Ações para o próximo sprint
+1. Adicionar checklist de verificação: "Agente commitou na branch correta?"
+2. Validar build dos agentes após cada implementação
+3. Documentar no plano do sprint se há dependências de infra (ex: ativar serviço no Firebase Console)

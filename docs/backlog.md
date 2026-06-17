@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
 > Última atualização: 17/06/2026
-> Versão: 3.0
+> Versão: 4.0
 > Responsável: Agile Master
 
 ---
@@ -17,6 +17,7 @@
 | 17/06/2026 | 1.4 | Sprint 2 concluído: HU-03, HU-08, HU-09, HU-10 entregues |
 | 17/06/2026 | 2.0 | Sprint 2 validado pelo QA: 4/4 aprovadas |
 | 17/06/2026 | 3.0 | Adicionadas HU-20 a HU-30 (identidade visual, fotos, ranking animado, vitaminas) |
+| 17/06/2026 | 4.0 | Sprint 3 concluído: HU-20, HU-21, HU-22, HU-23 aprovadas pelo QA |
 
 ---
 
@@ -365,9 +366,9 @@
 4. Garantir contraste e acessibilidade (WCAG AA) com as novas cores no dark theme
 5. Atualizar variáveis CSS mantendo a consistência do design system glassmorphism
 
-**Prioridade**: Média | **Estimativa**: M | **Status**: Backlog
+**Prioridade**: Média | **Estimativa**: M | **Status**: Concluída ✅
 
-> **Design aprovado pelo usuário em 17/06/2026.** Logo: duas alianças douradas entrelaçadas com texto "Casados Para Sempre" (fonte Outfit). Paleta extraída do site 2igual1brasil.com.br.
+> **Sprint 3**: Paleta de cores oficial 2=1 Brasil aplicada, logotipo SVG criado, manifest.json e index.html atualizados. Logo com alianças douradas + texto "Casados Para Sempre". Design aprovado pelo usuário em 17/06/2026.
 
 ---
 
@@ -385,7 +386,9 @@
 3. A ordenação deve ser feita via Firestore query (`orderBy('createdAt', 'desc')`)
 4. Manter compatibilidade com a paginação/separação entre ativas e concluídas
 
-**Prioridade**: Alta | **Estimativa**: S | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: S | **Status**: Concluída ✅
+
+> **Sprint 3**: `getTurmas()` agora usa `orderBy('createdAt', 'desc')`. Migration criada para turmas existentes.
 
 ---
 
@@ -403,7 +406,9 @@
 7. Exibir placeholder com iniciais do casal quando não houver foto
 8. Opção de remover/alterar a foto existente
 
-**Prioridade**: Alta | **Estimativa**: M | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: M | **Status**: Concluída ✅
+
+> **Sprint 3**: Upload de foto para Firebase Storage (`casais/{casalId}/foto.jpg`) com redimensionamento 400×400 via Canvas. Componente `AvatarCasado` com foto ou placeholder gradiente. Preview antes do upload. Validação de 5MB. Storage em modo production.
 
 ---
 
@@ -417,7 +422,9 @@
 3. Ao clicar na foto, exibir versão ampliada em modal
 4. Ranking deve manter o desempenho mesmo com fotos carregando (lazy loading)
 
-**Prioridade**: Média | **Estimativa**: S | **Status**: Backlog
+**Prioridade**: Média | **Estimativa**: S | **Status**: Concluída ✅
+
+> **Sprint 3**: Fotos dos casais exibidas no ranking com lazy loading. Clique na foto abre modal ampliado. Placeholder com iniciais quando não há foto.
 
 ---
 
@@ -594,15 +601,15 @@
 ## 📊 Resumo
 
 | Eixo | Total | S | M | L | XL | ⏳ | Concluídas |
-|---|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|---|---|
 | 🔴 Estabilização | 7 | 3 | 2 | 1 | 0 | 0 | **7/7 ✅** |
-| 🟡 Evolução | 4 | 1 | 1 | 1 | 0 | 0 | 3/4 |
-| 🔵 Identidade Visual | 1 | 0 | 1 | 0 | 0 | 0 | 0/1 |
+| 🟡 Evolução | 4 | 1 | 1 | 1 | 0 | 0 | **4/4 ✅** |
+| 🔵 Identidade Visual | 1 | 0 | 1 | 0 | 0 | 0 | **1/1 ✅** |
 | 🎲 Vitaminas | 4 | 2 | 1 | 1 | 0 | 0 | 0/4 |
 | 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0 | 0/6 |
 | ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 0/2 |
-| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **10/24 (42%)** |
+| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **14/24 (58%)** |
 
-> **Sprint atual:** `sprint/2-gestao-casais` (encerrado)  
-> **Próximo sprint:** Sprint 3 — branch a criar a partir de `master`  
-> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 75%
+> **Sprint atual:** `sprint/3-identidade-visual` (encerrado)  
+> **Próximo sprint:** Sprint 4 — Vitaminas da Semana 🎰  
+> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100%
