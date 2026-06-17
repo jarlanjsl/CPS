@@ -15,6 +15,7 @@
 | 17/06/2026 | 1.2 | Sprint 2 iniciado: HU-03, HU-08, HU-09, HU-10 em progresso |
 | 17/06/2026 | 1.3 | Sprint 2: HU-08 e HU-10 implementadas e validadas |
 | 17/06/2026 | 1.4 | Sprint 2 concluído: HU-03, HU-08, HU-09, HU-10 entregues |
+| 17/06/2026 | 2.0 | Sprint 2 validado pelo QA: 4/4 aprovadas |
 
 ---
 
@@ -61,7 +62,7 @@
 
 **Prioridade**: Alta | **Estimativa**: M | **Status**: Concluída ✅
 
-> **Sprint 2**: `.env.example` criado, `.gitignore` verificado, README atualizado. Nenhuma credencial real no histórico.
+> **Sprint 2**: `.env.example` criado, `.gitignore` verificado, README atualizado. ✅ Aprovado pelo QA.
 
 ---
 
@@ -163,7 +164,7 @@
 
 **Prioridade**: Alta | **Estimativa**: M | **Status**: Concluída ✅
 
-> **Sprint 2**: Modal com digitação "Excluir" + alerta se Líder/Co-Líder. Ranking atualiza automaticamente.
+> **Sprint 2**: Modal com digitação "Excluir" + alerta se Líder/Co-Líder. Ranking atualiza automaticamente. ✅ Aprovado pelo QA.
 
 ---
 
