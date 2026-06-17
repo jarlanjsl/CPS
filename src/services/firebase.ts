@@ -13,8 +13,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Trava de segurança liberada (configurado com sucesso!)
-export const isFirebaseConfigured = true;
+// Verifica dinamicamente se as credenciais Firebase estão configuradas
+export const isFirebaseConfigured = !!(
+  import.meta.env.VITE_FIREBASE_API_KEY &&
+  import.meta.env.VITE_FIREBASE_PROJECT_ID
+);
 
 export const app = isFirebaseConfigured ? initializeApp(firebaseConfig) : null;
 export const auth = app ? getAuth(app) : null;

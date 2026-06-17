@@ -67,7 +67,7 @@ export default function Acompanhamento() {
       }
       alert('Sincronizado! O desempenho de todos os casais foi calculado globalmente.');
       navigate(`/turma/${id}`);
-    } catch (e) {
+    } catch {
       alert('Houve um erro ao tentar salvar localmente.');
     } finally {
       setSaving(false);

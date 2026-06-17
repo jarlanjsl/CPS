@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, query, where, updateDoc, doc, getDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, updateDoc, doc, getDoc, deleteDoc, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface Turma {
@@ -158,36 +158,40 @@ export const dbService = {
   },
 
   // Grava as caixinhas de uma semana pra um casal específico e recalcula os pontos dele.
+  // Usa transação Firestore para evitar race condition quando dois líderes salvam ao mesmo tempo.
   saveChecklist: async (casalId: string, semanaId: string, checklist: SemanaCheck) => {
     if (!db) return;
     try {
       const casalRef = doc(db, "casais", casalId);
-      const casalSnap = await getDoc(casalRef);
-      if (!casalSnap.exists()) return;
 
-      const data = casalSnap.data();
-      const semanas = data.semanas || {};
+      await runTransaction(db, async (transaction) => {
+        const casalSnap = await transaction.get(casalRef);
+        if (!casalSnap.exists()) return;
 
-      // Atualiza o mapa dessa semana especifica
-      semanas[semanaId] = checklist;
+        const data = casalSnap.data();
+        const semanas = { ...(data.semanas || {}) };
 
-      // Recalcular Total Global do Casal (Soma todas as semanas gravadas)
-      let pontuacaoRecalculada = 0;
-      Object.values(semanas).forEach((sem: any) => {
-         if (sem.presenca) pontuacaoRecalculada += 1;
-         if (sem.vitaminas) pontuacaoRecalculada += 1;
-         if (sem.tarefas) pontuacaoRecalculada += 1;
-         if (sem.tarefasExtras) pontuacaoRecalculada += 1;
-      });
+        // Atualiza o mapa dessa semana específica
+        semanas[semanaId] = checklist;
 
-      // Se for líder, podemos chumbamente evitar rank, mas o campo segue gravado
-      await updateDoc(casalRef, {
-        semanas: semanas,
-        pontuacaoTotal: pontuacaoRecalculada
+        // Recalcular Total Global do Casal (Soma todas as semanas gravadas)
+        let pontuacaoRecalculada = 0;
+        Object.values(semanas).forEach((sem: any) => {
+          if (sem.presenca) pontuacaoRecalculada += 1;
+          if (sem.vitaminas) pontuacaoRecalculada += 1;
+          if (sem.tarefas) pontuacaoRecalculada += 1;
+          if (sem.tarefasExtras) pontuacaoRecalculada += 1;
+        });
+
+        // Atualiza atomicamente dentro da transação
+        transaction.update(casalRef, {
+          semanas,
+          pontuacaoTotal: pontuacaoRecalculada
+        });
       });
 
     } catch (e) {
-      console.error("Erro ao gravar semana:", e);
+      console.error("Erro ao gravar semana (transação):", e);
       throw e;
     }
   },

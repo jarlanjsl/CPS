@@ -7,6 +7,7 @@ import Desempenho from './pages/Desempenho';
 import Ajustes from './pages/Ajustes';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import { SoundProvider } from './contexts/SoundContext';
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
@@ -21,7 +22,7 @@ function App() {
             
             {/* Somente exibe o sistema interno se o Firebase estiver online e o usuário logado */}
             <Route element={<ProtectedRoute />}>
-              <Route element={<Layout />}>
+              <Route element={<ErrorBoundary><Layout /></ErrorBoundary>}>
                 <Route path="/" element={<Home />} />
                 <Route path="/desempenho" element={<Desempenho />} />
                 <Route path="/ajustes" element={<Ajustes />} />
