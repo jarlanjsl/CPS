@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
 > Última atualização: 17/06/2026
-> Versão: 1.0
+> Versão: 1.1
 > Responsável: Agile Master
 
 ---
@@ -11,6 +11,7 @@
 | Data | Versão | Mudança |
 |---|---|---|
 | 17/06/2026 | 1.0 | Criação inicial do backlog com 19 histórias |
+| 17/06/2026 | 1.1 | Sprint 1 concluído: HU-01, HU-02, HU-04, HU-07 aprovadas |
 
 ---
 
@@ -29,11 +30,9 @@
 4. Após logout, acessar qualquer rota protegida deve redirecionar para Login
 5. Após logout, o botão "Voltar" do navegador não deve permitir acesso às páginas protegidas
 
-**Prioridade**: Alta | **Estimativa**: S | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: S | **Status**: Concluída ✅
 
----
-
-### HU-02: Adicionar Error Boundaries na aplicação
+> **Sprint 1**: Todos os 5 critérios de aceite validados. Logout chama `auth.logout()` antes de navegar com `replace: true`.
 
 **Como** líder de turma, **eu quero** ver uma mensagem de erro amigável quando algo falhar, **para** não ficar preso em uma tela branca sem saber o que aconteceu.
 
@@ -44,11 +43,9 @@
 4. O erro deve ser logado no console para debugging
 5. Error Boundary deve envolver as rotas protegidas e o Layout
 
-**Prioridade**: Alta | **Estimativa**: S | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: S | **Status**: Concluída ✅
 
----
-
-### HU-03: Remover credenciais Firebase do histórico Git
+> **Sprint 1**: Todos os 5 critérios de aceite validados. Fallback com dark theme + glassmorphism funciona. Ícone AlertTriangle em vermelho (correto no dark theme).
 
 **Como** administrador do sistema, **eu quero** que as credenciais Firebase não estejam no histórico do Git, **para** evitar acesso não autorizado ao banco de dados.
 
@@ -74,11 +71,9 @@
 4. Se a transação falhar definitivamente, o usuário deve ser notificado com mensagem de erro
 5. A pontuação total (`pontuacaoTotal`) deve ser recalculada dentro da transação
 
-**Prioridade**: Alta | **Estimativa**: S | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: S | **Status**: Concluída ✅
 
----
-
-### HU-05: Implementar infraestrutura de testes
+> **Sprint 1**: Todos os 5 critérios de aceite validados. Transação atômica com `runTransaction` protege o documento. **Contexto**: edições concorrentes na mesma semana/mesmo casal seguem last-write-wins — o modelo de dados salva a semana inteira, não checkboxes individuais.
 
 **Como** desenvolvedor, **eu quero** ter uma suíte de testes automatizados, **para** poder refatorar e evoluir o código com confiança.
 
@@ -125,11 +120,9 @@
 4. Verificar se não há imports órfãos ou variáveis não utilizadas
 5. O ESLint deve rodar sem warnings após a limpeza
 
-**Prioridade**: Média | **Estimativa**: S | **Status**: Backlog
+**Prioridade**: Média | **Estimativa**: S | **Status**: Concluída ✅
 
----
-
-## 🟡 EIXO 2 — EVOLUÇÃO
+> **Sprint 1**: Todos os 5 critérios de aceite validados. mockDb.ts removido, `isFirebaseConfigured` dinâmico, build sem erros, zero imports órfãos.
 
 ---
 

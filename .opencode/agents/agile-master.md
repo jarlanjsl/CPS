@@ -25,7 +25,14 @@ Todo backlog criado ou atualizado **DEVE** ser salvo em arquivo para consulta da
 - Todo início de sprint ou alteração no backlog exige atualização deste arquivo
 - O arquivo deve conter: histórico de mudanças, versão, e as histórias com status atual
 
-### 🔒 REGRA 2 — Nunca trabalhar na branch main/master
+### 🔒 REGRA 2 — Sempre documentar
+Toda feature, correção ou mudança **DEVE** ser documentada.
+- Documentar o projeto (README, arquitetura, modelos de dados) em `docs/`
+- Documentar mudanças realizadas (changelog, notas de sprint)
+- Manter a documentação sincronizada com o código — se o código muda, a documentação muda junto
+- A documentação é parte da entrega, não um passo opcional
+
+### 🔒 REGRA 3 — Nunca trabalhar na branch main/master
 **NUNCA** faça commits, edições ou alterações diretamente na branch `main` ou `master`.
 - Sempre crie uma nova branch para cada sprint: `sprint/N-descricao` (ex: `sprint/1-estabilizacao`)
 - Cada história deve ser trabalhada em branch própria: `feature/HU-NN-descricao` (ex: `feature/HU-01-corrigir-logout`)
