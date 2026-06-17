@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
 > Última atualização: 17/06/2026
-> Versão: 1.1
+> Versão: 1.2
 > Responsável: Agile Master
 
 ---
@@ -12,6 +12,7 @@
 |---|---|---|
 | 17/06/2026 | 1.0 | Criação inicial do backlog com 19 histórias |
 | 17/06/2026 | 1.1 | Sprint 1 concluído: HU-01, HU-02, HU-04, HU-07 aprovadas |
+| 17/06/2026 | 1.2 | Sprint 2 iniciado: HU-03, HU-08, HU-09, HU-10 em progresso |
 
 ---
 
@@ -56,7 +57,9 @@
 4. As regras de segurança do Firestore devem estar em modo production (não test)
 5. Documentar no README como configurar as variáveis de ambiente
 
-**Prioridade**: Alta | **Estimativa**: M | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: M | **Status**: Em Progresso 🔄
+
+> **Sprint 2**: Branch `feature/HU-03-remover-credenciais` criada. Delegado para devops.
 
 ---
 
@@ -138,7 +141,9 @@
 5. Após salvar, a lista de casais deve ser atualizada sem recarregar a página
 6. O cancelamento deve fechar o modal sem alterações
 
-**Prioridade**: Alta | **Estimativa**: M | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: M | **Status**: Em Progresso 🔄
+
+> **Sprint 2**: Branch `feature/HU-08-editar-casal` criada. Delegado para frontend + backend.
 
 ---
 
@@ -154,7 +159,9 @@
 5. O ranking (Desempenho) deve ser atualizado automaticamente
 6. Se o casal for líder ou co-líder, alertar que a turma ficará sem essa função
 
-**Prioridade**: Alta | **Estimativa**: M | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: M | **Status**: Em Progresso 🔄
+
+> **Sprint 2**: Branch `feature/HU-09-remover-casal` criada. Delegado para frontend + backend.
 
 ---
 
@@ -170,7 +177,9 @@
 5. Turmas concluídas devem ter visual diferenciado (cor/opacidade)
 6. Deve ser possível reabrir uma turma concluída (botão "Reabrir")
 
-**Prioridade**: Média | **Estimativa**: S | **Status**: Backlog
+**Prioridade**: Média | **Estimativa**: S | **Status**: Em Progresso 🔄
+
+> **Sprint 2**: Branch `feature/HU-10-concluir-turma` criada. Delegado para frontend + backend.
 
 ---
 
