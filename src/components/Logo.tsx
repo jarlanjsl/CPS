@@ -9,14 +9,14 @@ export default function Logo({ size = 40, showText = true }: { size?: number; sh
       aria-label="Casados Para Sempre"
       style={{ display: 'inline-block', verticalAlign: 'middle' }}
     >
-      {/* Duas alianças douradas entrelaçadas */}
-      <circle cx="30" cy="30" r="16" fill="none" stroke="#FFC801" strokeWidth="3.5" />
+      {/* Duas alianças entrelaçadas */}
+      <circle cx="30" cy="30" r="16" fill="none" stroke="#F59E0B" strokeWidth="3.5" />
       <circle
         cx="42"
         cy="30"
         r="16"
         fill="none"
-        stroke="#FFC801"
+        stroke="#F59E0B"
         strokeWidth="3.5"
         strokeDasharray="25 75"
         strokeDashoffset="20"
@@ -29,7 +29,7 @@ export default function Logo({ size = 40, showText = true }: { size?: number; sh
           fontFamily="Outfit, sans-serif"
           fontSize="16"
           fontWeight="700"
-          fill="#214991"
+          fill="#059669"
         >
           Casados Para Sempre
         </text>

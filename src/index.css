@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Paleta 2=1 Brasil - Oficial */
-  --primary: #214991;
-  --primary-dark: #1a3d7a;
-  --primary-light: #44C1D7;
-  --accent: #FFC801;
-  --bg-light: #ECF9FB;
+  /* Paleta Esmeralda & Ouro */
+  --primary: #059669;
+  --primary-dark: #047857;
+  --primary-light: #34D399;
+  --accent: #F59E0B;
+  --bg-light: #ECFDF5;
   
   /* Cores de Fundo Modernas (Modo Claro Padrão / Dark Suave) */
   --bg-color: #0f172a;
@@ -86,14 +86,14 @@ h1, h2, h3, h4 {
 }
 
 .gradient-text {
-  background: linear-gradient(to right, #214991, #44C1D7);
+  background: linear-gradient(to right, #059669, #34D399);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .accent-text {
-  background: linear-gradient(to right, #FFC801, #FFD94D);
+  background: linear-gradient(to right, #F59E0B, #FBBF24);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
