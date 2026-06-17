@@ -158,11 +158,10 @@ export const dbService = {
         // Só valida limites se o tipo está realmente mudando
         if (dados.tipo !== tipoAtual) {
           const currentCasais = await dbService.getCasais(turmaId);
-          // EXCLUIR o casal atual da contagem (ele está sendo editado, não criado)
-          const outrosCasais = currentCasais.filter(c => c.id !== casalId);
-          const countLider = outrosCasais.filter(c => c.tipo === 'LIDER').length;
-          const countCoLider = outrosCasais.filter(c => c.tipo === 'CO-LIDER').length;
-          const countAluno = outrosCasais.filter(c => c.tipo === 'ALUNO').length;
+          // Opção B: validação rígida — conta TODOS os casais (incluindo o editado)
+          const countLider = currentCasais.filter(c => c.tipo === 'LIDER').length;
+          const countCoLider = currentCasais.filter(c => c.tipo === 'CO-LIDER').length;
+          const countAluno = currentCasais.filter(c => c.tipo === 'ALUNO').length;
 
           if (dados.tipo === 'LIDER' && countLider >= limiteLider) return { success: false, error: 'Limite de 1 Casal Líder excedido para esta turma.' };
           if (dados.tipo === 'CO-LIDER' && countCoLider >= limiteCoLider) return { success: false, error: 'Limite de 1 Casal Co-Líder excedido para esta turma.' };
