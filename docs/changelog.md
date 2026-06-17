@@ -50,32 +50,58 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
-## [Unreleased] - 2026-07-01
+## [Unreleased]
 
-### Added (previsto)
+---
 
-- HU-05b: Testes automatizados dos Contexts (AuthContext, SoundContext)
+## [Sprint 6] - 2026-07-01
+
+### Added
+
+- Testes automatizados dos Contexts (AuthContext, SoundContext) (HU-05b)
+  - 33 testes criados (12 AuthContext + 21 SoundContext)
+  - Coverage: AuthContext 100%, SoundContext 98%
   - Testes de `onAuthStateChanged` (login/logout/loading)
   - Testes de `logout()` (chama `signOut` corretamente)
   - Testes de `firebaseConfigured` (delegado de `isFirebaseConfigured`)
   - Testes de `playAirplaneSound()` (arquivo + fallback Web Audio API)
   - Testes de `toggleSoundEnabled()` (on/off)
   - Testes de `soundFrequency` (MANUAL, RANDOM, 30MIN)
-  - Testes de agendamento automático (RANDOM 5-10min, 30MIN 30min)
+  - Testes de agendamento automático (RANDOM 5-10min, 30MIN)
   - Testes de cleanup no unmount
-  - Coverage alvo: ≥ 70% em AuthContext e SoundContext
+  - Mocks de Web Audio API (oscillator, gain node) e HTMLAudioElement
+  - Uso de `vi.useFakeTimers()` para controle de setTimeout/clearTimeout
+- 6 arquivos CSS dedicados para componentes de página (HU-06)
+  - `src/styles/turma-detail.css` (507 linhas, 64 classes)
+  - `src/styles/acompanhamento.css` (166 linhas, 25 classes)
+  - `src/styles/desempenho.css` (200 linhas, 28 classes)
+  - `src/styles/ajustes.css` (169 linhas, 22 classes)
+  - `src/styles/login.css` (163 linhas, 21 classes)
+  - `src/styles/home.css` (261 linhas, 32 classes)
+  - Total: 1.466 linhas de CSS, 192 classes
+- Utilitários CSS globais em `index.css`
+  - `@keyframes spin` (animação para spinners)
+  - `.text-muted` (classe utilitária reutilizável)
 
-### Changed (previsto)
+### Changed
 
-- HU-06: Refatoração CSS — extração de inline styles para arquivos dedicados
-  - `TurmaDetail.tsx` → `styles/turma-detail.css`
-  - `Acompanhamento.tsx` → `styles/acompanhamento.css`
-  - `Desempenho.tsx` → `styles/desempenho.css`
-  - `Ajustes.tsx` → `styles/ajustes.css`
-  - `Login.tsx` → `styles/login.css`
-  - `Home.tsx` → `styles/home.css`
-  - Nenhum `style={{}}` permanece (exceto estilos dinâmicos calculados)
-  - UI visualmente idêntica após refatoração
+- Refatoração CSS de 6 componentes (HU-06)
+  - `TurmaDetail.tsx`: ~55 inline styles movidos → `turma-detail.css` (redução de 943 para 797 linhas, ~15%)
+  - `Acompanhamento.tsx`: ~25 inline styles movidos → `acompanhamento.css`
+  - `Desempenho.tsx`: ~28 inline styles movidos → `desempenho.css`
+  - `Ajustes.tsx`: ~20 inline styles movidos → `ajustes.css`
+  - `Login.tsx`: 1 inline style movido → `login.css`
+  - `Home.tsx`: ~15 inline styles movidos → `home.css`
+  - Total: ~144 inline styles estáticos movidos para CSS
+  - 12 inline styles dinâmicos mantidos (justificados: dependem de estado/props/runtime)
+- Nomenclatura CSS padrão BEM-like (`.turma-card__header--active`, `.acomp-checkbox--extra`)
+- Uso consistente de variáveis CSS do design system (`var(--primary)`, `var(--text-muted)`, etc.)
+- CSS `:last-child` para border-bottom condicional (substituiu lógica JS no `map`)
+
+### Fixed
+
+- `.text-muted` utilitário definido no `index.css` (estava sendo usado como className mas não existia)
+- `@keyframes spin` adicionado ao `index.css` (animação de loading que antes não funcionava)
 
 ---
 

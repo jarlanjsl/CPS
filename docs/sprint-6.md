@@ -188,3 +188,59 @@ HU-05b (testes contexts) ──→ HU-06 (refatoração CSS)
 - [ADR-001](adr/ADR-001-testes-automatizados.md) — decisão arquitetural de testes
 - [Backlog](backlog.md) — HU-05, HU-06 detalhadas
 - [Sprint 5](sprint-5.md) — fundação de testes (Vitest + RTL + mocks)
+
+---
+
+## 📝 Sprint Review
+
+**Data:** 01/07/2026
+**Status:** ✅ **CONCLUÍDO**
+
+### Histórias Concluídas
+
+| HU | Descrição | Critérios | Coverage | Status QA |
+|----|-----------|:---------:|:--------:|:---------:|
+| HU-05b | Testes de Contexts (Auth, Sound) | 12/12 ✅ | AuthContext 100%, SoundContext 98% | ✅ Aprovado |
+| HU-06 | Extrair inline styles para CSS | 10/10 ✅ | N/A (refatoração) | ✅ Aprovado |
+
+### Métricas do Sprint
+
+| Métrica | Resultado |
+|---------|-----------|
+| Histórias concluídas | 2/2 (100%) |
+| Critérios de aceite | 22/22 (100%) |
+| Testes criados (HU-05b) | 33 (12 AuthContext + 21 SoundContext) |
+| Testes totais passando | 141/141 |
+| Arquivos CSS criados (HU-06) | 6 (1.466 linhas, 192 classes) |
+| Inline styles movidos | ~144 |
+| Inline styles dinâmicos mantidos | 12 (justificados) |
+| Redução TurmaDetail.tsx | ~15% (943 → 797 linhas) |
+| Build | Passando ✅ |
+
+### O que deu certo
+
+1. ✅ **Sequência correta:** HU-05b (testes) antes de HU-06 (refatoração) — testes garantiram que a refatoração CSS não quebrou nada
+2. ✅ **Mocks de Web Audio API:** Tech-lead criou mocks robustos para `Audio` e `AudioContext` com `vi.hoisted()` e fake timers
+3. ✅ **Nomenclatura CSS consistente:** Padrão BEM-like facilitou a manutenção e revisão
+4. ✅ **QA rigoroso:** Validou cada critério de aceite com evidências concretas
+5. ✅ **Coverage excelente:** AuthContext 100%, SoundContext 98% — supera a meta de 70%
+
+### O que pode melhorar
+
+1. 🔲 **MinhasVitaminas.tsx:** Possui 7 inline styles estáticos que não foram movidos (fora do escopo da HU-06, mas pode ser task futura)
+2. 🔲 **Chunk size warning:** Build gera aviso de chunk > 500kB (pré-existente, não relacionado ao Sprint 6, mas precisa de atenção)
+3. 🔲 **Import duplicado:** TurmaDetail.tsx importa `home.css` além de `turma-detail.css` — compartilhar classes de layout é ok, mas poderia ser documentado
+
+### Lições Aprendidas
+
+1. **Testes antes de refatoração:** A ordem HU-05b → HU-06 foi crucial. Com os testes dos Contexts já escritos, tivemos confiança para refatorar o CSS sem medo de quebrar funcionalidade.
+2. **Estilos dinâmicos são inevitáveis:** 12 inline styles foram mantidos porque dependem de estado/props/runtime. Isso é aceitável e deve ser documentado.
+3. **CSS organizado facilita revisão:** Comentários descritivos e nomenclatura consistente tornaram o QA mais eficiente.
+4. **Mocks de Web Audio API são complexos:** O tech-lead precisou de estratégias avançadas (`vi.hoisted()`, classes reais com rastreamento) para mockar `new Audio()` e `AudioContext`.
+
+### Ações para o próximo sprint
+
+1. 🔲 Investigar chunk size warning e avaliar code splitting
+2. 🔲 Considerar refatorar `MinhasVitaminas.tsx` (7 inline styles restantes)
+3. 🔲 Documentar compartilhamento de classes CSS entre componentes (ex: TurmaDetail importa home.css)
+4. 🔲 Avaliar se a política de testes deve ser expandida para componentes UI (atualmente foca em services/contexts)
