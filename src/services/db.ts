@@ -82,6 +82,28 @@ export const dbService = {
     }
   },
 
+  deleteCasal: async (casalId: string): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      await deleteDoc(doc(db, "casais", casalId));
+      return true;
+    } catch (e) {
+      console.error("Erro ao excluir casal:", e);
+      return false;
+    }
+  },
+
+  toggleTurmaConcluida: async (turmaId: string, concluida: boolean) => {
+    if (!db) return false;
+    try {
+      await updateDoc(doc(db, "turmas", turmaId), { concluida });
+      return true;
+    } catch (e) {
+      console.error("Erro ao atualizar status da turma:", e);
+      return false;
+    }
+  },
+
   updateSemanaData: async (turmaId: string, semana: number, dataPersonalizada?: string) => {
     if (!db) return false;
     try {
@@ -134,6 +156,52 @@ export const dbService = {
       return { success: true };
     } catch (e) {
       console.error("Erro ao criar casal:", e);
+      return { success: false, error: 'Falha interna ao tentar salvar.' };
+    }
+  },
+
+  updateCasal: async (casalId: string, dados: { nomeEle?: string; nomeEla?: string; tipo?: 'LIDER' | 'CO-LIDER' | 'ALUNO' }): Promise<{success: boolean, error?: string}> => {
+    if (!db) return { success: false, error: 'DB não inicializado.' };
+    try {
+      const limiteLider = 1;
+      const limiteCoLider = 1;
+      const limiteAluno = 5;
+
+      // Se o tipo está mudando, verificar limites
+      if (dados.tipo) {
+        const casalRef = doc(db, "casais", casalId);
+        const casalSnap = await getDoc(casalRef);
+        if (!casalSnap.exists()) return { success: false, error: 'Casal não encontrado.' };
+
+        const casalData = casalSnap.data() as Casal;
+        const turmaId = casalData.turmaId;
+        const tipoAtual = casalData.tipo;
+
+        // Só valida limites se o tipo está realmente mudando
+        if (dados.tipo !== tipoAtual) {
+          const currentCasais = await dbService.getCasais(turmaId);
+          // Opção B: validação rígida — conta TODOS os casais (incluindo o editado)
+          const countLider = currentCasais.filter(c => c.tipo === 'LIDER').length;
+          const countCoLider = currentCasais.filter(c => c.tipo === 'CO-LIDER').length;
+          const countAluno = currentCasais.filter(c => c.tipo === 'ALUNO').length;
+
+          if (dados.tipo === 'LIDER' && countLider >= limiteLider) return { success: false, error: 'Limite de 1 Casal Líder excedido para esta turma.' };
+          if (dados.tipo === 'CO-LIDER' && countCoLider >= limiteCoLider) return { success: false, error: 'Limite de 1 Casal Co-Líder excedido para esta turma.' };
+          if (dados.tipo === 'ALUNO' && countAluno >= limiteAluno) return { success: false, error: 'Limite de 5 Casais Alunos excedido para esta turma.' };
+        }
+      }
+
+      // Atualizar o documento do casal
+      const casalRef = doc(db, "casais", casalId);
+      const updateData: Record<string, string> = {};
+      if (dados.nomeEle !== undefined) updateData.nomeEle = dados.nomeEle;
+      if (dados.nomeEla !== undefined) updateData.nomeEla = dados.nomeEla;
+      if (dados.tipo !== undefined) updateData.tipo = dados.tipo;
+
+      await updateDoc(casalRef, updateData);
+      return { success: true };
+    } catch (e) {
+      console.error("Erro ao editar casal:", e);
       return { success: false, error: 'Falha interna ao tentar salvar.' };
     }
   },

@@ -19,6 +19,9 @@ export default function TurmaDetail() {
   const [isDeleteTurmaOpen, setIsDeleteTurmaOpen] = useState(false);
   const [confirmDeleteText, setConfirmDeleteText] = useState('');
 
+  // States para Concluir/Reabrir Turma
+  const [isConcluirTurmaOpen, setIsConcluirTurmaOpen] = useState(false);
+
   // States para Edição de Data da Lição
   const [isEditSemanaOpen, setIsEditSemanaOpen] = useState(false);
   const [semanaEditando, setSemanaEditando] = useState<number | null>(null);
@@ -30,6 +33,20 @@ export default function TurmaDetail() {
   const [nomeEla, setNomeEla] = useState('');
   const [casalTipo, setCasalTipo] = useState<'LIDER' | 'ALUNO'>('ALUNO');
   const [processando, setProcessando] = useState(false);
+
+  // States para Edição de Casal
+  const [isEditCasalOpen, setIsEditCasalOpen] = useState(false);
+  const [editCasalId, setEditCasalId] = useState('');
+  const [editNomeEle, setEditNomeEle] = useState('');
+  const [editNomeEla, setEditNomeEla] = useState('');
+  const [editCasalTipo, setEditCasalTipo] = useState<'LIDER' | 'CO-LIDER' | 'ALUNO'>('ALUNO');
+
+  // States para Exclusão de Casal
+  const [isDeleteCasalOpen, setIsDeleteCasalOpen] = useState(false);
+  const [deleteCasalId, setDeleteCasalId] = useState('');
+  const [deleteCasalNome, setDeleteCasalNome] = useState('');
+  const [deleteCasalTipo, setDeleteCasalTipo] = useState<'LIDER' | 'CO-LIDER' | 'ALUNO'>('ALUNO');
+  const [confirmDeleteCasalText, setConfirmDeleteCasalText] = useState('');
 
   const carregarDados = () => {
     if (!id) return;
@@ -80,6 +97,20 @@ export default function TurmaDetail() {
     }
   };
 
+  const handleToggleConcluirTurma = async () => {
+    if (!id || !turma) return;
+    
+    setProcessando(true);
+    const ok = await dbService.toggleTurmaConcluida(id, !turma.concluida);
+    setProcessando(false);
+    if (ok) {
+      setIsConcluirTurmaOpen(false);
+      carregarDados();
+    } else {
+      alert("Erro ao atualizar status da turma.");
+    }
+  };
+
   const handleEditSemanaData = async (semana: number, dataPersonalizada?: string) => {
     if (!id) return;
     
@@ -108,6 +139,40 @@ export default function TurmaDetail() {
       carregarDados();
     } else {
       alert(error || "Erro ao cadastrar membros.");
+    }
+  };
+
+  const handleEditCasal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editCasalId || !editNomeEle.trim() || !editNomeEla.trim()) return;
+
+    setProcessando(true);
+    const { success, error } = await dbService.updateCasal(editCasalId, {
+      nomeEle: editNomeEle,
+      nomeEla: editNomeEla,
+      tipo: editCasalTipo
+    });
+    setProcessando(false);
+    if (success) {
+      setIsEditCasalOpen(false);
+      carregarDados();
+    } else {
+      alert(error || "Erro ao editar casal.");
+    }
+  };
+
+  const handleDeleteCasal = async () => {
+    if (!deleteCasalId || confirmDeleteCasalText !== 'Excluir') return;
+
+    setProcessando(true);
+    const ok = await dbService.deleteCasal(deleteCasalId);
+    setProcessando(false);
+    if (ok) {
+      setIsDeleteCasalOpen(false);
+      setConfirmDeleteCasalText('');
+      carregarDados();
+    } else {
+      alert("Erro ao excluir casal.");
     }
   };
 
@@ -156,6 +221,23 @@ export default function TurmaDetail() {
               <Pencil size={18} />
             </button>
           </div>
+          {turma.concluida ? (
+            <button 
+              onClick={() => setIsConcluirTurmaOpen(true)} 
+              className="btn-primary" 
+              style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+            >
+              Reabrir Turma
+            </button>
+          ) : (
+            <button 
+              onClick={() => setIsConcluirTurmaOpen(true)} 
+              className="btn-primary" 
+              style={{ background: 'var(--success-bg)', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+            >
+              Concluir Turma
+            </button>
+          )}
         </div>
       </header>
 
@@ -177,10 +259,39 @@ export default function TurmaDetail() {
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <div>
-                <div style={{ fontWeight: 500 }}>{c.nomeEle} & {c.nomeEla}</div>
-                {c.tipo === 'LIDER' && <span style={{ fontSize: '0.75rem', color: 'var(--primary-light)' }}>Líder</span>}
-                {c.tipo === 'CO-LIDER' && <span style={{ fontSize: '0.75rem', color: '#fbbf24' }}>Co-Líder</span>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div>
+                  <div style={{ fontWeight: 500 }}>{c.nomeEle} & {c.nomeEla}</div>
+                  {c.tipo === 'LIDER' && <span style={{ fontSize: '0.75rem', color: 'var(--primary-light)' }}>Líder</span>}
+                  {c.tipo === 'CO-LIDER' && <span style={{ fontSize: '0.75rem', color: '#fbbf24' }}>Co-Líder</span>}
+                  {c.tipo === 'ALUNO' && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Aluno</span>}
+                </div>
+                <button
+                  onClick={() => {
+                    setEditCasalId(c.id);
+                    setEditNomeEle(c.nomeEle);
+                    setEditNomeEla(c.nomeEla);
+                    setEditCasalTipo(c.tipo);
+                    setIsEditCasalOpen(true);
+                  }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                  title="Editar casal"
+                >
+                  <Pencil size={14} />
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteCasalId(c.id);
+                    setDeleteCasalNome(`${c.nomeEle} & ${c.nomeEla}`);
+                    setDeleteCasalTipo(c.tipo);
+                    setConfirmDeleteCasalText('');
+                    setIsDeleteCasalOpen(true);
+                  }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                  title="Excluir casal"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pontos</span>
@@ -439,6 +550,171 @@ export default function TurmaDetail() {
               {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Adicionar Casal'}
             </button>
           </form>
+        </div>
+      )}
+
+      {/* MODAL: CONCLUIR/REABRIR TURMA */}
+      {isConcluirTurmaOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '1.5rem'
+        }}>
+          <div className="glass-effect" style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
+            <button type="button" onClick={() => setIsConcluirTurmaOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ fontSize: '1.25rem', marginTop: 0, color: turma.concluida ? 'var(--warning)' : 'var(--success)' }}>
+              {turma.concluida ? 'Reabrir Turma' : 'Concluir Turma'}
+            </h2>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              {turma.concluida 
+                ? `Deseja reabrir a turma "${turma.nome}"? Ela voltará a aparecer na seção de turmas ativas.`
+                : `Deseja concluir a turma "${turma.nome}"? Ela será movida para a seção de turmas concluídas.`
+              }
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button 
+                onClick={() => setIsConcluirTurmaOpen(false)}
+                disabled={processando}
+                style={{ 
+                  flex: 1,
+                  background: 'rgba(100, 116, 139, 0.2)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-muted)', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  fontWeight: 600, 
+                  cursor: 'pointer',
+                  fontFamily: 'inherit'
+                }}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleToggleConcluirTurma}
+                disabled={processando}
+                style={{ 
+                  flex: 1,
+                  background: turma.concluida ? 'var(--warning-bg)' : 'var(--success-bg)', 
+                  border: 'none', 
+                  color: 'white', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  fontWeight: 600, 
+                  cursor: 'pointer',
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '0.5rem',
+                  fontFamily: 'inherit'
+                }}
+              >
+                {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : (turma.concluida ? 'Sim, Reabrir' : 'Sim, Concluir')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDITAR CASAL */}
+      {isEditCasalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '1.5rem'
+        }}>
+          <form className="glass-effect" onSubmit={handleEditCasal} style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
+            <button type="button" onClick={() => setIsEditCasalOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ fontSize: '1.25rem', marginTop: 0 }}>Editar Casal</h2>
+            
+            <input 
+              autoFocus
+              placeholder="Nome dEle" value={editNomeEle} onChange={e => setEditNomeEle(e.target.value)}
+              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+            />
+             <input 
+              placeholder="Nome dEla" value={editNomeEla} onChange={e => setEditNomeEla(e.target.value)}
+              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+            />
+             <select 
+              value={editCasalTipo} onChange={e => setEditCasalTipo(e.target.value as any)}
+              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+            >
+              <option value="ALUNO" style={{ color: 'black' }}>Casal Membro/Aluno</option>
+              <option value="LIDER" style={{ color: 'black' }}>Casal Líder (Não pontua)</option>
+              <option value="CO-LIDER" style={{ color: 'black' }}>Casal Co-Líder (Não pontua)</option>
+            </select>
+
+            <button type="submit" className="btn-primary" disabled={processando || !editNomeEle.trim() || !editNomeEla.trim()}>
+              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Salvar'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* MODAL: EXCLUIR CASAL */}
+      {isDeleteCasalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '1.5rem'
+        }}>
+          <div className="glass-effect" style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
+            <button type="button" onClick={() => { setIsDeleteCasalOpen(false); setConfirmDeleteCasalText(''); }} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ fontSize: '1.25rem', marginTop: 0, color: '#ef4444' }}>Excluir Casal</h2>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              Tem certeza que deseja excluir o casal <strong>{deleteCasalNome}</strong>? Esta ação não pode ser desfeita.
+            </p>
+            {deleteCasalTipo === 'LIDER' && (
+              <p style={{ margin: 0, color: '#fbbf24', fontSize: '0.9rem', fontWeight: 600 }}>
+                Atenção: esta turma ficará sem Líder!
+              </p>
+            )}
+            {deleteCasalTipo === 'CO-LIDER' && (
+              <p style={{ margin: 0, color: '#fbbf24', fontSize: '0.9rem', fontWeight: 600 }}>
+                Atenção: esta turma ficará sem Co-Líder!
+              </p>
+            )}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                Digite <strong>"Excluir"</strong> para confirmar:
+              </label>
+              <input 
+                autoFocus
+                placeholder="Excluir" 
+                value={confirmDeleteCasalText} 
+                onChange={e => setConfirmDeleteCasalText(e.target.value)}
+                style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
+            <button 
+              onClick={handleDeleteCasal}
+              disabled={processando || confirmDeleteCasalText !== 'Excluir'}
+              style={{ 
+                background: confirmDeleteCasalText === 'Excluir' ? 'var(--danger-bg)' : 'rgba(239, 68, 68, 0.3)', 
+                border: 'none', 
+                color: confirmDeleteCasalText === 'Excluir' ? 'white' : '#94a3b8', 
+                padding: '1rem', 
+                borderRadius: '8px', 
+                fontWeight: 600, 
+                cursor: confirmDeleteCasalText === 'Excluir' ? 'pointer' : 'not-allowed',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '0.5rem' 
+              }}
+            >
+              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Confirmar Exclusão'}
+            </button>
+          </div>
         </div>
       )}
 

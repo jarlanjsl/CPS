@@ -35,6 +35,13 @@
   box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
 }
 
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .turmas-list {
   display: flex;
   flex-direction: column;

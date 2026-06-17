@@ -96,12 +96,12 @@ cp .env.example .env
 **`.env.example`:**
 
 ```env
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
+VITE_FIREBASE_API_KEY=your_api_key_here
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
 ```
 
 Passos no console Firebase:
@@ -110,7 +110,20 @@ Passos no console Firebase:
 3. Em **Configuracoes do Projeto**, copie as credenciais para o `.env`
 4. Ative a autenticacao por **Email/Senha** no menu Authentication
 5. Crie usuarios manualmente no Firebase Auth (email formato: `{username}@cps.app`)
-6. Configure as regras de seguranca do Firestore (modo de teste para desenvolvimento)
+6. Configure as regras de seguranca do Firestore. Para producao, utilize o modo restrito:
+
+```firestore
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+   > **Importante**: Nao use regras em modo teste (`allow read, write: if true`) em producao. O modo restrito acima exige autenticacao para qualquer acesso.
 
 > **Nota**: O app verifica dinamicamente se `VITE_FIREBASE_API_KEY` e `VITE_FIREBASE_PROJECT_ID` estao preenchidos. Se ausentes, exibe tela de aviso em vez de crashar.
 
