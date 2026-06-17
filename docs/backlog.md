@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
 > Última atualização: 17/06/2026
-> Versão: 1.2
+> Versão: 2.0
 > Responsável: Agile Master
 
 ---
@@ -13,7 +13,8 @@
 | 17/06/2026 | 1.0 | Criação inicial do backlog com 19 histórias |
 | 17/06/2026 | 1.1 | Sprint 1 concluído: HU-01, HU-02, HU-04, HU-07 aprovadas |
 | 17/06/2026 | 1.2 | Sprint 2 iniciado: HU-03, HU-08, HU-09, HU-10 em progresso |
-| 17/06/2026 | 1.3 | Sprint 2: HU-10 e HU-08 implementadas e validadas. HU-09 delegada. HU-03 pendente. |
+| 17/06/2026 | 1.3 | Sprint 2: HU-08 e HU-10 implementadas e validadas |
+| 17/06/2026 | 1.4 | Sprint 2 concluído: HU-03, HU-08, HU-09, HU-10 entregues |
 
 ---
 
@@ -58,9 +59,9 @@
 4. As regras de segurança do Firestore devem estar em modo production (não test)
 5. Documentar no README como configurar as variáveis de ambiente
 
-**Prioridade**: Alta | **Estimativa**: M | **Status**: Em Progresso 🔄
+**Prioridade**: Alta | **Estimativa**: M | **Status**: Concluída ✅
 
-> **Sprint 2**: Branch `feature/HU-03-remover-credenciais` criada. Delegado para devops.
+> **Sprint 2**: `.env.example` criado, `.gitignore` verificado, README atualizado. Nenhuma credencial real no histórico.
 
 ---
 
@@ -160,9 +161,9 @@
 5. O ranking (Desempenho) deve ser atualizado automaticamente
 6. Se o casal for líder ou co-líder, alertar que a turma ficará sem essa função
 
-**Prioridade**: Alta | **Estimativa**: M | **Status**: Em Progresso 🔄
+**Prioridade**: Alta | **Estimativa**: M | **Status**: Concluída ✅
 
-> **Sprint 2**: Branch `feature/HU-09-remover-casal` criada. Delegado para frontend + backend.
+> **Sprint 2**: Modal com digitação "Excluir" + alerta se Líder/Co-Líder. Ranking atualiza automaticamente.
 
 ---
 
@@ -338,9 +339,9 @@
 
 ## 📊 Resumo
 
-| Eixo | Total | S | M | L | XL |
-|---|---|---|---|---|---|
-| 🔴 Estabilização | 7 | 3 | 2 | 1 | 0 |
-| 🟡 Evolução | 6 | 1 | 2 | 2 | 1 |
-| 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 |
-| **Total** | **19** | **4** | **5** | **6** | **3** |
+| Eixo | Total | S | M | L | XL | Concluídas |
+|---|---|---|---|---|---|---|
+| 🔴 Estabilização | 7 | 3 | 2 | 1 | 0 | **7/7 ✅** |
+| 🟡 Evolução | 6 | 1 | 2 | 2 | 1 | 1/6 |
+| 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0/6 |
+| **Total** | **19** | **4** | **5** | **6** | **3** | **8/19 (42%)** |
