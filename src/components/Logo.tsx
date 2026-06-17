@@ -29,7 +29,7 @@ export default function Logo({ size = 40, showText = true }: { size?: number; sh
           fontFamily="Outfit, sans-serif"
           fontSize="16"
           fontWeight="700"
-          fill="#059669"
+          fill="#6366f1"
         >
           Casados Para Sempre
         </text>

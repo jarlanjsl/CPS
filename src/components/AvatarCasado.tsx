@@ -33,7 +33,7 @@ export default function AvatarCasado({ nomeEle, nomeEla, fotoUrl, size = 40, onC
       className="avatar-casal-placeholder"
       style={{
         width: size, height: size, borderRadius: '50%',
-        background: 'linear-gradient(135deg, #059669, #34D399)',
+        background: 'linear-gradient(135deg, #6366f1, #818cf8)',
         color: 'white', display: 'flex', alignItems: 'center',
         justifyContent: 'center', fontSize: size * 0.3,
         fontWeight: 700, cursor: onClick ? 'pointer' : 'default',
