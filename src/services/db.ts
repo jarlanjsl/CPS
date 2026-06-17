@@ -82,6 +82,17 @@ export const dbService = {
     }
   },
 
+  deleteCasal: async (casalId: string): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      await deleteDoc(doc(db, "casais", casalId));
+      return true;
+    } catch (e) {
+      console.error("Erro ao excluir casal:", e);
+      return false;
+    }
+  },
+
   toggleTurmaConcluida: async (turmaId: string, concluida: boolean) => {
     if (!db) return false;
     try {

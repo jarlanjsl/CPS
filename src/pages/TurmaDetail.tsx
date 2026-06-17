@@ -41,6 +41,13 @@ export default function TurmaDetail() {
   const [editNomeEla, setEditNomeEla] = useState('');
   const [editCasalTipo, setEditCasalTipo] = useState<'LIDER' | 'CO-LIDER' | 'ALUNO'>('ALUNO');
 
+  // States para Exclusão de Casal
+  const [isDeleteCasalOpen, setIsDeleteCasalOpen] = useState(false);
+  const [deleteCasalId, setDeleteCasalId] = useState('');
+  const [deleteCasalNome, setDeleteCasalNome] = useState('');
+  const [deleteCasalTipo, setDeleteCasalTipo] = useState<'LIDER' | 'CO-LIDER' | 'ALUNO'>('ALUNO');
+  const [confirmDeleteCasalText, setConfirmDeleteCasalText] = useState('');
+
   const carregarDados = () => {
     if (!id) return;
     setLoading(true);
@@ -154,6 +161,21 @@ export default function TurmaDetail() {
     }
   };
 
+  const handleDeleteCasal = async () => {
+    if (!deleteCasalId || confirmDeleteCasalText !== 'Excluir') return;
+
+    setProcessando(true);
+    const ok = await dbService.deleteCasal(deleteCasalId);
+    setProcessando(false);
+    if (ok) {
+      setIsDeleteCasalOpen(false);
+      setConfirmDeleteCasalText('');
+      carregarDados();
+    } else {
+      alert("Erro ao excluir casal.");
+    }
+  };
+
   // Calcular data de cada semana baseado na data de início
   const calcularDataSemana = (semana: number): string => {
     if (!turma?.dataInicio) return '';
@@ -256,6 +278,19 @@ export default function TurmaDetail() {
                   title="Editar casal"
                 >
                   <Pencil size={14} />
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteCasalId(c.id);
+                    setDeleteCasalNome(`${c.nomeEle} & ${c.nomeEla}`);
+                    setDeleteCasalTipo(c.tipo);
+                    setConfirmDeleteCasalText('');
+                    setIsDeleteCasalOpen(true);
+                  }}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                  title="Excluir casal"
+                >
+                  <Trash2 size={14} />
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
@@ -619,6 +654,67 @@ export default function TurmaDetail() {
               {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Salvar'}
             </button>
           </form>
+        </div>
+      )}
+
+      {/* MODAL: EXCLUIR CASAL */}
+      {isDeleteCasalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '1.5rem'
+        }}>
+          <div className="glass-effect" style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
+            <button type="button" onClick={() => { setIsDeleteCasalOpen(false); setConfirmDeleteCasalText(''); }} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ fontSize: '1.25rem', marginTop: 0, color: '#ef4444' }}>Excluir Casal</h2>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              Tem certeza que deseja excluir o casal <strong>{deleteCasalNome}</strong>? Esta ação não pode ser desfeita.
+            </p>
+            {deleteCasalTipo === 'LIDER' && (
+              <p style={{ margin: 0, color: '#fbbf24', fontSize: '0.9rem', fontWeight: 600 }}>
+                Atenção: esta turma ficará sem Líder!
+              </p>
+            )}
+            {deleteCasalTipo === 'CO-LIDER' && (
+              <p style={{ margin: 0, color: '#fbbf24', fontSize: '0.9rem', fontWeight: 600 }}>
+                Atenção: esta turma ficará sem Co-Líder!
+              </p>
+            )}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                Digite <strong>"Excluir"</strong> para confirmar:
+              </label>
+              <input 
+                autoFocus
+                placeholder="Excluir" 
+                value={confirmDeleteCasalText} 
+                onChange={e => setConfirmDeleteCasalText(e.target.value)}
+                style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
+            <button 
+              onClick={handleDeleteCasal}
+              disabled={processando || confirmDeleteCasalText !== 'Excluir'}
+              style={{ 
+                background: confirmDeleteCasalText === 'Excluir' ? 'var(--danger-bg)' : 'rgba(239, 68, 68, 0.3)', 
+                border: 'none', 
+                color: confirmDeleteCasalText === 'Excluir' ? 'white' : '#94a3b8', 
+                padding: '1rem', 
+                borderRadius: '8px', 
+                fontWeight: 600, 
+                cursor: confirmDeleteCasalText === 'Excluir' ? 'pointer' : 'not-allowed',
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '0.5rem' 
+              }}
+            >
+              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Confirmar Exclusão'}
+            </button>
+          </div>
         </div>
       )}
 
