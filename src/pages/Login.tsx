@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '../services/firebase';
+import Logo from '../components/Logo';
 import '../styles/login.css';
 
 export default function Login() {
@@ -42,8 +43,7 @@ export default function Login() {
     <div className="login-container">
       <div className="login-card glass-effect">
         <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-          {/* Pode adicionar uma Logo aqui */}
-          <span style={{ fontSize: '3rem' }}>💍</span>
+          <Logo size={64} showText={false} />
         </div>
         <h1 className="login-title gradient-text">Casados Para Sempre</h1>
         <p className="login-subtitle">Gestão Viva e Dinâmica</p>

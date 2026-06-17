@@ -27,12 +27,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px rgba(33, 73, 145, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 6px 16px rgba(33, 73, 145, 0.4);
 }
 
 .btn-primary:disabled {
@@ -69,7 +69,7 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--primary-light), #c084fc);
+  background: linear-gradient(90deg, var(--primary-light), var(--primary));
   opacity: 0;
   transition: opacity 0.3s;
 }
