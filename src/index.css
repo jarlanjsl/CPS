@@ -1,10 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Paleta Principal - Elegante e Vibrante */
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #818cf8;
+  /* Paleta 2=1 Brasil - Oficial */
+  --primary: #214991;
+  --primary-dark: #1a3d7a;
+  --primary-light: #44C1D7;
+  --accent: #FFC801;
+  --bg-light: #ECF9FB;
   
   /* Cores de Fundo Modernas (Modo Claro Padrão / Dark Suave) */
   --bg-color: #0f172a;
@@ -84,7 +86,14 @@ h1, h2, h3, h4 {
 }
 
 .gradient-text {
-  background: linear-gradient(to right, #818cf8, #c084fc);
+  background: linear-gradient(to right, #214991, #44C1D7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.accent-text {
+  background: linear-gradient(to right, #FFC801, #FFD94D);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

@@ -1,10 +1,10 @@
 {
   "name": "Casados Para Sempre",
-  "short_name": "Casados para Sempre",
+  "short_name": "CPS",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#ECF9FB",
+  "theme_color": "#214991",
   "description": "App de acompanhamento do curso Casados Para Sempre",
   "icons": [
     {
