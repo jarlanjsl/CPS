@@ -1,7 +1,9 @@
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { dbService, type Casal, type Turma } from '../services/db';
-import { LoaderCircle, Pencil, Plus, X, Trash2 } from 'lucide-react';
+import { storageService } from '../services/storage';
+import AvatarCasado from '../components/AvatarCasado';
+import { LoaderCircle, Pencil, Plus, X, Trash2, Camera } from 'lucide-react';
 import '../styles/home.css';
 
 export default function TurmaDetail() {
@@ -40,6 +42,12 @@ export default function TurmaDetail() {
   const [editNomeEle, setEditNomeEle] = useState('');
   const [editNomeEla, setEditNomeEla] = useState('');
   const [editCasalTipo, setEditCasalTipo] = useState<'LIDER' | 'CO-LIDER' | 'ALUNO'>('ALUNO');
+
+  // States para Foto do Casal
+  const [fotoFile, setFotoFile] = useState<File | null>(null);
+  const [fotoPreview, setFotoPreview] = useState<string>('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // States para Exclusão de Casal
   const [isDeleteCasalOpen, setIsDeleteCasalOpen] = useState(false);
@@ -128,18 +136,48 @@ export default function TurmaDetail() {
   const handleCreateCasal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id || !nomeEle.trim() || !nomeEla.trim()) return;
-    
+
     setProcessando(true);
-    const { success, error } = await dbService.createCasal(id, nomeEle, nomeEla, casalTipo);
-    setProcessando(false);
-    if (success) {
+    const { success, error, id: casalId } = await dbService.createCasal(id, nomeEle, nomeEla, casalTipo);
+
+    if (success && casalId) {
+      if (fotoFile) {
+        setUploading(true);
+        try {
+          const downloadURL = await storageService.uploadFotoCasal(casalId, fotoFile, setUploadProgress);
+          if (downloadURL) {
+            await dbService.updateCasalFotoUrl(casalId, downloadURL);
+          }
+        } catch (err) {
+          console.error('Erro no upload da foto:', err);
+        }
+        setUploading(false);
+      }
       setIsAddCasalOpen(false);
       setNomeEle('');
       setNomeEla('');
+      setFotoFile(null);
+      setFotoPreview('');
+      setUploadProgress(0);
       carregarDados();
     } else {
       alert(error || "Erro ao cadastrar membros.");
     }
+    setProcessando(false);
+  };
+
+  const handleFotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Arquivo muito grande. Máximo 5MB.');
+      e.target.value = '';
+      return;
+    }
+
+    setFotoFile(file);
+    setFotoPreview(URL.createObjectURL(file));
   };
 
   const handleEditCasal = async (e: React.FormEvent) => {
@@ -260,6 +298,55 @@ export default function TurmaDetail() {
               alignItems: 'center'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <AvatarCasado nomeEle={c.nomeEle} nomeEla={c.nomeEla} fotoUrl={c.fotoUrl} size={40}
+                    onClick={() => {
+                      document.getElementById(`foto-input-${c.id}`)?.click();
+                    }}
+                  />
+                  {c.fotoUrl && (
+                    <button
+                      onClick={async () => {
+                        const ok = await storageService.deleteFotoCasal(c.id);
+                        if (ok) {
+                          await dbService.updateCasalFotoUrl(c.id, '');
+                          carregarDados();
+                        }
+                      }}
+                      style={{
+                        position: 'absolute', top: -4, right: -4, background: 'rgba(239,68,68,0.8)',
+                        border: 'none', color: 'white', borderRadius: '50%', width: 16, height: 16,
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 10, padding: 0
+                      }}
+                      title="Remover foto"
+                    >
+                      <X size={10} />
+                    </button>
+                  )}
+                  <input id={`foto-input-${c.id}`} type="file" accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 5 * 1024 * 1024) {
+                        alert('Arquivo muito grande. Máximo 5MB.');
+                        e.target.value = '';
+                        return;
+                      }
+                      try {
+                        const downloadURL = await storageService.uploadFotoCasal(c.id, file);
+                        if (downloadURL) {
+                          await dbService.updateCasalFotoUrl(c.id, downloadURL);
+                          carregarDados();
+                        }
+                      } catch (err) {
+                        console.error('Erro ao alterar foto:', err);
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+                </div>
                 <div>
                   <div style={{ fontWeight: 500 }}>{c.nomeEle} & {c.nomeEla}</div>
                   {c.tipo === 'LIDER' && <span style={{ fontSize: '0.75rem', color: 'var(--primary-light)' }}>Líder</span>}
@@ -546,9 +633,42 @@ export default function TurmaDetail() {
               <option value="CO-LIDER" style={{ color: 'black' }}>Casal Co-Líder (Não pontua)</option>
             </select>
 
-            <button type="submit" className="btn-primary" disabled={processando || !nomeEle.trim() || !nomeEla.trim()}>
-              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Adicionar Casal'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <label style={{
+                background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)',
+                color: 'var(--text-muted)', padding: '0.75rem 1rem', borderRadius: '8px',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                fontFamily: 'inherit', fontSize: '0.9rem', flex: 1
+              }}>
+                <Camera size={18} />
+                {fotoFile ? fotoFile.name : 'Adicionar foto'}
+                <input type="file" accept="image/*" onChange={handleFotoFileChange} style={{ display: 'none' }} />
+              </label>
+              {fotoPreview && (
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <img src={fotoPreview} alt="Preview" width={48} height={48}
+                    style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                  <button type="button" onClick={() => { setFotoFile(null); setFotoPreview(''); }}
+                    style={{
+                      position: 'absolute', top: -4, right: -4, background: 'rgba(239,68,68,0.8)',
+                      border: 'none', color: 'white', borderRadius: '50%', width: 18, height: 18,
+                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 12, padding: 0
+                    }}>
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button type="submit" className="btn-primary" disabled={processando || uploading || !nomeEle.trim() || !nomeEla.trim()}>
+              {processando || uploading ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Adicionar Casal'}
             </button>
+            {uploading && (
+              <div style={{ height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${uploadProgress}%`, background: 'linear-gradient(90deg, var(--primary), var(--primary-light))', transition: 'width 0.3s' }} />
+              </div>
+            )}
           </form>
         </div>
       )}
@@ -649,6 +769,41 @@ export default function TurmaDetail() {
               <option value="LIDER" style={{ color: 'black' }}>Casal Líder (Não pontua)</option>
               <option value="CO-LIDER" style={{ color: 'black' }}>Casal Co-Líder (Não pontua)</option>
             </select>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <label style={{
+                background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)',
+                color: 'var(--text-muted)', padding: '0.75rem 1rem', borderRadius: '8px',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                fontFamily: 'inherit', fontSize: '0.9rem', flex: 1
+              }}>
+                <Camera size={18} />
+                Alterar foto
+                <input type="file" accept="image/*" style={{ display: 'none' }}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) {
+                      alert('Arquivo muito grande. Máximo 5MB.');
+                      e.target.value = '';
+                      return;
+                    }
+                    setProcessando(true);
+                    try {
+                      const downloadURL = await storageService.uploadFotoCasal(editCasalId, file);
+                      if (downloadURL) {
+                        await dbService.updateCasalFotoUrl(editCasalId, downloadURL);
+                        carregarDados();
+                      }
+                    } catch (err) {
+                      console.error('Erro ao alterar foto:', err);
+                    }
+                    setProcessando(false);
+                    e.target.value = '';
+                  }}
+                />
+              </label>
+            </div>
 
             <button type="submit" className="btn-primary" disabled={processando || !editNomeEle.trim() || !editNomeEla.trim()}>
               {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Salvar'}
