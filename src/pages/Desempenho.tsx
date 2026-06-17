@@ -9,6 +9,7 @@ import {
   getPontosAcumulado,
   calcularDeltas,
 } from './ranking-utils';
+import '../styles/desempenho.css';
 
 const MAX_SEMANAS = 14;
 
@@ -77,55 +78,42 @@ export default function Desempenho() {
   return (
     <>
       <div className="page-container">
-      <header className="page-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
-        <h1 style={{ margin: 0 }}>Desempenho Setorial</h1>
+      <header className="page-header desempenho-header">
+        <h1 className="desempenho-title">Desempenho Setorial</h1>
         
         {turmas.length > 0 ? (
           <select 
             value={selectedTurmaId} 
             onChange={(e) => setSelectedTurmaId(e.target.value)}
-            style={{ 
-              background: 'rgba(15,23,42,0.8)', border: '1px solid var(--primary-dark)', 
-              color: 'white', padding: '0.75rem', borderRadius: '8px', 
-              width: '100%', fontFamily: 'inherit', fontWeight: 600 
-            }}
+            className="desempenho-select"
           >
             {turmas.map(t => (
               <option key={t.id} value={t.id}>{t.nome}</option>
             ))}
           </select>
         ) : (
-          <p style={{ color: 'var(--text-muted)' }}>Crie uma turma para visualizar o desempenho.</p>
+          <p className="desempenho-empty">Crie uma turma para visualizar o desempenho.</p>
         )}
       </header>
 
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-           <LoaderCircle size={32} style={{ animation: 'spin 1s linear infinite', color: 'var(--text-muted)' }} />
+        <div className="desempenho-loading">
+           <LoaderCircle size={32} className="spinner" />
         </div>
       ) : turmas.length > 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="desempenho-content">
           
           {/* HU-24: Seletor de Semanas */}
-          <div className="glass-effect" style={{ padding: '1rem 1.5rem' }}>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <label htmlFor="semana-select" style={{ color: 'var(--text-muted)', fontSize: '0.9rem', whiteSpace: 'nowrap', fontWeight: 600 }}>
+          <div className="glass-effect desempenho-week-selector">
+            <div className="desempenho-week-row">
+              <label htmlFor="semana-select" className="desempenho-week-label">
                 Semana:
               </label>
               <select
                 id="semana-select"
                 value={semanaSelecionada === 'TODAS' ? 'TODAS' : String(semanaSelecionada)}
                 onChange={(e) => setSemanaSelecionada(e.target.value === 'TODAS' ? 'TODAS' : Number(e.target.value))}
-                style={{
-                  flex: 1,
-                  background: 'rgba(15,23,42,0.8)',
-                  border: '1px solid var(--primary-dark)',
-                  color: 'white',
-                  padding: '0.5rem',
-                  borderRadius: '8px',
-                  fontFamily: 'inherit',
-                  fontWeight: 600,
-                }}
+                className="desempenho-week-select"
                 aria-label="Selecionar semana para o ranking"
               >
                 <option value="TODAS">Todas as Semanas (Acumulado)</option>
@@ -136,43 +124,47 @@ export default function Desempenho() {
             </div>
           </div>
 
-          <div className="glass-effect" style={{ padding: '1.5rem', textAlign: 'center' }}>
-            <Star size={40} className="text-muted" style={{ color: '#fbbf24', margin: '0 auto 0.5rem' }} />
-            <h2 style={{ fontSize: '1.5rem', margin: '0 0 1rem 0' }}>
+          <div className="glass-effect desempenho-ranking-card">
+            <Star size={40} className="text-muted desempenho-star" />
+            <h2 className="desempenho-ranking-title">
               {semanaSelecionada === 'TODAS' ? 'Ranking da Turma' : `Ranking — Semana ${semanaSelecionada}`}
             </h2>
             
             {/* Tabs de Filtro */}
-            <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+            <div className="desempenho-tabs">
               <button 
                 onClick={() => setCategoria('GERAL')}
-                style={{ flex: 1, minWidth: '80px', padding: '0.5rem', borderRadius: '8px', border: 'none', background: categoria === 'GERAL' ? 'var(--primary-dark)' : 'rgba(255,255,255,0.05)', color: categoria === 'GERAL' ? 'white' : 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}
+                className="desempenho-tab"
+                style={{ background: categoria === 'GERAL' ? 'var(--primary-dark)' : undefined, color: categoria === 'GERAL' ? 'white' : undefined }}
               >
-                <Trophy size={16} /> <span style={{ fontSize: '0.75rem' }}>Geral</span>
+                <Trophy size={16} /> <span className="desempenho-tab-label">Geral</span>
               </button>
               <button 
                 onClick={() => setCategoria('PRESENCA')}
-                style={{ flex: 1, minWidth: '80px', padding: '0.5rem', borderRadius: '8px', border: 'none', background: categoria === 'PRESENCA' ? 'var(--success)' : 'rgba(255,255,255,0.05)', color: categoria === 'PRESENCA' ? 'white' : 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}
+                className="desempenho-tab"
+                style={{ background: categoria === 'PRESENCA' ? 'var(--success)' : undefined, color: categoria === 'PRESENCA' ? 'white' : undefined }}
               >
-                <CalendarDays size={16} /> <span style={{ fontSize: '0.75rem' }}>Presença</span>
+                <CalendarDays size={16} /> <span className="desempenho-tab-label">Presença</span>
               </button>
               <button 
                 onClick={() => setCategoria('VITAMINA')}
-                style={{ flex: 1, minWidth: '80px', padding: '0.5rem', borderRadius: '8px', border: 'none', background: categoria === 'VITAMINA' ? '#fbbf24' : 'rgba(255,255,255,0.05)', color: categoria === 'VITAMINA' ? 'black' : 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}
+                className="desempenho-tab"
+                style={{ background: categoria === 'VITAMINA' ? '#fbbf24' : undefined, color: categoria === 'VITAMINA' ? 'black' : undefined }}
               >
-                <Leaf size={16} /> <span style={{ fontSize: '0.75rem' }}>Vitamina</span>
+                <Leaf size={16} /> <span className="desempenho-tab-label">Vitamina</span>
               </button>
               <button 
                 onClick={() => setCategoria('TAREFAS')}
-                style={{ flex: 1, minWidth: '80px', padding: '0.5rem', borderRadius: '8px', border: 'none', background: categoria === 'TAREFAS' ? '#9333ea' : 'rgba(255,255,255,0.05)', color: categoria === 'TAREFAS' ? 'white' : 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}
+                className="desempenho-tab"
+                style={{ background: categoria === 'TAREFAS' ? '#9333ea' : undefined, color: categoria === 'TAREFAS' ? 'white' : undefined }}
               >
-                <CheckSquare size={16} /> <span style={{ fontSize: '0.75rem' }}>Tarefas</span>
+                <CheckSquare size={16} /> <span className="desempenho-tab-label">Tarefas</span>
               </button>
             </div>
           </div>
 
           {casaisOrdenados.length === 0 ? (
-            <div className="glass-effect" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <div className="glass-effect desempenho-no-alunos">
               Nenhum aluno cadastrado nesta turma ainda. Vá até a turma e adicione membros!
             </div>
           ) : (
@@ -192,8 +184,7 @@ export default function Desempenho() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
                       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                      className="glass-effect"
-                      style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}
+                      className="glass-effect desempenho-card"
                     >
                       {/* Posição no ranking */}
                       <div style={{ fontSize: '1.5rem', fontWeight: 'bold', minWidth: '35px', color: index === 0 ? '#fbbf24' : index === 1 ? '#e2e8f0' : index === 2 ? '#b45309' : 'var(--text-muted)' }}>
@@ -223,12 +214,12 @@ export default function Desempenho() {
                         size={40}
                         onClick={() => setFotoAmpliada(c)}
                       />
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{c.nomeEle} & {c.nomeEla}</h3>
+                      <div className="desempenho-casal-info">
+                        <h3 className="desempenho-casal-name">{c.nomeEle} & {c.nomeEla}</h3>
                       </div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--primary-light)' }}>
+                      <div className="desempenho-pontos">
                         {pontos}
-                        <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-muted)', marginLeft: '4px' }}>pts</span>
+                        <span className="desempenho-pts-label">pts</span>
                       </div>
                     </motion.div>
                   );
@@ -241,26 +232,18 @@ export default function Desempenho() {
     </div>
 
       {fotoAmpliada && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '2rem', cursor: 'pointer'
-        }} onClick={() => setFotoAmpliada(null)}>
-          <div style={{ textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+        <div className="desempenho-photo-overlay" onClick={() => setFotoAmpliada(null)}>
+          <div className="desempenho-photo-container" onClick={e => e.stopPropagation()}>
             {fotoAmpliada.fotoUrl ? (
               <img src={fotoAmpliada.fotoUrl} alt={`${fotoAmpliada.nomeEle} e ${fotoAmpliada.nomeEla}`}
-                style={{ maxWidth: '300px', maxHeight: '300px', borderRadius: '16px', objectFit: 'cover' }} />
+                className="desempenho-photo" />
             ) : (
               <AvatarCasado nomeEle={fotoAmpliada.nomeEle} nomeEla={fotoAmpliada.nomeEla} size={120} />
             )}
-            <p style={{ color: 'white', marginTop: '1rem', fontSize: '1.1rem' }}>
+            <p className="desempenho-photo-caption">
               {fotoAmpliada.nomeEle} & {fotoAmpliada.nomeEla}
             </p>
-            <button onClick={() => setFotoAmpliada(null)} style={{
-              background: 'var(--primary)', color: 'white', border: 'none',
-              padding: '0.5rem 2rem', borderRadius: '8px', cursor: 'pointer'
-            }}>Fechar</button>
+            <button onClick={() => setFotoAmpliada(null)} className="desempenho-photo-close">Fechar</button>
           </div>
         </div>
       )}

@@ -1,0 +1,166 @@
+/* Acompanhamento - Loading */
+.acomp-loading {
+  text-align: center;
+  padding: 3rem;
+}
+
+/* Link Voltar */
+.acomp-back-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+/* Título da semana */
+.acomp-title {
+  margin-top: 0.5rem;
+  color: var(--text-main);
+}
+
+/* Data da semana */
+.acomp-date {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 0.25rem;
+}
+
+/* Lista de casais */
+.acomp-casais-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Mensagem vazio */
+.acomp-empty {
+  color: var(--text-muted);
+}
+
+/* Card do casal */
+.acomp-casal-card {
+  padding: 1.5rem;
+}
+
+/* Nome do casal (header do card) */
+.acomp-casal-name {
+  margin-bottom: 1.25rem;
+  color: var(--text-main);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Lista de checks */
+.acomp-checks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Label de checkbox */
+.acomp-check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+/* Checkbox padrão */
+.acomp-checkbox {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--primary-light);
+}
+
+/* Checkbox extra (amarelo) */
+.acomp-checkbox--extra {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: #fbbf24;
+}
+
+/* Texto do check */
+.acomp-check-text {
+  font-size: 1.1rem;
+}
+
+/* Texto do check extra */
+.acomp-check-text--extra {
+  font-size: 1.1rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* Box de Vitaminas Sorteadas */
+.acomp-vitaminas-box {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+}
+
+/* Header das vitaminas */
+.acomp-vitaminas-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  color: var(--primary-light);
+  font-weight: 600;
+}
+
+.acomp-vitaminas-header span {
+  font-size: 0.95rem;
+}
+
+/* Lista de vitaminas */
+.acomp-vitaminas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Item de vitamina */
+.acomp-vitamina-item {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Nome da pessoa na vitamina */
+.acomp-vitamina-name {
+  color: var(--text-main);
+}
+
+/* Separador */
+.acomp-vitamina-sep {
+  color: var(--text-muted);
+}
+
+/* Nome da vitamina */
+.acomp-vitamina-nome {
+  color: var(--text-muted);
+}
+
+/* Ícone de check (sucesso) */
+.acomp-check-icon {
+  color: var(--success);
+}
+
+/* Nota sobre pontuação */
+.acomp-vitaminas-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Mensagem sem vitamina */
+.acomp-vitaminas-empty {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+}

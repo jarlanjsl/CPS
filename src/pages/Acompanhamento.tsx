@@ -2,6 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { dbService, type Casal, type SemanaCheck, type SorteioVitaminas } from '../services/db';
 import { useState, useEffect } from 'react';
 import { LoaderCircle, Leaf, Check } from 'lucide-react';
+import '../styles/acompanhamento.css';
 
 export default function Acompanhamento() {
   const { id, semanaId } = useParams();
@@ -128,19 +129,19 @@ export default function Acompanhamento() {
     }
   };
 
-  if (loading) return <div className="page-container" style={{ textAlign: 'center', padding: '3rem' }}><LoaderCircle size={32} style={{ animation: 'spin 1s linear infinite' }} /></div>;
+  if (loading) return <div className="page-container acomp-loading"><LoaderCircle size={32} className="spinner" /></div>;
 
   return (
     <div className="page-container">
       <header className="page-header">
         <div>
-          <Link to={`/turma/${id}`} style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem' }}>
+          <Link to={`/turma/${id}`} className="acomp-back-link">
             ← Voltar
           </Link>
-          <h1 style={{ marginTop: '0.5rem', color: 'var(--text-main)' }}>
+          <h1 className="acomp-title">
             Semana {semanaId}
             {dataSemana && (
-              <span style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '0.25rem' }}>
+              <span className="acomp-date">
                 {dataSemana}
               </span>
             )}
@@ -151,89 +152,89 @@ export default function Acompanhamento() {
         </button>
       </header>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        {casais.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Nenhum membro nesta turma.</p>}
+      <div className="acomp-casais-list">
+        {casais.length === 0 && <p className="acomp-empty">Nenhum membro nesta turma.</p>}
         {casais.map(c => {
           const sorteioCasal = sorteio[c.id];
           const temSorteio = !!sorteioCasal && (!!sorteioCasal.ele || !!sorteioCasal.ela);
           return (
-            <div key={c.id} className="glass-effect" style={{ padding: '1.5rem' }}>
-              <h3 style={{ marginBottom: '1.25rem', color: 'var(--text-main)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
+            <div key={c.id} className="glass-effect acomp-casal-card">
+              <h3 className="acomp-casal-name">
                 <span>{c.nomeEle} & {c.nomeEla}</span>
               </h3>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+              <div className="acomp-checks-list">
+                <label className="acomp-check-label">
                   <input
                     type="checkbox"
                     checked={checks[c.id]?.presenca}
                     onChange={() => toggleCheck(c.id, 'presenca')}
-                    style={{ width: '1.2rem', height: '1.2rem', accentColor: 'var(--primary-light)' }}
+                    className="acomp-checkbox"
                   />
-                  <span style={{ fontSize: '1.1rem' }}>Presença</span>
+                  <span className="acomp-check-text">Presença</span>
                 </label>
 
                 {/* HU-27: Vitaminas Sorteadas — checks individuais Ele/Ela em tempo real */}
-                <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '12px', padding: '1rem 1.1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', color: 'var(--primary-light)', fontWeight: 600 }}>
+                <div className="acomp-vitaminas-box">
+                  <div className="acomp-vitaminas-header">
                     <Leaf size={18} />
-                    <span style={{ fontSize: '0.95rem' }}>Vitaminas Sorteadas</span>
+                    <span>Vitaminas Sorteadas</span>
                   </div>
 
                   {temSorteio ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div className="acomp-vitaminas-list">
                       {(['ele', 'ela'] as const).map(p => {
                         const item = sorteioCasal?.[p];
                         if (!item) return null;
                         const chave = `${c.id}:${p}`;
                         const emProgresso = savingVitamina === chave;
                         return (
-                          <label key={p} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: emProgresso ? 'wait' : 'pointer' }}>
+                          <label key={p} className="acomp-check-label" style={{ cursor: emProgresso ? 'wait' : 'pointer' }}>
                             <input
                               type="checkbox"
                               checked={item.check}
                               disabled={emProgresso}
                               onChange={() => toggleVitaminaCheck(c.id, p)}
-                              style={{ width: '1.2rem', height: '1.2rem', accentColor: 'var(--primary-light)' }}
+                              className="acomp-checkbox"
                             />
-                            <span style={{ fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                              <strong style={{ color: 'var(--text-main)' }}>{p === 'ele' ? c.nomeEle : c.nomeEla}</strong>
-                              <span style={{ color: 'var(--text-muted)' }}>·</span>
-                              <span style={{ color: 'var(--text-muted)' }}>{item.nome}</span>
-                              {item.check && <Check size={15} style={{ color: 'var(--success)' }} />}
+                            <span className="acomp-vitamina-item">
+                              <strong className="acomp-vitamina-name">{p === 'ele' ? c.nomeEle : c.nomeEla}</strong>
+                              <span className="acomp-vitamina-sep">·</span>
+                              <span className="acomp-vitamina-nome">{item.nome}</span>
+                              {item.check && <Check size={15} className="acomp-check-icon" />}
                             </span>
                           </label>
                         );
                       })}
-                      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+                      <p className="acomp-vitaminas-note">
                         Cada check vale 1 pt (máx. 2 pts/semana). Salvo automaticamente.
                       </p>
                     </div>
                   ) : (
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
+                    <p className="acomp-vitaminas-empty">
                       Sem vitamina sorteada para esta semana. Vá à tela da turma para sortear.
                     </p>
                   )}
                 </div>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                <label className="acomp-check-label">
                   <input
                     type="checkbox"
                     checked={checks[c.id]?.tarefas}
                     onChange={() => toggleCheck(c.id, 'tarefas')}
-                    style={{ width: '1.2rem', height: '1.2rem', accentColor: 'var(--primary-light)' }}
+                    className="acomp-checkbox"
                   />
-                  <span style={{ fontSize: '1.1rem' }}>Tarefas Base</span>
+                  <span className="acomp-check-text">Tarefas Base</span>
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                <label className="acomp-check-label">
                   <input
                     type="checkbox"
                     checked={checks[c.id]?.tarefasExtras}
                     onChange={() => toggleCheck(c.id, 'tarefasExtras')}
-                    style={{ width: '1.2rem', height: '1.2rem', accentColor: '#fbbf24' }}
+                    className="acomp-checkbox--extra"
                   />
-                  <span style={{ fontSize: '1.1rem', color: '#fbbf24', fontWeight: 600 }}>Tarefa Extra (+1pt)</span>
+                  <span className="acomp-check-text--extra">Tarefa Extra (+1pt)</span>
                 </label>
               </div>
             </div>

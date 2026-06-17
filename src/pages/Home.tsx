@@ -48,25 +48,25 @@ export default function Home() {
   };
 
   return (
-    <div className="page-container" style={{ position: 'relative' }}>
+    <div className="page-container">
       <header className="page-header">
         <h1>Minhas Turmas</h1>
-        <button className="btn-primary" onClick={() => setIsModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <button className="btn-primary btn-icon" onClick={() => setIsModalOpen(true)}>
           <Plus size={18} />
           Nova Turma
         </button>
       </header>
 
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-           <LoaderCircle size={32} className="text-muted" style={{ animation: 'spin 1s linear infinite' }} />
+        <div className="loading-container">
+           <LoaderCircle size={32} className="text-muted spinner" />
         </div>
       ) : (
         <div className="turmas-list">
           {/* Seção: Turmas Ativas */}
           {turmasAtivas.length > 0 && (
             <>
-              <h3 style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Turmas Ativas</h3>
+              <h3 className="section-heading">Turmas Ativas</h3>
               {turmasAtivas.map((turma) => (
                 <Link to={`/turma/${turma.id}`} key={turma.id} className="turma-card">
                   <h2>
@@ -87,13 +87,12 @@ export default function Home() {
           {/* Seção: Turmas Concluídas */}
           {turmasConcluidas.length > 0 && (
             <>
-              <h3 style={{ color: 'var(--text-muted)', marginBottom: '1rem', marginTop: '2rem' }}>Turmas Concluídas</h3>
+              <h3 className="section-heading section-heading--mt">Turmas Concluídas</h3>
               {turmasConcluidas.map((turma) => (
                 <Link 
                   to={`/turma/${turma.id}`} 
                   key={turma.id} 
-                  className="turma-card"
-                  style={{ opacity: 0.7, filter: 'grayscale(30%)' }}
+                  className="turma-card turma-card--concluded"
                 >
                   <h2>
                     <Users size={20} className="text-muted" />
@@ -111,11 +110,11 @@ export default function Home() {
           )}
 
           {turmas.length === 0 && (
-            <div className="empty-state" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+            <div className="empty-state">
               <p>O seu Banco de Dados ainda está vazio.</p>
               <button 
                 onClick={() => dbService.seedInitialData().then(() => fetchTurmas())}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--primary-dark)', padding: '0.75rem 1rem', border: 'none', borderRadius: '8px', color: 'white', cursor: 'pointer', fontWeight: 600 }}>
+                className="btn-seed">
                 <DatabaseBackup size={18}/>
                 Preencher Dados (Seed)
               </button>
@@ -126,44 +125,39 @@ export default function Home() {
 
       {/* Modal Glassmorphism para Criar Turma */}
       {isModalOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '1.5rem'
-        }}>
-          <form className="glass-effect" onSubmit={handleCriarTurma} style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
-            <button type="button" onClick={() => setIsModalOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className="modal-overlay">
+          <form className="glass-effect modal-form" onSubmit={handleCriarTurma}>
+            <button type="button" onClick={() => setIsModalOpen(false)} className="modal-close-btn">
               <X size={24} />
             </button>
             
-            <h2 style={{ fontSize: '1.25rem', marginTop: 0 }}>Criar Nova Turma</h2>
+            <h2 className="modal-title">Criar Nova Turma</h2>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Mês/Edição</label>
+            <div className="form-field">
+              <label className="form-label">Mês/Edição</label>
               <input 
                 autoFocus
                 placeholder="Ex: Turma Primavera 2026"
                 value={novaTurmaNome}
                 onChange={e => setNovaTurmaNome(e.target.value)}
-                style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+                className="glass-input"
                 disabled={criando}
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Data de Início Oficial</label>
+            <div className="form-field">
+              <label className="form-label">Data de Início Oficial</label>
               <input 
                 type="date"
                 value={novaTurmaData}
                 onChange={e => setNovaTurmaData(e.target.value)}
-                style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit', colorScheme: 'dark' }}
+                className="glass-input"
                 disabled={criando}
               />
             </div>
 
-            <button type="submit" className="btn-primary" disabled={criando || !novaTurmaNome.trim() || !novaTurmaData} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-              {criando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Cadastrar'}
+            <button type="submit" className="btn-primary btn-primary--full" disabled={criando || !novaTurmaNome.trim() || !novaTurmaData}>
+              {criando ? <LoaderCircle size={20} className="spinner" /> : 'Cadastrar'}
             </button>
           </form>
         </div>
