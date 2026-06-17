@@ -1,6 +1,30 @@
 import { collection, getDocs, addDoc, query, where, orderBy, updateDoc, doc, getDoc, deleteDoc, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
 
+// Catálogo de vitaminas da turma — embutido em turmas/{turmaId}.vitaminas
+export interface Vitamina {
+  id: string;            // UUID gerado client-side (crypto.randomUUID())
+  nome: string;
+  descricao: string;
+  semanas: number[];     // semanas em que está ativa (ex: [1,3,5] ou [] = inativa)
+  createdAt: string;     // ISO timestamp
+}
+
+// Snapshot de uma vitamina sorteada para uma pessoa de um casal em uma semana
+export interface VitaminaSorteio {
+  vitaminaId: string;    // FK para turmas.vitaminas[id]
+  nome: string;          // DENORMALIZADO — snapshot no momento do sorteio
+  descricao: string;     // DENORMALIZADO — snapshot no momento do sorteio
+  check: boolean;        // HU-27: check individual (Ele ✅ ou Ela ✅)
+  sorteadoEm: string;    // ISO timestamp — usado para histórico HU-28
+}
+
+// Sorteio completo para um casal em uma semana (uma pra ele + uma pra ela)
+export interface SorteioVitaminas {
+  ele: VitaminaSorteio | null;
+  ela: VitaminaSorteio | null;
+}
+
 export interface Turma {
   id: string;
   nome: string;
@@ -8,13 +32,15 @@ export interface Turma {
   concluida: boolean;
   createdAt?: string;
   datasSemanas?: Record<number, string>;
+  vitaminas?: Record<string, Vitamina>;
 }
 
 export interface SemanaCheck {
   presenca: boolean;
-  vitaminas: boolean;
+  vitaminas?: boolean;          // Deprecated (compat retroativa) — substituído por sorteioVitaminas
   tarefas: boolean;
   tarefasExtras: boolean;
+  sorteioVitaminas?: SorteioVitaminas;
 }
 
 export interface Casal {
@@ -26,6 +52,17 @@ export interface Casal {
   pontuacaoTotal: number;
   semanas?: Record<string, SemanaCheck>;
   fotoUrl?: string;
+}
+
+// HU-28: Projeção de uma semana do histórico de vitaminas de um casal.
+// Consumido pela página MinhasVitaminas (lista ordenada da mais recente para a mais antiga).
+export interface HistoricoVitaminasItem {
+  semana: number;
+  data: string | null;
+  vitaminaEle: string | null;
+  vitaminaEla: string | null;
+  statusEle: 'CUMPRIDA' | 'PENDENTE' | 'NAO_SORTEADA';
+  statusEla: 'CUMPRIDA' | 'PENDENTE' | 'NAO_SORTEADA';
 }
 
 export const dbService = {
@@ -254,16 +291,31 @@ export const dbService = {
         const data = casalSnap.data();
         const semanas = { ...(data.semanas || {}) };
 
-        // Atualiza o mapa dessa semana específica
-        semanas[semanaId] = checklist;
+        // Atualiza o mapa dessa semana específica.
+        // HU-27: mescla em vez de sobrescrever para preservar o sorteioVitaminas
+        // gravado em tempo real pelos checks individuais (Ele ✅ / Ela ✅),
+        // evitando que o botão "Salvar" clobere o estado real-time da vitamina.
+        semanas[semanaId] = {
+          ...(semanas[semanaId] || {}),
+          ...checklist
+        };
 
         // Recalcular Total Global do Casal (Soma todas as semanas gravadas)
         let pontuacaoRecalculada = 0;
         Object.values(semanas).forEach((sem: any) => {
           if (sem.presenca) pontuacaoRecalculada += 1;
-          if (sem.vitaminas) pontuacaoRecalculada += 1;
           if (sem.tarefas) pontuacaoRecalculada += 1;
           if (sem.tarefasExtras) pontuacaoRecalculada += 1;
+          // HU-27: vitamina agora vale 0, 1 ou 2 pontos (check individual Ele/Ela).
+          // else if garante que semanas legacy (vitaminas: true) não somem em dobro
+          // quando a semana também possui sorteioVitaminas.
+          if (sem.sorteioVitaminas) {
+            if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
+            if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
+          } else if (sem.vitaminas) {
+            // LEGACY: semanas gravadas antes do Sprint 4 (compat retroativa)
+            pontuacaoRecalculada += 1;
+          }
         });
 
         // Atualiza atomicamente dentro da transação
@@ -305,6 +357,341 @@ export const dbService = {
     } catch(err) {
       console.error("Erro de Seed:", err);
       alert("Falha. Verifique as regras de segurança do Firestore. Elas precisam estar em modo de teste.");
+    }
+  },
+
+  // ===== HU-26: Vitaminas da Semana (CRUD) =====
+  // Catálogo embutido em turmas/{turmaId}.vitaminas (Record<string, Vitamina>)
+
+  // Lê o documento da turma, gera id via crypto.randomUUID(), adiciona a nova vitamina
+  // com semanas: [] e createdAt, e persiste o mapa completo via updateDoc.
+  addVitamina: async (turmaId: string, nome: string, descricao: string): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      const turmaRef = doc(db, "turmas", turmaId);
+      const turmaSnap = await getDoc(turmaRef);
+      if (!turmaSnap.exists()) return false;
+
+      const data = turmaSnap.data();
+      const vitaminas = { ...(data.vitaminas || {}) };
+      const id = crypto.randomUUID();
+      vitaminas[id] = {
+        id,
+        nome,
+        descricao,
+        semanas: [],
+        createdAt: new Date().toISOString()
+      };
+
+      await updateDoc(turmaRef, { vitaminas });
+      return true;
+    } catch (e) {
+      console.error("Erro ao cadastrar vitamina:", e);
+      return false;
+    }
+  },
+
+  // Atualiza nome e/ou descricao via dot notation (vitaminas.{id}.nome / .descricao).
+  updateVitamina: async (turmaId: string, vitaminaId: string, dados: { nome?: string; descricao?: string }): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      const updateData: Record<string, string> = {};
+      if (dados.nome !== undefined) updateData[`vitaminas.${vitaminaId}.nome`] = dados.nome;
+      if (dados.descricao !== undefined) updateData[`vitaminas.${vitaminaId}.descricao`] = dados.descricao;
+      if (Object.keys(updateData).length === 0) return false;
+
+      await updateDoc(doc(db, "turmas", turmaId), updateData);
+      return true;
+    } catch (e) {
+      console.error("Erro ao editar vitamina:", e);
+      return false;
+    }
+  },
+
+  // Lê a turma, remove a vitamina do mapa e persiste o mapa atualizado.
+  deleteVitamina: async (turmaId: string, vitaminaId: string): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      const turmaRef = doc(db, "turmas", turmaId);
+      const turmaSnap = await getDoc(turmaRef);
+      if (!turmaSnap.exists()) return false;
+
+      const data = turmaSnap.data();
+      const vitaminas = { ...(data.vitaminas || {}) };
+      if (!vitaminas[vitaminaId]) return false;
+
+      delete vitaminas[vitaminaId];
+      await updateDoc(turmaRef, { vitaminas });
+      return true;
+    } catch (e) {
+      console.error("Erro ao excluir vitamina:", e);
+      return false;
+    }
+  },
+
+  // Atualiza o array de semanas ativas da vitamina via dot notation.
+  setVitaminaSemanas: async (turmaId: string, vitaminaId: string, semanas: number[]): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      await updateDoc(doc(db, "turmas", turmaId), {
+        [`vitaminas.${vitaminaId}.semanas`]: semanas
+      });
+      return true;
+    } catch (e) {
+      console.error("Erro ao atualizar semanas da vitamina:", e);
+      return false;
+    }
+  },
+
+  // Retorna todas as vitaminas cadastradas na turma (usado pelo componente de admin HU-26).
+  getVitaminas: async (turmaId: string): Promise<Vitamina[]> => {
+    if (!db) return [];
+    try {
+      const turmaSnap = await getDoc(doc(db, "turmas", turmaId));
+      if (!turmaSnap.exists()) return [];
+
+      const data = turmaSnap.data();
+      const vitaminas: Record<string, Vitamina> = data.vitaminas || {};
+      return Object.values(vitaminas);
+    } catch (e) {
+      console.error("Erro ao carregar vitaminas:", e);
+      return [];
+    }
+  },
+
+  // ===== HU-25: Sorteio de Vitaminas (Roleta) =====
+  // Filtra as vitaminas ativas em uma semana específica (consumido pela roleta HU-25).
+  getVitaminasDaSemana: async (turmaId: string, semana: number): Promise<Vitamina[]> => {
+    if (!db) return [];
+    try {
+      const turmaSnap = await getDoc(doc(db, "turmas", turmaId));
+      if (!turmaSnap.exists()) return [];
+
+      const data = turmaSnap.data();
+      const vitaminas: Record<string, Vitamina> = data.vitaminas || {};
+      return Object.values(vitaminas).filter(
+        (v) => Array.isArray(v.semanas) && v.semanas.includes(semana)
+      );
+    } catch (e) {
+      console.error("Erro ao carregar vitaminas da semana:", e);
+      return [];
+    }
+  },
+
+  // Persiste o snapshot do sorteio (uma vitamina pra ele + uma pra ela) na semana do casal
+  // e recalcula a pontuação total atomicamente via runTransaction.
+  sortearVitaminas: async (
+    casalId: string,
+    semanaId: string,
+    vitaminaEle: Vitamina,
+    vitaminaEla: Vitamina
+  ): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      const casalRef = doc(db, "casais", casalId);
+
+      await runTransaction(db, async (transaction) => {
+        const casalSnap = await transaction.get(casalRef);
+        if (!casalSnap.exists()) return;
+
+        const data = casalSnap.data();
+        const semanas = { ...(data.semanas || {}) };
+        const semanaAtual: SemanaCheck = semanas[semanaId] || {
+          presenca: false,
+          tarefas: false,
+          tarefasExtras: false
+        };
+
+        const agora = new Date().toISOString();
+        const sorteioVitaminas: SorteioVitaminas = {
+          ele: {
+            vitaminaId: vitaminaEle.id,
+            nome: vitaminaEle.nome,
+            descricao: vitaminaEle.descricao,
+            check: false,
+            sorteadoEm: agora
+          },
+          ela: {
+            vitaminaId: vitaminaEla.id,
+            nome: vitaminaEla.nome,
+            descricao: vitaminaEla.descricao,
+            check: false,
+            sorteadoEm: agora
+          }
+        };
+
+        semanaAtual.sorteioVitaminas = sorteioVitaminas;
+        semanas[semanaId] = semanaAtual;
+
+        // Recalcular pontuação total do casal (soma todas as semanas).
+        // HU-27: mesma fórmula canônica do saveChecklist/saveVitaminaCheck —
+        // vitamina vale 0, 1 ou 2 pts (checks individuais); else if preserva a
+        // compat retroativa com `vitaminas: boolean` sem duplicar pontos.
+        let pontuacaoRecalculada = 0;
+        Object.values(semanas).forEach((sem: any) => {
+          if (sem.presenca) pontuacaoRecalculada += 1;
+          if (sem.tarefas) pontuacaoRecalculada += 1;
+          if (sem.tarefasExtras) pontuacaoRecalculada += 1;
+          if (sem.sorteioVitaminas) {
+            if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
+            if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
+          } else if (sem.vitaminas) {
+            pontuacaoRecalculada += 1; // legacy
+          }
+        });
+
+        transaction.update(casalRef, {
+          semanas,
+          pontuacaoTotal: pontuacaoRecalculada
+        });
+      });
+
+      return true;
+    } catch (e) {
+      console.error("Erro ao sortear vitaminas:", e);
+      return false;
+    }
+  },
+
+  // ===== HU-27: Check individual de execução das vitaminas =====
+  // Persiste em tempo real o check (Ele ✅ / Ela ✅) de uma vitamina sorteada,
+  // sem esperar o botão "Salvar" do checklist. Usa runTransaction para garantir
+  // atomicidade e recalcula a pontuação total com a mesma fórmula do saveChecklist
+  // (vitamina vale 0, 1 ou 2 pts; branch legacy para `vitaminas: true`).
+  // Retorna false quando não há sorteioVitaminas na semana (nada a checkar).
+  saveVitaminaCheck: async (
+    casalId: string,
+    semanaId: string,
+    pessoa: 'ele' | 'ela',
+    checked: boolean
+  ): Promise<boolean> => {
+    if (!db) return false;
+    let hadSorteio = false;
+    try {
+      const casalRef = doc(db, "casais", casalId);
+
+      await runTransaction(db, async (transaction) => {
+        const casalSnap = await transaction.get(casalRef);
+        if (!casalSnap.exists()) return;
+
+        const data = casalSnap.data();
+        const semanas = { ...(data.semanas || {}) };
+        const semanaAtual: SemanaCheck = semanas[semanaId] || {
+          presenca: false,
+          tarefas: false,
+          tarefasExtras: false
+        };
+
+        // Sem vitamina sorteada nesta semana → nada a checkar
+        if (!semanaAtual.sorteioVitaminas) return;
+        const alvo = semanaAtual.sorteioVitaminas[pessoa];
+        if (!alvo) return; // sorteio nulo para essa pessoa (ex.: roleta pendente)
+
+        hadSorteio = true;
+
+        // Atualiza apenas o check da pessoa, preservando o snapshot do sorteio
+        const novoSorteio: SorteioVitaminas = { ...semanaAtual.sorteioVitaminas };
+        novoSorteio[pessoa] = { ...alvo, check: checked };
+        semanaAtual.sorteioVitaminas = novoSorteio;
+        semanas[semanaId] = semanaAtual;
+
+        // Recalcular pontuação total (mesma fórmula canônica do saveChecklist)
+        let pontuacaoRecalculada = 0;
+        Object.values(semanas).forEach((sem: any) => {
+          if (sem.presenca) pontuacaoRecalculada += 1;
+          if (sem.tarefas) pontuacaoRecalculada += 1;
+          if (sem.tarefasExtras) pontuacaoRecalculada += 1;
+          if (sem.sorteioVitaminas) {
+            if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
+            if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
+          } else if (sem.vitaminas) {
+            // LEGACY: semanas gravadas antes do Sprint 4 (compat retroativa)
+            pontuacaoRecalculada += 1;
+          }
+        });
+
+        transaction.update(casalRef, {
+          semanas,
+          pontuacaoTotal: pontuacaoRecalculada
+        });
+      });
+
+      return hadSorteio;
+    } catch (e) {
+      console.error("Erro ao gravar check de vitamina:", e);
+      return false;
+    }
+  },
+
+  // ===== HU-28: Histórico de Vitaminas do Aluno =====
+  // Projeta o documento do casal em uma lista de semanas que possuem sorteioVitaminas,
+  // com status individual (Ele/Ela). Ordenado da semana mais recente para a mais antiga.
+  // A data de cada semana vem de turma.datasSemanas[semana] ou é calculada a partir de dataInicio.
+  getHistoricoVitaminas: async (casalId: string): Promise<HistoricoVitaminasItem[]> => {
+    if (!db) return [];
+    try {
+      const casalSnap = await getDoc(doc(db, "casais", casalId));
+      if (!casalSnap.exists()) return [];
+
+      const casalData = casalSnap.data() as Casal;
+      const semanas = casalData.semanas || {};
+      const turmaId = casalData.turmaId;
+
+      // Lê a turma vinculada para obter datasSemanas (override) e dataInicio (fallback)
+      let datasSemanas: Record<number, string> | undefined;
+      let dataInicio: string | undefined;
+      if (turmaId) {
+        const turmaSnap = await getDoc(doc(db, "turmas", turmaId));
+        if (turmaSnap.exists()) {
+          const turmaData = turmaSnap.data() as Turma;
+          datasSemanas = turmaData.datasSemanas;
+          dataInicio = turmaData.dataInicio;
+        }
+      }
+
+      // Calcula a data de uma semana: override personalizado > dataInicio + (semana-1)*7 dias
+      const calcularData = (semanaNum: number): string | null => {
+        if (datasSemanas && datasSemanas[semanaNum]) {
+          return datasSemanas[semanaNum];
+        }
+        if (dataInicio) {
+          const inicio = new Date(dataInicio);
+          const diasParaAdicionar = (semanaNum - 1) * 7;
+          const novaData = new Date(inicio);
+          novaData.setDate(novaData.getDate() + diasParaAdicionar);
+          return novaData.toISOString();
+        }
+        return null;
+      };
+
+      // Projeta o check individual em um status de três estados
+      const statusDe = (check: boolean | null | undefined): 'CUMPRIDA' | 'PENDENTE' | 'NAO_SORTEADA' => {
+        if (check === null || check === undefined) return 'NAO_SORTEADA';
+        return check ? 'CUMPRIDA' : 'PENDENTE';
+      };
+
+      const itens: HistoricoVitaminasItem[] = [];
+      Object.entries(semanas).forEach(([semanaKey, sem]) => {
+        if (!sem.sorteioVitaminas) return;
+        const semanaNum = Number(semanaKey);
+        const sorteio = sem.sorteioVitaminas;
+        itens.push({
+          semana: semanaNum,
+          data: calcularData(semanaNum),
+          vitaminaEle: sorteio.ele?.nome ?? null,
+          vitaminaEla: sorteio.ela?.nome ?? null,
+          statusEle: sorteio.ele ? statusDe(sorteio.ele.check) : 'NAO_SORTEADA',
+          statusEla: sorteio.ela ? statusDe(sorteio.ela.check) : 'NAO_SORTEADA',
+        });
+      });
+
+      // Ordena da semana mais recente para a mais antiga
+      itens.sort((a, b) => b.semana - a.semana);
+
+      return itens;
+    } catch (e) {
+      console.error("Erro ao carregar histórico de vitaminas:", e);
+      return [];
     }
   }
 };

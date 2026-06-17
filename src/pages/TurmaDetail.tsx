@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import { dbService, type Casal, type Turma } from '../services/db';
 import { storageService } from '../services/storage';
 import AvatarCasado from '../components/AvatarCasado';
-import { LoaderCircle, Pencil, Plus, X, Trash2, Camera } from 'lucide-react';
+import VitaminasSection from '../components/VitaminasSection';
+import SorteioVitaminasModal from '../components/SorteioVitaminasModal';
+import { LoaderCircle, Pencil, Plus, X, Trash2, Camera, Dices, History } from 'lucide-react';
 import '../styles/home.css';
 
 export default function TurmaDetail() {
@@ -28,6 +30,9 @@ export default function TurmaDetail() {
   const [isEditSemanaOpen, setIsEditSemanaOpen] = useState(false);
   const [semanaEditando, setSemanaEditando] = useState<number | null>(null);
   const [novaDataSemana, setNovaDataSemana] = useState('');
+
+  // State para Sorteio de Vitaminas (Roleta) — HU-25
+  const [semanaSorteio, setSemanaSorteio] = useState<number | null>(null);
 
   // States para Novo Membro
   const [isAddCasalOpen, setIsAddCasalOpen] = useState(false);
@@ -383,6 +388,29 @@ export default function TurmaDetail() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pontos</span>
                 <span style={{ fontWeight: 'bold', color: 'var(--success)' }}>{c.pontuacaoTotal}</span>
+                <Link
+                  to={`/aluno/${c.id}/vitaminas`}
+                  style={{
+                    marginTop: '0.5rem',
+                    fontSize: '0.72rem',
+                    fontFamily: 'inherit',
+                    fontWeight: 600,
+                    color: 'var(--primary-light)',
+                    background: 'rgba(99, 102, 241, 0.12)',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    borderRadius: '8px',
+                    padding: '0.35rem 0.6rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap'
+                  }}
+                  title="Ver histórico de vitaminas do casal"
+                >
+                  <History size={13} />
+                  Histórico de Vitaminas
+                </Link>
               </div>
             </div>
           ))}
@@ -391,6 +419,9 @@ export default function TurmaDetail() {
           )}
         </div>
       </div>
+
+      {/* HU-26: Seção editável de Vitaminas da Semana */}
+      {id && <VitaminasSection turmaId={id} />}
 
       <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
         <h3 style={{ color: 'var(--text-main)' }}>Acompanhamento (Semanas)</h3>
@@ -421,6 +452,30 @@ export default function TurmaDetail() {
                   <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Lição {sem}</div>
                   <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>{dataSemana}</div>
                 </Link>
+                <button
+                  onClick={() => setSemanaSorteio(sem)}
+                  style={{
+                    marginTop: '0.4rem',
+                    width: '100%',
+                    padding: '0.4rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.3rem',
+                    fontSize: '0.72rem',
+                    fontFamily: 'inherit',
+                    fontWeight: 600,
+                    color: 'var(--primary-light)',
+                    background: 'rgba(99, 102, 241, 0.16)',
+                    border: '1px solid rgba(99, 102, 241, 0.4)',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                  title="Sortear vitaminas desta semana"
+                >
+                  <Dices size={13} />
+                  Girar Roleta
+                </button>
                 <button
                   onClick={() => {
                     setSemanaEditando(sem);
@@ -871,6 +926,16 @@ export default function TurmaDetail() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* MODAL: SORTEIO DE VITAMINAS (HU-25) */}
+      {semanaSorteio !== null && id && (
+        <SorteioVitaminasModal
+          turmaId={id}
+          semanaId={semanaSorteio}
+          casais={casais}
+          onClose={() => setSemanaSorteio(null)}
+        />
       )}
 
     </div>

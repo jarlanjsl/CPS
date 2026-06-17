@@ -1,6 +1,6 @@
 # Arquitetura — CPS (Casados Para Sempre)
 
-> Versao: Sprint 1 | Ultima atualizacao: 17/06/2026
+> Versao: Sprint 4 | Ultima atualizacao: 17/06/2026
 
 ---
 
@@ -181,18 +181,43 @@ O `dbService` e um objeto com metodos que encapsulam toda a comunicacao com o Fi
 | datasSemanas?:   |          | nomeEla: string   |
 |   Record<number, |          | pontuacaoTotal: n |
 |   string>        |          | semanas?:         |
-+------------------+          |   Record<string,  |
-                              |   SemanaCheck>    |
+| vitaminas?:      |          |   Record<string,  |
+|   Record<string, |          |   SemanaCheck>    |
+|   Vitamina>      |          +------------------+
++------------------+                   |
+       |                               v
+       v                      +------------------+
++------------------+          |   SemanaCheck    |
+|    Vitamina      |          +------------------+
++------------------+          | presenca: bool   |
+| id: string       |          | vitaminas?: bool |  (deprecated)
+| nome: string     |          |   (dep.)         |
+| descricao: str   |          | tarefas: bool     |
+| semanas: number[]|          | tarefasExtras:bool|
+| createdAt: str   |          | sorteioVitaminas?:|
++------------------+          |   SorteioVitaminas|
                               +------------------+
                                        |
                                        v
                               +------------------+
-                              |   SemanaCheck    |
+                              | SorteioVitaminas |
                               +------------------+
-                              | presenca: bool   |
-                              | vitaminas: bool   |
-                              | tarefas: bool     |
-                              | tarefasExtras:bool|
+                              | ele: VitaminaSort|
+                              |   | null          |
+                              | ela: VitaminaSort|
+                              |   | null          |
+                              +------------------+
+                                       |
+                                       v
+                              +------------------+
+                              | VitaminaSorteio  |
+                              +------------------+
+                              | vitaminaId: str  |
+                              | nome: str (snap) |
+                              | descricao: str   |
+                              |   (snapshot)     |
+                              | check: bool      |
+                              | sorteadoEm: str  |
                               +------------------+
 ```
 
@@ -205,6 +230,7 @@ O `dbService` e um objeto com metodos que encapsulam toda a comunicacao com o Fi
 | `dataInicio` | string (ISO) | Sim | Data de inicio da turma |
 | `concluida` | boolean | Sim | Se a turma esta finalizada (default: `false`) |
 | `datasSemanas` | Record\<number, string\> | Nao | Datas customizadas por numero de semana |
+| `vitaminas` | Record\<string, Vitamina\> | Nao | Catalogo de vitaminas da turma (HU-25). Chave = `Vitamina.id` (UUID) |
 
 ### Collection `casais`
 
@@ -220,12 +246,40 @@ O `dbService` e um objeto com metodos que encapsulam toda a comunicacao com o Fi
 
 ### Interface `SemanaCheck` (subdocumento embutido)
 
+| Campo | Tipo | Obrigatorio | Descricao |
+|---|---|---|---|
+| `presenca` | boolean | Sim | Casal presente na reuniao |
+| `vitaminas` | boolean | Opcional (deprecated) | Vitaminas feitas (forma antiga). Substituido por `sorteioVitaminas` no Sprint 4. Mantido para compat retroativa |
+| `tarefas` | boolean | Sim | Tarefas base cumpridas |
+| `tarefasExtras` | boolean | Sim | Tarefa extra cumprida (+1pt) |
+| `sorteioVitaminas` | SorteioVitaminas | Opcional | Sorteio de uma vitamina pra ele + uma pra ela na semana (HU-26/HU-27) |
+
+### Interface `Vitamina` (subdocumento embutido em `turmas.vitaminas`)
+
 | Campo | Tipo | Descricao |
 |---|---|---|
-| `presenca` | boolean | Casal presente na reuniao |
-| `vitaminas` | boolean | Vitaminas feitas |
-| `tarefas` | boolean | Tarefas base cumpridas |
-| `tarefasExtras` | boolean | Tarefa extra cumprida (+1pt) |
+| `id` | string | UUID gerado client-side (`crypto.randomUUID()`). Chave do mapa `turmas.vitaminas` |
+| `nome` | string | Nome da vitamina |
+| `descricao` | string | Descricao/orientacao da vitamina |
+| `semanas` | number[] | Semanas em que esta ativa (ex: `[1,3,5]`). `[]` = inativa |
+| `createdAt` | string (ISO) | Timestamp de criacao do catalogo |
+
+### Interface `VitaminaSorteio` (snapshot denormalizado embutido em `SorteioVitaminas`)
+
+| Campo | Tipo | Descricao |
+|---|---|---|
+| `vitaminaId` | string | FK para `turmas.vitaminas[id]` |
+| `nome` | string | DENORMALIZADO — snapshot no momento do sorteio (preserva historico) |
+| `descricao` | string | DENORMALIZADO — snapshot no momento do sorteio |
+| `check` | boolean | HU-27: check individual de execucao (Ele ✅ ou Ela ✅) |
+| `sorteadoEm` | string (ISO) | Timestamp do sorteio — usado para historico HU-28 |
+
+### Interface `SorteioVitaminas` (subdocumento embutido em `SemanaCheck.sorteioVitaminas`)
+
+| Campo | Tipo | Descricao |
+|---|---|---|
+| `ele` | VitaminaSorteio \| null | Vitamina sorteada para o marido (`null` se sem sorteio) |
+| `ela` | VitaminaSorteio \| null | Vitamina sorteada para a esposa (`null` se sem sorteio) |
 
 ### Decisoes de Modelagem
 
@@ -234,9 +288,13 @@ O `dbService` e um objeto com metodos que encapsulam toda a comunicacao com o Fi
 2. **Embedding vs Subcollection**: `semanas` e um mapa embutido no documento do casal, nao uma subcollection. Motivo:
    - Sempre lemos/escrevemos todas as semanas de um casal junto
    - A transacao precisa ler/escrever semanas + pontuacaoTotal atomicamente
-   - 14 semanas * 4 campos = dados pequenos, bem dentro do limite de 1MB/doc do Firestore
+   - 14 semanas * 5 checks (presenca, vitamina-ele, vitamina-ela, tarefas, tarefasExtras) = dados pequenos, bem dentro do limite de 1MB/doc do Firestore
 
 3. **Pontuacao denormalizada**: `pontuacaoTotal` e recalculado a cada save em vez de calculado on-the-fly. Motivo: evita N+1 queries no ranking (basta ordenar por pontuacaoTotal).
+
+4. **Catalogo de vitaminas embutido na turma** (Sprint 4): `turmas.vitaminas` e um `Record<string, Vitamina>` embutido, nao uma subcollection. Motivo: o catalogo e sempre lido junto com a turma (1 read) e seu volume e pequeno (~3 KB para 20 vitaminas). Estende a decisao do ADR-002.
+
+5. **Snapshot denormalizado no sorteio** (Sprint 4): `VitaminaSorteio` copia `nome` e `descricao` no momento do sorteio (denormalizado). Motivo: preserva o historico HU-28 mesmo que a vitamina seja editada ou excluida do catalogo depois. O `vitaminaId` mantem a referencia para edicao futura.
 
 ---
 
@@ -253,10 +311,11 @@ O `dbService` e um objeto com metodos que encapsulam toda a comunicacao com o Fi
 ### Sistema de Pontuacao
 
 - Cada checkbox = **1 ponto**
-- 4 checkboxes por semana: `presenca`, `vitaminas`, `tarefas`, `tarefasExtras`
-- Maximo: **4 pontos/semana/casal**
+- 5 checks por semana: `presenca`, `sorteioVitaminas.ele.check`, `sorteioVitaminas.ela.check`, `tarefas`, `tarefasExtras`
+- Maximo: **5 pontos/semana/casal**
 - Total de semanas: **14 semanas** por turma
-- Pontuacao maxima possivel: **56 pontos** por casal (aluno)
+- Pontuacao maxima possivel: **70 pontos** por casal (aluno)
+- O campo `vitaminas: boolean` (deprecated) nao e mais contabilizado — substituido pelos checks individuais do sorteio
 
 ### Calculo no Ranking (Desempenho.tsx)
 
@@ -264,10 +323,10 @@ O `dbService` e um objeto com metodos que encapsulam toda a comunicacao com o Fi
 |---|---|
 | Geral | Soma todos os checks = `pontuacaoTotal` |
 | Presenca | Conta `presenca === true` em todas as semanas |
-| Vitamina | Conta `vitaminas === true` em todas as semanas |
+| Vitamina | Conta `sorteioVitaminas.ele.check === true` + `sorteioVitaminas.ela.check === true` em todas as semanas (max 2/semana) |
 | Tarefas | Conta `tarefas === true` + `tarefasExtras === true` em todas as semanas |
 
-> **Nota**: Na categoria "Tarefas", `tarefasExtras` conta como ponto extra, totalizando max 2 pontos/semana nesse quesito.
+> **Nota**: Na categoria "Tarefas", `tarefasExtras` conta como ponto extra, totalizando max 2 pontos/semana nesse quesito. Na categoria "Vitamina", o sorteio permite ate 2 pontos/semana (uma por conjuge).
 
 ### Exclusao de Lideres
 
@@ -370,3 +429,24 @@ O manifest.json permite "adicionar a tela inicial", mas sem Service Worker o app
 - (+) Simplicidade — o usuario so digita o username
 - (-) Emails nao sao verificaveis (password reset nao funciona)
 - (-) Nao escala para outros provedores de auth (Google, Facebook)
+
+### ADR-004: Catalogo e sorteio de vitaminas via embedding
+
+**Contexto**: O Sprint 4 precisa de (a) um catalogo editavel de vitaminas por turma, (b) sorteio de uma vitamina para ele e uma para ela por casal/semana, (c) checks individuais de execucao, e (d) historico de vitaminas para o aluno.
+
+**Decisao**:
+- Catalogo: embutir em `turmas.vitaminas: Record<string, Vitamina>` (estende ADR-002)
+- Sorteio: embutir em `casais.semanas[semanaId].sorteioVitaminas: SorteioVitaminas` (transacional com pontuacaoTotal)
+- Checks individuais: `sorteioVitaminas.ele.check` e `sorteioVitaminas.ela.check` (0/1/2 pontos)
+- Historico (HU-28): projecao do documento do casal — sem nova collection
+- Campo `SemanaCheck.vitaminas: boolean` vira opcional deprecated (compat retroativa)
+
+**Consequencias**:
+- (+) Zero novas collections no Firestore — regras de seguranca existentes cobrem os novos campos
+- (+) Transacao atomica existente em saveChecklist cobre sorteio + checks + recalculo de pontuacao
+- (+) Catalogo sempre lido junto com a turma (1 read)
+- (+) Historico e projecao do casal (1 read) — sem query extra
+- (+) Snapshot denormalizado no sorteio preserva historico mesmo se a vitamina for editada/excluida
+- (-) Teto de pontuacao muda de 56 para 70 pts (5 pts/semana × 14) — mudanca esperada
+- (-) Campo `vitaminas: boolean` deprecated ate Sprint 6+ (remocao futura)
+- (-) Documento da turma cresce com catalogo (~3 KB para 20 vitaminas — dentro do limite)
