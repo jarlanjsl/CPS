@@ -5,7 +5,7 @@ import { storageService } from '../services/storage';
 import AvatarCasado from '../components/AvatarCasado';
 import VitaminasSection from '../components/VitaminasSection';
 import SorteioVitaminasModal from '../components/SorteioVitaminasModal';
-import { LoaderCircle, Pencil, Plus, X, Trash2, Camera, Dices } from 'lucide-react';
+import { LoaderCircle, Pencil, Plus, X, Trash2, Camera, Dices, History } from 'lucide-react';
 import '../styles/home.css';
 
 export default function TurmaDetail() {
@@ -388,6 +388,29 @@ export default function TurmaDetail() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pontos</span>
                 <span style={{ fontWeight: 'bold', color: 'var(--success)' }}>{c.pontuacaoTotal}</span>
+                <Link
+                  to={`/aluno/${c.id}/vitaminas`}
+                  style={{
+                    marginTop: '0.5rem',
+                    fontSize: '0.72rem',
+                    fontFamily: 'inherit',
+                    fontWeight: 600,
+                    color: 'var(--primary-light)',
+                    background: 'rgba(99, 102, 241, 0.12)',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    borderRadius: '8px',
+                    padding: '0.35rem 0.6rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    textDecoration: 'none',
+                    whiteSpace: 'nowrap'
+                  }}
+                  title="Ver histórico de vitaminas do casal"
+                >
+                  <History size={13} />
+                  Histórico de Vitaminas
+                </Link>
               </div>
             </div>
           ))}

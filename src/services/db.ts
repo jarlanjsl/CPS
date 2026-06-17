@@ -54,6 +54,17 @@ export interface Casal {
   fotoUrl?: string;
 }
 
+// HU-28: Projeção de uma semana do histórico de vitaminas de um casal.
+// Consumido pela página MinhasVitaminas (lista ordenada da mais recente para a mais antiga).
+export interface HistoricoVitaminasItem {
+  semana: number;
+  data: string | null;
+  vitaminaEle: string | null;
+  vitaminaEla: string | null;
+  statusEle: 'CUMPRIDA' | 'PENDENTE' | 'NAO_SORTEADA';
+  statusEla: 'CUMPRIDA' | 'PENDENTE' | 'NAO_SORTEADA';
+}
+
 export const dbService = {
   getTurmas: async (): Promise<Turma[]> => {
     if (!db) return [];
@@ -522,6 +533,78 @@ export const dbService = {
     } catch (e) {
       console.error("Erro ao sortear vitaminas:", e);
       return false;
+    }
+  },
+
+  // ===== HU-28: Histórico de Vitaminas do Aluno =====
+  // Projeta o documento do casal em uma lista de semanas que possuem sorteioVitaminas,
+  // com status individual (Ele/Ela). Ordenado da semana mais recente para a mais antiga.
+  // A data de cada semana vem de turma.datasSemanas[semana] ou é calculada a partir de dataInicio.
+  getHistoricoVitaminas: async (casalId: string): Promise<HistoricoVitaminasItem[]> => {
+    if (!db) return [];
+    try {
+      const casalSnap = await getDoc(doc(db, "casais", casalId));
+      if (!casalSnap.exists()) return [];
+
+      const casalData = casalSnap.data() as Casal;
+      const semanas = casalData.semanas || {};
+      const turmaId = casalData.turmaId;
+
+      // Lê a turma vinculada para obter datasSemanas (override) e dataInicio (fallback)
+      let datasSemanas: Record<number, string> | undefined;
+      let dataInicio: string | undefined;
+      if (turmaId) {
+        const turmaSnap = await getDoc(doc(db, "turmas", turmaId));
+        if (turmaSnap.exists()) {
+          const turmaData = turmaSnap.data() as Turma;
+          datasSemanas = turmaData.datasSemanas;
+          dataInicio = turmaData.dataInicio;
+        }
+      }
+
+      // Calcula a data de uma semana: override personalizado > dataInicio + (semana-1)*7 dias
+      const calcularData = (semanaNum: number): string | null => {
+        if (datasSemanas && datasSemanas[semanaNum]) {
+          return datasSemanas[semanaNum];
+        }
+        if (dataInicio) {
+          const inicio = new Date(dataInicio);
+          const diasParaAdicionar = (semanaNum - 1) * 7;
+          const novaData = new Date(inicio);
+          novaData.setDate(novaData.getDate() + diasParaAdicionar);
+          return novaData.toISOString();
+        }
+        return null;
+      };
+
+      // Projeta o check individual em um status de três estados
+      const statusDe = (check: boolean | null | undefined): 'CUMPRIDA' | 'PENDENTE' | 'NAO_SORTEADA' => {
+        if (check === null || check === undefined) return 'NAO_SORTEADA';
+        return check ? 'CUMPRIDA' : 'PENDENTE';
+      };
+
+      const itens: HistoricoVitaminasItem[] = [];
+      Object.entries(semanas).forEach(([semanaKey, sem]) => {
+        if (!sem.sorteioVitaminas) return;
+        const semanaNum = Number(semanaKey);
+        const sorteio = sem.sorteioVitaminas;
+        itens.push({
+          semana: semanaNum,
+          data: calcularData(semanaNum),
+          vitaminaEle: sorteio.ele?.nome ?? null,
+          vitaminaEla: sorteio.ela?.nome ?? null,
+          statusEle: sorteio.ele ? statusDe(sorteio.ele.check) : 'NAO_SORTEADA',
+          statusEla: sorteio.ela ? statusDe(sorteio.ela.check) : 'NAO_SORTEADA',
+        });
+      });
+
+      // Ordena da semana mais recente para a mais antiga
+      itens.sort((a, b) => b.semana - a.semana);
+
+      return itens;
+    } catch (e) {
+      console.error("Erro ao carregar histórico de vitaminas:", e);
+      return [];
     }
   }
 };
