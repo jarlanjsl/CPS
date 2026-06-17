@@ -19,6 +19,9 @@ export default function TurmaDetail() {
   const [isDeleteTurmaOpen, setIsDeleteTurmaOpen] = useState(false);
   const [confirmDeleteText, setConfirmDeleteText] = useState('');
 
+  // States para Concluir/Reabrir Turma
+  const [isConcluirTurmaOpen, setIsConcluirTurmaOpen] = useState(false);
+
   // States para Edição de Data da Lição
   const [isEditSemanaOpen, setIsEditSemanaOpen] = useState(false);
   const [semanaEditando, setSemanaEditando] = useState<number | null>(null);
@@ -77,6 +80,20 @@ export default function TurmaDetail() {
       window.location.href = '/';
     } else {
       alert("Erro ao excluir turma.");
+    }
+  };
+
+  const handleToggleConcluirTurma = async () => {
+    if (!id || !turma) return;
+    
+    setProcessando(true);
+    const ok = await dbService.toggleTurmaConcluida(id, !turma.concluida);
+    setProcessando(false);
+    if (ok) {
+      setIsConcluirTurmaOpen(false);
+      carregarDados();
+    } else {
+      alert("Erro ao atualizar status da turma.");
     }
   };
 
@@ -156,6 +173,23 @@ export default function TurmaDetail() {
               <Pencil size={18} />
             </button>
           </div>
+          {turma.concluida ? (
+            <button 
+              onClick={() => setIsConcluirTurmaOpen(true)} 
+              className="btn-primary" 
+              style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+            >
+              Reabrir Turma
+            </button>
+          ) : (
+            <button 
+              onClick={() => setIsConcluirTurmaOpen(true)} 
+              className="btn-primary" 
+              style={{ background: 'var(--success-bg)', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+            >
+              Concluir Turma
+            </button>
+          )}
         </div>
       </header>
 
@@ -439,6 +473,71 @@ export default function TurmaDetail() {
               {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Adicionar Casal'}
             </button>
           </form>
+        </div>
+      )}
+
+      {/* MODAL: CONCLUIR/REABRIR TURMA */}
+      {isConcluirTurmaOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '1.5rem'
+        }}>
+          <div className="glass-effect" style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
+            <button type="button" onClick={() => setIsConcluirTurmaOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <X size={24} />
+            </button>
+            <h2 style={{ fontSize: '1.25rem', marginTop: 0, color: turma.concluida ? 'var(--warning)' : 'var(--success)' }}>
+              {turma.concluida ? 'Reabrir Turma' : 'Concluir Turma'}
+            </h2>
+            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              {turma.concluida 
+                ? `Deseja reabrir a turma "${turma.nome}"? Ela voltará a aparecer na seção de turmas ativas.`
+                : `Deseja concluir a turma "${turma.nome}"? Ela será movida para a seção de turmas concluídas.`
+              }
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button 
+                onClick={() => setIsConcluirTurmaOpen(false)}
+                disabled={processando}
+                style={{ 
+                  flex: 1,
+                  background: 'rgba(100, 116, 139, 0.2)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-muted)', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  fontWeight: 600, 
+                  cursor: 'pointer',
+                  fontFamily: 'inherit'
+                }}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleToggleConcluirTurma}
+                disabled={processando}
+                style={{ 
+                  flex: 1,
+                  background: turma.concluida ? 'var(--warning-bg)' : 'var(--success-bg)', 
+                  border: 'none', 
+                  color: 'white', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  fontWeight: 600, 
+                  cursor: 'pointer',
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '0.5rem',
+                  fontFamily: 'inherit'
+                }}
+              >
+                {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : (turma.concluida ? 'Sim, Reabrir' : 'Sim, Concluir')}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

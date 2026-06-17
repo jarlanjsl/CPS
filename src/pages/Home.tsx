@@ -12,6 +12,10 @@ export default function Home() {
   const [novaTurmaData, setNovaTurmaData] = useState('');
   const [criando, setCriando] = useState(false);
 
+  // Separar turmas ativas e concluídas
+  const turmasAtivas = turmas.filter(t => !t.concluida);
+  const turmasConcluidas = turmas.filter(t => t.concluida);
+
   // Recarregar os dados do painel sempre que precisar (ex: apos criar turma)
   const fetchTurmas = () => {
     setLoading(true);
@@ -59,20 +63,53 @@ export default function Home() {
         </div>
       ) : (
         <div className="turmas-list">
-          {turmas.map((turma) => (
-            <Link to={`/turma/${turma.id}`} key={turma.id} className="turma-card">
-              <h2>
-                <Users size={20} className="text-muted" />
-                {turma.nome}
-              </h2>
-              <div className="turma-meta">
-                <span>Início: {new Date(turma.dataInicio).toLocaleDateString('pt-BR')}</span>
-                <span className={`status ${turma.concluida ? 'fechada' : 'aberta'}`}>
-                  {turma.concluida ? 'Concluída' : 'Ativa'}
-                </span>
-              </div>
-            </Link>
-          ))}
+          {/* Seção: Turmas Ativas */}
+          {turmasAtivas.length > 0 && (
+            <>
+              <h3 style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Turmas Ativas</h3>
+              {turmasAtivas.map((turma) => (
+                <Link to={`/turma/${turma.id}`} key={turma.id} className="turma-card">
+                  <h2>
+                    <Users size={20} className="text-muted" />
+                    {turma.nome}
+                  </h2>
+                  <div className="turma-meta">
+                    <span>Início: {new Date(turma.dataInicio).toLocaleDateString('pt-BR')}</span>
+                    <span className={`status ${turma.concluida ? 'fechada' : 'aberta'}`}>
+                      {turma.concluida ? 'Concluída' : 'Ativa'}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </>
+          )}
+
+          {/* Seção: Turmas Concluídas */}
+          {turmasConcluidas.length > 0 && (
+            <>
+              <h3 style={{ color: 'var(--text-muted)', marginBottom: '1rem', marginTop: '2rem' }}>Turmas Concluídas</h3>
+              {turmasConcluidas.map((turma) => (
+                <Link 
+                  to={`/turma/${turma.id}`} 
+                  key={turma.id} 
+                  className="turma-card"
+                  style={{ opacity: 0.7, filter: 'grayscale(30%)' }}
+                >
+                  <h2>
+                    <Users size={20} className="text-muted" />
+                    {turma.nome}
+                  </h2>
+                  <div className="turma-meta">
+                    <span>Início: {new Date(turma.dataInicio).toLocaleDateString('pt-BR')}</span>
+                    <span className={`status ${turma.concluida ? 'fechada' : 'aberta'}`}>
+                      {turma.concluida ? 'Concluída' : 'Ativa'}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </>
+          )}
+
           {turmas.length === 0 && (
             <div className="empty-state" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
               <p>O seu Banco de Dados ainda está vazio.</p>

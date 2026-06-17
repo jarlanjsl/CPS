@@ -26,6 +26,8 @@
   --success-bg: rgba(16, 185, 129, 0.15);
   --danger: #ef4444;
   --danger-bg: rgba(239, 68, 68, 0.15);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.15);
   
   font-family: 'Outfit', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
