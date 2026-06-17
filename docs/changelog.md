@@ -7,6 +7,37 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [Sprint 2] - 2026-06-17
+
+### Added
+
+- Modal de edição de casais com campos preenchidos (nome dele, nome dela, tipo) e validação rígida de limites (HU-08)
+- Modal de exclusão de casal com confirmação por digitação "Excluir" e alerta se Líder/Co-Líder (HU-09)
+- Funcionalidade de Concluir/Reabrir turma com seção separada "Turmas Concluídas" na Home (HU-10)
+- Seção "Turmas Concluídas" na Home com visual diferenciado (opacidade reduzida + grayscale)
+- Arquivo `.env.example` com valores placeholder para configuração do Firebase (HU-03)
+
+### Changed
+
+- `db.ts`: Adicionado métodos `updateCasal`, `deleteCasal`, `toggleTurmaConcluida`
+- `TurmaDetail.tsx`: Adicionado modais de editar casal, excluir casal, concluir/reabrir turma
+- `Home.tsx`: Turmas separadas em "Ativas" e "Concluídas"
+- `index.css`: Adicionadas variáveis `--warning` e `--warning-bg`
+- README.md: Adicionada seção de configuração de ambiente com regras Firestore em modo production
+
+### Fixed
+
+- Validação de limites de tipo de casal alterada para Opção B (rígida) conforme decisão do usuário
+- Modal de concluir turma alterado para Opção B (botões Cancelar/Confirmar sem digitação) conforme decisão do usuário
+- `ErrorBoundary.tsx`: Import type corrigido para compatibilidade com `verbatimModuleSyntax`
+
+### Security
+
+- Credenciais Firebase removidas do código fonte — agora lidas exclusivamente de variáveis de ambiente via `import.meta.env.VITE_*` (HU-03)
+- `.env.example` criado para documentar variáveis necessárias sem expor valores reais
+
+---
+
 ## [Sprint 1] - 2026-06-17
 
 ### Fixed

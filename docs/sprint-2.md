@@ -71,16 +71,26 @@
 
 ---
 
-## 🏁 Sprint Review (a preencher ao final)
+## 🏁 Sprint Review
 
-**Data:** ___/___/____
+**Data:** 17/06/2026
 
 **Histórias concluídas:**
-- [ ] HU-03
-- [ ] HU-08
-- [ ] HU-09
-- [ ] HU-10
+- [x] HU-03 — Remover credenciais Firebase do histórico Git ✅
+- [x] HU-08 — Editar dados de um casal ✅
+- [x] HU-09 — Remover casal de uma turma ✅
+- [x] HU-10 — Marcar turma como concluída ✅
+
+**QA:** 4/4 histórias aprovadas ✅
 
 **Lições aprendidas:**
 - O que deu bem:
+  - CRUD de casais completo (criar + editar + excluir)
+  - Ciclo de vida das turmas (ativa ↔ concluída)
+  - Segurança das credenciais tratada
+  - QA envolvido pela primeira vez no processo
 - O que melhorar:
+  - Agile Master não deve implementar código (REGRA 5 criada)
+  - Perguntas de subagentes devem chegar ao usuário (REGRA 4 criada)
+  - QA deve ser acionado em todo sprint (REGRA 6 criada)
+  - Documentação de final de sprint deve ser obrigatória (REGRA 7 criada)

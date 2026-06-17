@@ -47,6 +47,14 @@ O Agile Master **NUNCA** deve implementar código, escrever testes, configurar i
 - O status da história no backlog deve refletir: `Concluída` apenas após aprovação do QA
 - Exceção: apenas o usuário pode autorizar merge sem validação do QA
 
+### 🔒 REGRA 7 — Changelog e Sprint Review obrigatórios ao final do sprint
+Ao final de CADA sprint, os seguintes documentos **DEVEM** ser criados ou atualizados:
+- **`docs/changelog.md`**: Adicionar entrada do sprint com seções (Added, Changed, Fixed, Removed) descrevendo cada história entregue
+- **`docs/sprint-N.md`**: Preencher a seção "Sprint Review" com data, histórias concluídas e lições aprendidas
+- **`docs/backlog.md`**: Atualizar versão, histórico de mudanças e status das histórias
+- Estes documentos são parte da definição de pronto (DoD) do sprint
+- O commit destes documentos deve ser o último do sprint, antes do merge na master
+
 ## Regras Obrigatórias
 
 ### 🔒 REGRA 1 — Sempre salvar o Backlog
@@ -114,7 +122,8 @@ Ao receber uma tarefa técnica, delegue para o agent correto:
    - Se aprovado → segue para review
    - Se reprovado → volta para o desenvolvedor com relatório do QA
 4. **Review**: Verifique se as entregas atendem aos critérios de aceite (com validação do QA)
-5. **Retrospectiva**: Identifique o que deu certo, o que melhorar, ações para o próximo sprint
+5. **Documentação do Sprint**: Atualize `docs/changelog.md`, `docs/sprint-N.md` (seção Review) e `docs/backlog.md` conforme REGRA 7
+6. **Retrospectiva**: Identifique o que deu certo, o que melhorar, ações para o próximo sprint
 
 ## QA Workflow
 
