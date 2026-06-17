@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
-> Última atualização: 17/06/2026
-> Versão: 8.0
+> Última atualização: 01/07/2026
+> Versão: 9.0
 > Responsável: Agile Master
 
 ---
@@ -22,6 +22,8 @@
 | 17/06/2026 | 5.0 | Sprint 4 iniciado: HU-25, HU-26, HU-27, HU-28 em progresso (Vitaminas da Semana) |
 | 17/06/2026 | 6.0 | Sprint 4 concluído: HU-25, HU-26, HU-27, HU-28 aprovadas pelo QA (22/22 critérios) |
 | 17/06/2026 | 7.0 | Política de testes aprovada: abordagem híbrida, testes obrigatórios para services/contexts. HU-05a adicionada ao Sprint 5. Nova regra: testes são pré-requisito para PR. Ver `docs/testing-policy.md` |
+| 17/06/2026 | 8.0 | Sprint 5 concluído: HU-05a e HU-24 aprovadas pelo QA (20/20 critérios). 108 testes passando. Coverage global 87.44% |
+| 01/07/2026 | 9.0 | Sprint 6 iniciado: HU-05b (testes de Contexts) e HU-06 (extrair inline styles) em progresso |
 | 17/06/2026 | 8.0 | Sprint 5 concluído: HU-05a (testes + fórmula pura) e HU-24 (animação ranking) aprovadas pelo QA. 108 testes passando. Coverage global 87%. Ver `docs/testing-policy.md` |
 
 ---
@@ -126,7 +128,9 @@
 7. A UI deve permanecer visualmente idêntica após a refatoração
 8. Todos os testes existentes devem continuar passando
 
-**Prioridade**: Média | **Estimativa**: M | **Status**: Backlog
+**Prioridade**: Média | **Estimativa**: M | **Status**: Em Progresso 🔄
+
+> **Sprint 6**: HU-06 em progresso — extrair inline styles de TurmaDetail, Acompanhamento, Desempenho, Ajustes, Login e Home para arquivos CSS dedicados.
 
 ---
 
@@ -596,13 +600,15 @@
 
 ---
 
-### Sprint 6 — Testes Retroativos + Futuro 🧪
+### Sprint 6 — Testes de Contexts + Refatoração CSS 🧪🎨 (EM PROGRESSO 🔄)
 
 | HU | Descrição | Estimativa | Status |
 |----|-----------|:----------:|:------:|
-| HU-05b | Testes de transações (saveChecklist, sortear, check) + Contexts (Auth, Sound) | 🟡 M | Backlog |
-| HU-29 | Login com papéis (aluno/co-líder) | 🔴 XL | ⏳ A especificar |
-| HU-30 | Alertas e lembretes de atividades/vitaminas | 🟡 L | ⏳ A especificar |
+| HU-05b | Testes de Contexts (Auth, Sound) | 🟡 M | 🔄 Em Progresso |
+| HU-06 | Extrair inline styles para arquivos CSS | 🟡 M | 🔄 Em Progresso |
+| **Total** | | **≈ 7 pts** | |
+
+> **Justificativa:** HU-05b completa a estratégia de testes (contexts são obrigatórios conforme testing-policy.md). HU-06 melhora manutenibilidade do código. Ordem: HU-05b primeiro (testes não mudam código), HU-06 depois (refatoração CSS com testes já escritos).
 
 ### Sprint 7+ — Futuro
 
@@ -632,10 +638,10 @@
 | 🎲 Vitaminas | 4 | 2 | 1 | 1 | 0 | 0 | **4/4 ✅** |
 | 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0 | 0/6 |
 | ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 0/2 |
-| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **16/24 (67%)** |
+| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **16/24 (67%) + 2 🔄** |
 
-> **Sprint atual:** `sprint/5-testes-animacao` (concluído)  
-> **Próximo sprint:** Sprint 6 — Testes Retroativos + Futuro 🧪  
-> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100%  
+> **Sprint atual:** `sprint/6-testes-css` (em progresso)  
+> **Próximo sprint:** Sprint 6 — Testes de Contexts + Refatoração CSS 🧪🎨  
+> **Status dos eixos concluídos:** 🔴 Estabilização 100% (HU-05 em progresso) | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100%  
 > **Política de testes:** `docs/testing-policy.md` — testes obrigatórios para services/contexts  
 > **Coverage global:** 87.44% Stmts / 77.53% Branch / 93.75% Funcs / 93.87% Lines

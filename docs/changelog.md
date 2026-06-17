@@ -50,6 +50,35 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [Unreleased] - 2026-07-01
+
+### Added (previsto)
+
+- HU-05b: Testes automatizados dos Contexts (AuthContext, SoundContext)
+  - Testes de `onAuthStateChanged` (login/logout/loading)
+  - Testes de `logout()` (chama `signOut` corretamente)
+  - Testes de `firebaseConfigured` (delegado de `isFirebaseConfigured`)
+  - Testes de `playAirplaneSound()` (arquivo + fallback Web Audio API)
+  - Testes de `toggleSoundEnabled()` (on/off)
+  - Testes de `soundFrequency` (MANUAL, RANDOM, 30MIN)
+  - Testes de agendamento automático (RANDOM 5-10min, 30MIN 30min)
+  - Testes de cleanup no unmount
+  - Coverage alvo: ≥ 70% em AuthContext e SoundContext
+
+### Changed (previsto)
+
+- HU-06: Refatoração CSS — extração de inline styles para arquivos dedicados
+  - `TurmaDetail.tsx` → `styles/turma-detail.css`
+  - `Acompanhamento.tsx` → `styles/acompanhamento.css`
+  - `Desempenho.tsx` → `styles/desempenho.css`
+  - `Ajustes.tsx` → `styles/ajustes.css`
+  - `Login.tsx` → `styles/login.css`
+  - `Home.tsx` → `styles/home.css`
+  - Nenhum `style={{}}` permanece (exceto estilos dinâmicos calculados)
+  - UI visualmente idêntica após refatoração
+
+---
+
 ## [Unreleased] - 2026-06-17
 
 ### Added
