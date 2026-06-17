@@ -35,7 +35,8 @@ export default function Desempenho() {
     });
   }, [selectedTurmaId]);
 
-  // Função para calcular a pontuação ativa com base na aba escolhida
+  // Nota: A fórmula completa de pontuação total está em services/scoring.ts (calcularPontuacao).
+  // Esta função getPontos() é uma projeção por categoria para o ranking setorial.
   const getPontos = (c: Casal, cat: Categoria): number => {
     if (cat === 'GERAL') return c.pontuacaoTotal || 0;
     

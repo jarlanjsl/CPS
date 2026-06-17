@@ -1,5 +1,6 @@
 import { collection, getDocs, addDoc, query, where, orderBy, updateDoc, doc, getDoc, deleteDoc, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
+import { calcularPontuacao } from './scoring';
 
 // Catálogo de vitaminas da turma — embutido em turmas/{turmaId}.vitaminas
 export interface Vitamina {
@@ -301,22 +302,7 @@ export const dbService = {
         };
 
         // Recalcular Total Global do Casal (Soma todas as semanas gravadas)
-        let pontuacaoRecalculada = 0;
-        Object.values(semanas).forEach((sem: any) => {
-          if (sem.presenca) pontuacaoRecalculada += 1;
-          if (sem.tarefas) pontuacaoRecalculada += 1;
-          if (sem.tarefasExtras) pontuacaoRecalculada += 1;
-          // HU-27: vitamina agora vale 0, 1 ou 2 pontos (check individual Ele/Ela).
-          // else if garante que semanas legacy (vitaminas: true) não somem em dobro
-          // quando a semana também possui sorteioVitaminas.
-          if (sem.sorteioVitaminas) {
-            if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
-            if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
-          } else if (sem.vitaminas) {
-            // LEGACY: semanas gravadas antes do Sprint 4 (compat retroativa)
-            pontuacaoRecalculada += 1;
-          }
-        });
+        const pontuacaoRecalculada = calcularPontuacao(semanas);
 
         // Atualiza atomicamente dentro da transação
         transaction.update(casalRef, {
@@ -524,21 +510,7 @@ export const dbService = {
         semanas[semanaId] = semanaAtual;
 
         // Recalcular pontuação total do casal (soma todas as semanas).
-        // HU-27: mesma fórmula canônica do saveChecklist/saveVitaminaCheck —
-        // vitamina vale 0, 1 ou 2 pts (checks individuais); else if preserva a
-        // compat retroativa com `vitaminas: boolean` sem duplicar pontos.
-        let pontuacaoRecalculada = 0;
-        Object.values(semanas).forEach((sem: any) => {
-          if (sem.presenca) pontuacaoRecalculada += 1;
-          if (sem.tarefas) pontuacaoRecalculada += 1;
-          if (sem.tarefasExtras) pontuacaoRecalculada += 1;
-          if (sem.sorteioVitaminas) {
-            if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
-            if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
-          } else if (sem.vitaminas) {
-            pontuacaoRecalculada += 1; // legacy
-          }
-        });
+        const pontuacaoRecalculada = calcularPontuacao(semanas);
 
         transaction.update(casalRef, {
           semanas,
@@ -596,19 +568,7 @@ export const dbService = {
         semanas[semanaId] = semanaAtual;
 
         // Recalcular pontuação total (mesma fórmula canônica do saveChecklist)
-        let pontuacaoRecalculada = 0;
-        Object.values(semanas).forEach((sem: any) => {
-          if (sem.presenca) pontuacaoRecalculada += 1;
-          if (sem.tarefas) pontuacaoRecalculada += 1;
-          if (sem.tarefasExtras) pontuacaoRecalculada += 1;
-          if (sem.sorteioVitaminas) {
-            if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
-            if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
-          } else if (sem.vitaminas) {
-            // LEGACY: semanas gravadas antes do Sprint 4 (compat retroativa)
-            pontuacaoRecalculada += 1;
-          }
-        });
+        const pontuacaoRecalculada = calcularPontuacao(semanas);
 
         transaction.update(casalRef, {
           semanas,
