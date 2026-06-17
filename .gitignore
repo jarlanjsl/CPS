@@ -31,3 +31,6 @@ dist-ssr
 # OS Files
 .DS_Store
 Thumbs.db
+
+# opencode agent configuration (local only — não publicar no repositório)
+.opencode/
