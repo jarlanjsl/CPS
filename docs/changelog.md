@@ -7,6 +7,28 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [Unreleased] - 2026-06-17
+
+### Added
+
+- Política de testes automatizados (`docs/testing-policy.md`)
+  - Abordagem híbrida: testes escritos junto com o código (não TDD puro)
+  - Coverage mínimo por camada: services 80%, contexts 70%, páginas 50%, fórmula de pontuação 100%
+  - Testes obrigatórios para HU que altere services/contexts/lógica de negócio
+  - QA Gate inclui validação de testes automatizados
+  - Stack: Vitest + React Testing Library + jsdom + @vitest/coverage-v8
+- HU-05a (Setup de testes + fórmula de pontuação + limites) adicionada ao Sprint 5
+- ADR-001: Estratégia de testes automatizados (ver `docs/adr/ADR-001-testes-automatizados.md`)
+
+### Changed
+
+- HU-05 dividida em 3 partes: HU-05a (Sprint 5), HU-05b (Sprint 6), HU-05c (Sprint 7+)
+- Sprint 5 replanejado: "Fundação de Testes + Animação do Ranking" (HU-05a + HU-24)
+- Fluxo de trabalho: testes são pré-requisito para PR ser aceito
+- Definition of Done atualizada: inclui testes automatizados e coverage mínimo
+
+---
+
 ## [Sprint 4] - 2026-06-17
 
 ### Added

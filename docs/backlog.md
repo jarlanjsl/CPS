@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
 > Última atualização: 17/06/2026
-> Versão: 6.0
+> Versão: 7.0
 > Responsável: Agile Master
 
 ---
@@ -21,6 +21,7 @@
 | 17/06/2026 | 4.1 | Correção doc HU-20: paleta 2=1 Brasil revertida para original (indigo) por decisão do usuário; apenas Logo.tsx permaneceu |
 | 17/06/2026 | 5.0 | Sprint 4 iniciado: HU-25, HU-26, HU-27, HU-28 em progresso (Vitaminas da Semana) |
 | 17/06/2026 | 6.0 | Sprint 4 concluído: HU-25, HU-26, HU-27, HU-28 aprovadas pelo QA (22/22 critérios) |
+| 17/06/2026 | 7.0 | Política de testes aprovada: abordagem híbrida, testes obrigatórios para services/contexts. HU-05a adicionada ao Sprint 5. Nova regra: testes são pré-requisito para PR. Ver `docs/testing-policy.md` |
 
 ---
 
@@ -104,7 +105,9 @@
 7. Coverage mínimo de 60% nos arquivos de services e contexts
 8. Todos os testes devem passar no CI
 
-**Prioridade**: Alta | **Estimativa**: L | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: L | **Status**: Em Progresso 🔄
+
+> **Sprint 5**: HU dividida em 3 partes. HU-05a (setup + fórmula + limites) no Sprint 5. HU-05b (transações + contexts) no Sprint 6. HU-05c (integração + UI) no Sprint 7+. Ver `docs/testing-policy.md`.
 
 ---
 
@@ -578,24 +581,31 @@
 
 ---
 
-### Sprint 5 — Animação do Ranking 📈
+### Sprint 5 — Fundação de Testes + Animação do Ranking 🧪📈
 
-| HU | Descrição | Estimativa |
-|----|-----------|:----------:|
-| HU-24 | Animação sobe/desce do ranking semana a semana | 🔴 L |
-| **Total** | | **≈ 5 pontos** |
+| HU | Descrição | Estimativa | Prioridade |
+|----|-----------|:----------:|:----------:|
+| HU-05a | Setup Vitest + fórmula de pontuação (função pura) + limites (1/1/5) | 🔴 L | Alta |
+| HU-24 | Animação sobe/desce do ranking semana a semana | 🔴 L | Média |
+| **Total** | | **≈ 10 pontos** | |
 
-> **Justificativa:** História independente. Pode ser combinada com ajustes finos que surgirem dos sprints anteriores.
+> **Justificativa:** HU-05a é fundação crítica — elimina risco da fórmula duplicada 5x. HU-24 se beneficia porque a lógica de ranking já estará testada. Política de testes aprovada: ver `docs/testing-policy.md`.
 
 ---
 
-### Sprint 6+ — Futuro
+### Sprint 6 — Testes Retroativos + Futuro 🧪
+
+| HU | Descrição | Estimativa | Status |
+|----|-----------|:----------:|:------:|
+| HU-05b | Testes de transações (saveChecklist, sortear, check) + Contexts (Auth, Sound) | 🟡 M | Backlog |
+| HU-29 | Login com papéis (aluno/co-líder) | 🔴 XL | ⏳ A especificar |
+| HU-30 | Alertas e lembretes de atividades/vitaminas | 🟡 L | ⏳ A especificar |
+
+### Sprint 7+ — Futuro
 
 | HU | Descrição | Status |
 |----|-----------|:------:|
-| HU-29 | Login com papéis (aluno/co-líder) | ⏳ A especificar |
-| HU-30 | Alertas e lembretes de atividades/vitaminas | ⏳ A especificar |
-| HU-05 | Testes automatizados | Backlog |
+| HU-05c | Testes de integração + componentes UI | Backlog |
 | HU-06 | Extrair inline styles | Backlog |
 | HU-11 | Sistema de notificações real | Backlog |
 | HU-12 | Completar PWA | Backlog |
@@ -613,14 +623,15 @@
 
 | Eixo | Total | S | M | L | XL | ⏳ | Concluídas |
 |---|---|---|---|---|---|---|---|---|
-| 🔴 Estabilização | 7 | 3 | 2 | 1 | 0 | 0 | **7/7 ✅** |
+| 🔴 Estabilização | 7 | 3 | 2 | 1 | 0 | 0 | **6/7 🔄** |
 | 🟡 Evolução | 4 | 1 | 1 | 1 | 0 | 0 | **4/4 ✅** |
 | 🔵 Identidade Visual | 1 | 0 | 1 | 0 | 0 | 0 | **1/1 ✅** |
 | 🎲 Vitaminas | 4 | 2 | 1 | 1 | 0 | 0 | **4/4 ✅** |
 | 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0 | 0/6 |
 | ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 0/2 |
-| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **18/24 (75%)** |
+| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **15/24 (63%) + 1 🔄** |
 
-> **Sprint atual:** `sprint/4-vitaminas` (encerrado)  
-> **Próximo sprint:** Sprint 5 — Animação do Ranking 📈  
-> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100%
+> **Sprint atual:** `sprint/5-testes-animacao` (planejamento)  
+> **Próximo sprint:** Sprint 5 — Fundação de Testes + Animação do Ranking 🧪📈  
+> **Status dos eixos concluídos:** 🔴 Estabilização 86% (HU-05 em progresso) | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100%  
+> **Política de testes:** `docs/testing-policy.md` — testes obrigatórios para services/contexts
