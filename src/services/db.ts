@@ -82,6 +82,17 @@ export const dbService = {
     }
   },
 
+  toggleTurmaConcluida: async (turmaId: string, concluida: boolean) => {
+    if (!db) return false;
+    try {
+      await updateDoc(doc(db, "turmas", turmaId), { concluida });
+      return true;
+    } catch (e) {
+      console.error("Erro ao atualizar status da turma:", e);
+      return false;
+    }
+  },
+
   updateSemanaData: async (turmaId: string, semana: number, dataPersonalizada?: string) => {
     if (!db) return false;
     try {
