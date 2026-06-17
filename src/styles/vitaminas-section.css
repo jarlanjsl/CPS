@@ -1,0 +1,197 @@
+/* ===== HU-26: Seção editável de Vitaminas da Semana ===== */
+
+.vitaminas-section {
+  margin-bottom: 2rem;
+}
+
+.vitaminas-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.vitaminas-section__title {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.vitaminas-section__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+.vitaminas-section__empty {
+  padding: 2rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Card de uma vitamina */
+.vitamina-card {
+  padding: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.vitamina-card:last-child {
+  border-bottom: none;
+}
+
+.vitamina-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.vitamina-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vitamina-card__nome {
+  font-weight: 600;
+  color: var(--text-main);
+  font-size: 1rem;
+}
+
+.vitamina-card__descricao {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  word-break: break-word;
+}
+
+.vitamina-card__actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.vitamina-card__action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.vitamina-card__action-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+}
+.vitamina-card__action-btn--danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* Toggle de semanas (chips 1-14) */
+.vitamina-semanas {
+  margin-top: 0.75rem;
+}
+
+.vitamina-semanas__label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.vitamina-semanas__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.vitamina-semana-chip {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 0.4rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.5);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, background 0.2s, color 0.2s, border-color 0.2s;
+}
+.vitamina-semana-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--text-main);
+}
+.vitamina-semana-chip--active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+.vitamina-semana-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Toast de feedback */
+.vitamina-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: vitamina-toast-in 0.25s ease-out;
+}
+.vitamina-toast--success {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.vitamina-toast--error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+@keyframes vitamina-toast-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Modal form (inputs reaproveitam o estilo inline do projeto) */
+.vitamina-modal-field {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+.vitamina-modal-field:focus {
+  outline: none;
+  border-color: var(--primary-light);
+}
+
+.vitamina-modal-textarea {
+  resize: vertical;
+  min-height: 80px;
+}

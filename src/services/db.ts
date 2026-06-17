@@ -332,6 +332,123 @@ export const dbService = {
       console.error("Erro de Seed:", err);
       alert("Falha. Verifique as regras de segurança do Firestore. Elas precisam estar em modo de teste.");
     }
+  },
+
+  // ===== HU-26: Vitaminas da Semana (CRUD) =====
+  // Catálogo embutido em turmas/{turmaId}.vitaminas (Record<string, Vitamina>)
+
+  // Lê o documento da turma, gera id via crypto.randomUUID(), adiciona a nova vitamina
+  // com semanas: [] e createdAt, e persiste o mapa completo via updateDoc.
+  addVitamina: async (turmaId: string, nome: string, descricao: string): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      const turmaRef = doc(db, "turmas", turmaId);
+      const turmaSnap = await getDoc(turmaRef);
+      if (!turmaSnap.exists()) return false;
+
+      const data = turmaSnap.data();
+      const vitaminas = { ...(data.vitaminas || {}) };
+      const id = crypto.randomUUID();
+      vitaminas[id] = {
+        id,
+        nome,
+        descricao,
+        semanas: [],
+        createdAt: new Date().toISOString()
+      };
+
+      await updateDoc(turmaRef, { vitaminas });
+      return true;
+    } catch (e) {
+      console.error("Erro ao cadastrar vitamina:", e);
+      return false;
+    }
+  },
+
+  // Atualiza nome e/ou descricao via dot notation (vitaminas.{id}.nome / .descricao).
+  updateVitamina: async (turmaId: string, vitaminaId: string, dados: { nome?: string; descricao?: string }): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      const updateData: Record<string, string> = {};
+      if (dados.nome !== undefined) updateData[`vitaminas.${vitaminaId}.nome`] = dados.nome;
+      if (dados.descricao !== undefined) updateData[`vitaminas.${vitaminaId}.descricao`] = dados.descricao;
+      if (Object.keys(updateData).length === 0) return false;
+
+      await updateDoc(doc(db, "turmas", turmaId), updateData);
+      return true;
+    } catch (e) {
+      console.error("Erro ao editar vitamina:", e);
+      return false;
+    }
+  },
+
+  // Lê a turma, remove a vitamina do mapa e persiste o mapa atualizado.
+  deleteVitamina: async (turmaId: string, vitaminaId: string): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      const turmaRef = doc(db, "turmas", turmaId);
+      const turmaSnap = await getDoc(turmaRef);
+      if (!turmaSnap.exists()) return false;
+
+      const data = turmaSnap.data();
+      const vitaminas = { ...(data.vitaminas || {}) };
+      if (!vitaminas[vitaminaId]) return false;
+
+      delete vitaminas[vitaminaId];
+      await updateDoc(turmaRef, { vitaminas });
+      return true;
+    } catch (e) {
+      console.error("Erro ao excluir vitamina:", e);
+      return false;
+    }
+  },
+
+  // Atualiza o array de semanas ativas da vitamina via dot notation.
+  setVitaminaSemanas: async (turmaId: string, vitaminaId: string, semanas: number[]): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      await updateDoc(doc(db, "turmas", turmaId), {
+        [`vitaminas.${vitaminaId}.semanas`]: semanas
+      });
+      return true;
+    } catch (e) {
+      console.error("Erro ao atualizar semanas da vitamina:", e);
+      return false;
+    }
+  },
+
+  // Retorna todas as vitaminas cadastradas na turma (usado pelo componente de admin HU-26).
+  getVitaminas: async (turmaId: string): Promise<Vitamina[]> => {
+    if (!db) return [];
+    try {
+      const turmaSnap = await getDoc(doc(db, "turmas", turmaId));
+      if (!turmaSnap.exists()) return [];
+
+      const data = turmaSnap.data();
+      const vitaminas: Record<string, Vitamina> = data.vitaminas || {};
+      return Object.values(vitaminas);
+    } catch (e) {
+      console.error("Erro ao carregar vitaminas:", e);
+      return [];
+    }
+  },
+
+  // Filtra as vitaminas ativas em uma semana específica (consumido pela roleta HU-25).
+  getVitaminasDaSemana: async (turmaId: string, semana: number): Promise<Vitamina[]> => {
+    if (!db) return [];
+    try {
+      const turmaSnap = await getDoc(doc(db, "turmas", turmaId));
+      if (!turmaSnap.exists()) return [];
+
+      const data = turmaSnap.data();
+      const vitaminas: Record<string, Vitamina> = data.vitaminas || {};
+      return Object.values(vitaminas).filter(
+        (v) => Array.isArray(v.semanas) && v.semanas.includes(semana)
+      );
+    } catch (e) {
+      console.error("Erro ao carregar vitaminas da semana:", e);
+      return [];
+    }
   }
 };
 

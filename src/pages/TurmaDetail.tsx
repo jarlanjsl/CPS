@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { dbService, type Casal, type Turma } from '../services/db';
 import { storageService } from '../services/storage';
 import AvatarCasado from '../components/AvatarCasado';
+import VitaminasSection from '../components/VitaminasSection';
 import { LoaderCircle, Pencil, Plus, X, Trash2, Camera } from 'lucide-react';
 import '../styles/home.css';
 
@@ -391,6 +392,9 @@ export default function TurmaDetail() {
           )}
         </div>
       </div>
+
+      {/* HU-26: Seção editável de Vitaminas da Semana */}
+      {id && <VitaminasSection turmaId={id} />}
 
       <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
         <h3 style={{ color: 'var(--text-main)' }}>Acompanhamento (Semanas)</h3>
