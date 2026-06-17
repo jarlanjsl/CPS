@@ -159,3 +159,59 @@ HU-05a (fórmula pura) ──→ HU-24 (animação usa ranking já testado)
 - [Política de Testes](testing-policy.md) — regras de coverage, fluxo, stack
 - [ADR-001](adr/ADR-001-testes-automatizados.md) — decisão arquitetural de testes
 - [Backlog](backlog.md) — HU-05, HU-24 detalhadas
+
+---
+
+## 🏁 Sprint Review
+
+**Data:** 17/06/2026
+
+**Histórias concluídas:**
+- [x] HU-05a — Setup de testes automatizados + fórmula de pontuação ✅ (10/10 critérios)
+- [x] HU-24 — Animação de evolução no ranking ✅ (10/10 critérios)
+
+**QA:** 2/2 histórias aprovadas ✅ (20/20 critérios de aceite atendidos)
+
+**Métricas:**
+- Commits: 4 (T0 + HU-05a + HU-24 + correções QA)
+- Merges: 2 (HU-05a, HU-24)
+- Testes criados: 108 (87 HU-05a + 21 HU-24)
+- Coverage `scoring.ts`: 100%
+- Coverage `db.ts`: 85.54%
+- Coverage `ranking-utils.ts`: 95%
+- Coverage global: 87.44% Stmts / 77.53% Branch / 93.75% Funcs / 93.87% Lines
+- Build: passando (tsc 0 erros, vite build OK)
+- Nova dependência: framer-motion
+
+**Lições aprendidas:**
+- O que deu bem:
+  - Política de testes funcionou desde o primeiro sprint de adoção
+  - QA Gate pegou coverage insuficiente (19% → 85%) e forçou testes mais robustos
+  - Funções puras extraídas (scoring.ts, ranking-utils.ts) facilitaram testes
+  - Framer Motion integrou bem com layout animations
+  - 108 testes passando com 0 failures
+- O que melhorar:
+  - Bundle size aumentou (845KB) — considerar code-splitting em sprint futuro
+  - Alguns stderr nos testes são esperados (logs de erro de testes de erro) — documentar
+  - Prop `key` na interface do RoletaVitaminas continua pendente (dívida técnica do Sprint 4)
+
+## 🔄 Retrospectiva
+
+### O que funcionou
+- 🟢 **Política de testes desde o dia 1**: cobertura mínima por camada funcionou como guia
+- 🟢 **QA Gate rigoroso**: reprovou HU-05a com 19% de coverage, forçou melhoria para 85%
+- 🟢 **Funções puras extraídas**: scoring.ts e ranking-utils.ts são 100% testáveis sem mocks
+- 🟢 **Framer Motion**: animação spring (stiffness: 300, damping: 30) ficou suave e natural
+- 🟢 **Indicadores de delta**: setas verde/vermelha/cinza comunicam mudança claramente
+- 🟢 **Seletor de semanas**: permite ver ranking por semana específica ou acumulado
+
+### O que melhorar
+- 🟡 **Bundle size**: 845KB no chunk principal — considerar lazy loading de páginas
+- 🟡 **Testes de integração**: faltam testes end-to-end do fluxo completo (checklist → ranking)
+- 🔴 **Prop `key` no RoletaVitaminas**: dívida técnica do Sprint 4 ainda não corrigida
+
+### Ações para o próximo sprint
+1. Considerar code-splitting para reduzir bundle size (HU técnica)
+2. Corrigir prop `key` na interface do RoletaVitaminas (task menor)
+3. Adicionar testes de integração para fluxo completo (HU-05c no backlog)
+4. Avaliar se precisamos de mais testes de componentes UI (smoke tests)
