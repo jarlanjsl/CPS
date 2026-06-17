@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, query, where, updateDoc, doc, getDoc, deleteDoc, runTransaction } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, orderBy, updateDoc, doc, getDoc, deleteDoc, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface Turma {
@@ -6,6 +6,7 @@ export interface Turma {
   nome: string;
   dataInicio: string;
   concluida: boolean;
+  createdAt?: string;
   datasSemanas?: Record<number, string>;
 }
 
@@ -30,7 +31,8 @@ export const dbService = {
   getTurmas: async (): Promise<Turma[]> => {
     if (!db) return [];
     try {
-      const q = collection(db, "turmas");
+      const turmasRef = collection(db, "turmas");
+      const q = query(turmasRef, orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
       const turmas: Turma[] = [];
       querySnapshot.forEach((doc) => {
@@ -49,7 +51,8 @@ export const dbService = {
       const refTurma = await addDoc(collection(db, "turmas"), {
         nome,
         dataInicio,
-        concluida: false
+        concluida: false,
+        createdAt: new Date().toISOString()
       });
       return refTurma.id;
     } catch (e) {
@@ -293,3 +296,6 @@ export const dbService = {
     }
   }
 };
+
+// @ts-ignore - Expor migração para console do navegador
+(window as any).migrateCreatedAt = () => import('./migrateCreatedAt').then(m => m.migrateCreatedAt());
