@@ -5,6 +5,7 @@ import TurmaDetail from './pages/TurmaDetail';
 import Acompanhamento from './pages/Acompanhamento';
 import Desempenho from './pages/Desempenho';
 import Ajustes from './pages/Ajustes';
+import MinhasVitaminas from './pages/MinhasVitaminas';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/ajustes" element={<Ajustes />} />
                 <Route path="/turma/:id" element={<TurmaDetail />} />
                 <Route path="/turma/:id/semana/:semanaId" element={<Acompanhamento />} />
+                <Route path="/aluno/:casalId/vitaminas" element={<MinhasVitaminas />} />
               </Route>
             </Route>
           </Routes>
