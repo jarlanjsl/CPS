@@ -7,6 +7,71 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [Sprint 5] - 2026-06-17
+
+### Added
+
+- Fundação de testes automatizados com Vitest + React Testing Library (HU-05a)
+  - Configuração Vitest + jsdom + coverage-v8 em `vite.config.ts`
+  - Mocks do Firebase em `src/test/mocks/firebase.ts` (auth, firestore, storage)
+  - Helper functions em `src/test/helpers/fixtures.ts` (mockTurma, mockCasal, mockSemanaCheck, etc.)
+  - Scripts `test`, `test:watch`, `test:coverage` no `package.json`
+  - 108 testes automatizados passando (0 failures)
+- Função pura `calcularPontuacao()` em `services/scoring.ts` (HU-05a)
+  - Elimina 3 das 5 cópias da fórmula de pontuação no código
+  - Coverage 100% (Stmts, Branch, Funcs, Lines)
+  - Usada por `saveChecklist`, `sortearVitaminas`, `saveVitaminaCheck` em `db.ts`
+- Testes de limites de casais (HU-05a)
+  - createCasal: LIDER máx 1, CO-LIDER máx 1, ALUNO máx 5
+  - updateCasal: validação rígida ao mudar tipo
+  - Coverage de `db.ts`: 85.54%
+- Animação de evolução no ranking com Framer Motion (HU-24)
+  - Seletor de semanas (1-14 + "Todas as Semanas") em `Desempenho.tsx`
+  - `AnimatePresence` + `motion.div` com layout animations (spring physics)
+  - Indicadores visuais: seta verde ↑ (subiu), seta vermelha ↓ (desceu), traço cinza — (manteve)
+  - Funciona em todas as categorias (GERAL, PRESENCA, VITAMINA, TAREFAS)
+  - Funções puras extraídas em `ranking-utils.ts` (getPontosSemana, calcularDeltas)
+  - 21 testes novos para lógica de ranking
+  - Coverage de `ranking-utils.ts`: 95%
+- Política de testes automatizados (`docs/testing-policy.md`)
+  - Abordagem híbrida: testes escritos junto com o código
+  - Coverage mínimo por camada: services 80%, contexts 70%, páginas 50%, fórmula 100%
+  - QA Gate inclui validação de testes automatizados
+
+### Changed
+
+- `db.ts`: 3 cópias da fórmula de pontuação substituídas por `calcularPontuacao()` (scoring.ts)
+- `Desempenho.tsx`: adicionado seletor de semanas + animações + indicadores de delta
+- Coverage global: 0% → 87.44% Stmts / 77.53% Branch / 93.75% Funcs / 93.87% Lines
+
+### Security
+
+- Sem alteração nas regras do Firestore
+
+---
+
+## [Unreleased] - 2026-06-17
+
+### Added
+
+- Política de testes automatizados (`docs/testing-policy.md`)
+  - Abordagem híbrida: testes escritos junto com o código (não TDD puro)
+  - Coverage mínimo por camada: services 80%, contexts 70%, páginas 50%, fórmula de pontuação 100%
+  - Testes obrigatórios para HU que altere services/contexts/lógica de negócio
+  - QA Gate inclui validação de testes automatizados
+  - Stack: Vitest + React Testing Library + jsdom + @vitest/coverage-v8
+- HU-05a (Setup de testes + fórmula de pontuação + limites) adicionada ao Sprint 5
+- ADR-001: Estratégia de testes automatizados (ver `docs/adr/ADR-001-testes-automatizados.md`)
+
+### Changed
+
+- HU-05 dividida em 3 partes: HU-05a (Sprint 5), HU-05b (Sprint 6), HU-05c (Sprint 7+)
+- Sprint 5 replanejado: "Fundação de Testes + Animação do Ranking" (HU-05a + HU-24)
+- Fluxo de trabalho: testes são pré-requisito para PR ser aceito
+- Definition of Done atualizada: inclui testes automatizados e coverage mínimo
+
+---
+
 ## [Sprint 4] - 2026-06-17
 
 ### Added

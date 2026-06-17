@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
 > Última atualização: 17/06/2026
-> Versão: 6.0
+> Versão: 8.0
 > Responsável: Agile Master
 
 ---
@@ -21,6 +21,8 @@
 | 17/06/2026 | 4.1 | Correção doc HU-20: paleta 2=1 Brasil revertida para original (indigo) por decisão do usuário; apenas Logo.tsx permaneceu |
 | 17/06/2026 | 5.0 | Sprint 4 iniciado: HU-25, HU-26, HU-27, HU-28 em progresso (Vitaminas da Semana) |
 | 17/06/2026 | 6.0 | Sprint 4 concluído: HU-25, HU-26, HU-27, HU-28 aprovadas pelo QA (22/22 critérios) |
+| 17/06/2026 | 7.0 | Política de testes aprovada: abordagem híbrida, testes obrigatórios para services/contexts. HU-05a adicionada ao Sprint 5. Nova regra: testes são pré-requisito para PR. Ver `docs/testing-policy.md` |
+| 17/06/2026 | 8.0 | Sprint 5 concluído: HU-05a (testes + fórmula pura) e HU-24 (animação ranking) aprovadas pelo QA. 108 testes passando. Coverage global 87%. Ver `docs/testing-policy.md` |
 
 ---
 
@@ -104,7 +106,9 @@
 7. Coverage mínimo de 60% nos arquivos de services e contexts
 8. Todos os testes devem passar no CI
 
-**Prioridade**: Alta | **Estimativa**: L | **Status**: Backlog
+**Prioridade**: Alta | **Estimativa**: L | **Status**: Concluída ✅
+
+> **Sprint 5**: HU-05a (setup + fórmula pura + testes) concluída. 108 testes passando. Coverage: scoring.ts 100%, db.ts 85.54%. Fórmula duplicada 3x eliminada. QA aprovado (10/10 critérios). HU-05b (testes retroativos) e HU-05c (integração) movidas para backlog futuro.
 
 ---
 
@@ -444,7 +448,9 @@
 6. A seta/número deve aparecer ao lado da posição atual
 7. Deve funcionar tanto no ranking geral quanto nos rankings por categoria
 
-**Prioridade**: Média | **Estimativa**: L | **Status**: Backlog
+**Prioridade**: Média | **Estimativa**: L | **Status**: Concluída ✅
+
+> **Sprint 5**: Animação com Framer Motion (AnimatePresence + motion.div). Seletor de semanas (1-14 + "Todas"). Indicadores: ↑ verde (subiu), ↓ vermelho (desceu), — cinza (manteve). Funções puras em ranking-utils.ts (21 testes, 95% coverage). QA aprovado (10/10 critérios).
 
 ---
 
@@ -578,24 +584,31 @@
 
 ---
 
-### Sprint 5 — Animação do Ranking 📈
+### Sprint 5 — Fundação de Testes + Animação do Ranking 🧪📈 (CONCLUÍDO ✅)
 
-| HU | Descrição | Estimativa |
-|----|-----------|:----------:|
-| HU-24 | Animação sobe/desce do ranking semana a semana | 🔴 L |
-| **Total** | | **≈ 5 pontos** |
+| HU | Descrição | Estimativa | Status |
+|----|-----------|:----------:|:------:|
+| HU-05a | Setup Vitest + fórmula de pontuação (função pura) + limites (1/1/5) | 🔴 L | ✅ Concluída |
+| HU-24 | Animação sobe/desce do ranking semana a semana | 🔴 L | ✅ Concluída |
+| **Total** | | **≈ 10 pontos** | **2/2 ✅** |
 
-> **Justificativa:** História independente. Pode ser combinada com ajustes finos que surgirem dos sprints anteriores.
+> **Justificativa:** HU-05a é fundação crítica — elimina risco da fórmula duplicada 5x. HU-24 se beneficia porque a lógica de ranking já estará testada. Política de testes aprovada: ver `docs/testing-policy.md`. QA: 20/20 critérios aprovados. 108 testes passando. Coverage global 87%.
 
 ---
 
-### Sprint 6+ — Futuro
+### Sprint 6 — Testes Retroativos + Futuro 🧪
+
+| HU | Descrição | Estimativa | Status |
+|----|-----------|:----------:|:------:|
+| HU-05b | Testes de transações (saveChecklist, sortear, check) + Contexts (Auth, Sound) | 🟡 M | Backlog |
+| HU-29 | Login com papéis (aluno/co-líder) | 🔴 XL | ⏳ A especificar |
+| HU-30 | Alertas e lembretes de atividades/vitaminas | 🟡 L | ⏳ A especificar |
+
+### Sprint 7+ — Futuro
 
 | HU | Descrição | Status |
 |----|-----------|:------:|
-| HU-29 | Login com papéis (aluno/co-líder) | ⏳ A especificar |
-| HU-30 | Alertas e lembretes de atividades/vitaminas | ⏳ A especificar |
-| HU-05 | Testes automatizados | Backlog |
+| HU-05c | Testes de integração + componentes UI | Backlog |
 | HU-06 | Extrair inline styles | Backlog |
 | HU-11 | Sistema de notificações real | Backlog |
 | HU-12 | Completar PWA | Backlog |
@@ -619,8 +632,10 @@
 | 🎲 Vitaminas | 4 | 2 | 1 | 1 | 0 | 0 | **4/4 ✅** |
 | 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0 | 0/6 |
 | ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 0/2 |
-| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **18/24 (75%)** |
+| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **16/24 (67%)** |
 
-> **Sprint atual:** `sprint/4-vitaminas` (encerrado)  
-> **Próximo sprint:** Sprint 5 — Animação do Ranking 📈  
-> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100%
+> **Sprint atual:** `sprint/5-testes-animacao` (concluído)  
+> **Próximo sprint:** Sprint 6 — Testes Retroativos + Futuro 🧪  
+> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100%  
+> **Política de testes:** `docs/testing-policy.md` — testes obrigatórios para services/contexts  
+> **Coverage global:** 87.44% Stmts / 77.53% Branch / 93.75% Funcs / 93.87% Lines
