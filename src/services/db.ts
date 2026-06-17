@@ -280,16 +280,31 @@ export const dbService = {
         const data = casalSnap.data();
         const semanas = { ...(data.semanas || {}) };
 
-        // Atualiza o mapa dessa semana específica
-        semanas[semanaId] = checklist;
+        // Atualiza o mapa dessa semana específica.
+        // HU-27: mescla em vez de sobrescrever para preservar o sorteioVitaminas
+        // gravado em tempo real pelos checks individuais (Ele ✅ / Ela ✅),
+        // evitando que o botão "Salvar" clobere o estado real-time da vitamina.
+        semanas[semanaId] = {
+          ...(semanas[semanaId] || {}),
+          ...checklist
+        };
 
         // Recalcular Total Global do Casal (Soma todas as semanas gravadas)
         let pontuacaoRecalculada = 0;
         Object.values(semanas).forEach((sem: any) => {
           if (sem.presenca) pontuacaoRecalculada += 1;
-          if (sem.vitaminas) pontuacaoRecalculada += 1;
           if (sem.tarefas) pontuacaoRecalculada += 1;
           if (sem.tarefasExtras) pontuacaoRecalculada += 1;
+          // HU-27: vitamina agora vale 0, 1 ou 2 pontos (check individual Ele/Ela).
+          // else if garante que semanas legacy (vitaminas: true) não somem em dobro
+          // quando a semana também possui sorteioVitaminas.
+          if (sem.sorteioVitaminas) {
+            if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
+            if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
+          } else if (sem.vitaminas) {
+            // LEGACY: semanas gravadas antes do Sprint 4 (compat retroativa)
+            pontuacaoRecalculada += 1;
+          }
         });
 
         // Atualiza atomicamente dentro da transação
@@ -498,17 +513,19 @@ export const dbService = {
         semanas[semanaId] = semanaAtual;
 
         // Recalcular pontuação total do casal (soma todas as semanas).
-        // Inclui branch legacy para `vitaminas: boolean` (compat retroativa) e
-        // os novos checks individuais de sorteioVitaminas (ele/ela).
+        // HU-27: mesma fórmula canônica do saveChecklist/saveVitaminaCheck —
+        // vitamina vale 0, 1 ou 2 pts (checks individuais); else if preserva a
+        // compat retroativa com `vitaminas: boolean` sem duplicar pontos.
         let pontuacaoRecalculada = 0;
         Object.values(semanas).forEach((sem: any) => {
           if (sem.presenca) pontuacaoRecalculada += 1;
-          if (sem.vitaminas) pontuacaoRecalculada += 1; // legacy
           if (sem.tarefas) pontuacaoRecalculada += 1;
           if (sem.tarefasExtras) pontuacaoRecalculada += 1;
           if (sem.sorteioVitaminas) {
             if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
             if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
+          } else if (sem.vitaminas) {
+            pontuacaoRecalculada += 1; // legacy
           }
         });
 
@@ -521,6 +538,76 @@ export const dbService = {
       return true;
     } catch (e) {
       console.error("Erro ao sortear vitaminas:", e);
+      return false;
+    }
+  },
+
+  // ===== HU-27: Check individual de execução das vitaminas =====
+  // Persiste em tempo real o check (Ele ✅ / Ela ✅) de uma vitamina sorteada,
+  // sem esperar o botão "Salvar" do checklist. Usa runTransaction para garantir
+  // atomicidade e recalcula a pontuação total com a mesma fórmula do saveChecklist
+  // (vitamina vale 0, 1 ou 2 pts; branch legacy para `vitaminas: true`).
+  // Retorna false quando não há sorteioVitaminas na semana (nada a checkar).
+  saveVitaminaCheck: async (
+    casalId: string,
+    semanaId: string,
+    pessoa: 'ele' | 'ela',
+    checked: boolean
+  ): Promise<boolean> => {
+    if (!db) return false;
+    let hadSorteio = false;
+    try {
+      const casalRef = doc(db, "casais", casalId);
+
+      await runTransaction(db, async (transaction) => {
+        const casalSnap = await transaction.get(casalRef);
+        if (!casalSnap.exists()) return;
+
+        const data = casalSnap.data();
+        const semanas = { ...(data.semanas || {}) };
+        const semanaAtual: SemanaCheck = semanas[semanaId] || {
+          presenca: false,
+          tarefas: false,
+          tarefasExtras: false
+        };
+
+        // Sem vitamina sorteada nesta semana → nada a checkar
+        if (!semanaAtual.sorteioVitaminas) return;
+        const alvo = semanaAtual.sorteioVitaminas[pessoa];
+        if (!alvo) return; // sorteio nulo para essa pessoa (ex.: roleta pendente)
+
+        hadSorteio = true;
+
+        // Atualiza apenas o check da pessoa, preservando o snapshot do sorteio
+        const novoSorteio: SorteioVitaminas = { ...semanaAtual.sorteioVitaminas };
+        novoSorteio[pessoa] = { ...alvo, check: checked };
+        semanaAtual.sorteioVitaminas = novoSorteio;
+        semanas[semanaId] = semanaAtual;
+
+        // Recalcular pontuação total (mesma fórmula canônica do saveChecklist)
+        let pontuacaoRecalculada = 0;
+        Object.values(semanas).forEach((sem: any) => {
+          if (sem.presenca) pontuacaoRecalculada += 1;
+          if (sem.tarefas) pontuacaoRecalculada += 1;
+          if (sem.tarefasExtras) pontuacaoRecalculada += 1;
+          if (sem.sorteioVitaminas) {
+            if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) pontuacaoRecalculada += 1;
+            if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) pontuacaoRecalculada += 1;
+          } else if (sem.vitaminas) {
+            // LEGACY: semanas gravadas antes do Sprint 4 (compat retroativa)
+            pontuacaoRecalculada += 1;
+          }
+        });
+
+        transaction.update(casalRef, {
+          semanas,
+          pontuacaoTotal: pontuacaoRecalculada
+        });
+      });
+
+      return hadSorteio;
+    } catch (e) {
+      console.error("Erro ao gravar check de vitamina:", e);
       return false;
     }
   }

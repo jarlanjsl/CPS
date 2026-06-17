@@ -44,7 +44,16 @@ export default function Desempenho() {
     
     Object.values(semanas).forEach(sem => {
       if (cat === 'PRESENCA' && sem.presenca) soma += 1;
-      if (cat === 'VITAMINA' && sem.vitaminas) soma += 1;
+      if (cat === 'VITAMINA') {
+        // HU-27: vitamina vale 0, 1 ou 2 pts (checks individuais Ele/Ela).
+        // else if preserva a compat retroativa com `vitaminas: true` (legacy).
+        if (sem.sorteioVitaminas) {
+          if (sem.sorteioVitaminas.ele && sem.sorteioVitaminas.ele.check) soma += 1;
+          if (sem.sorteioVitaminas.ela && sem.sorteioVitaminas.ela.check) soma += 1;
+        } else if (sem.vitaminas) {
+          soma += 1; // legacy
+        }
+      }
       if (cat === 'TAREFAS') {
         if (sem.tarefas) soma += 1;
         if (sem.tarefasExtras) soma += 1; // max 2 pontos por semana nesse quesito
