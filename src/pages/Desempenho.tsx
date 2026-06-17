@@ -1,6 +1,7 @@
 import { Star, LoaderCircle, Trophy, Leaf, CheckSquare, CalendarDays } from 'lucide-react';
 import { dbService, type Casal, type Turma } from '../services/db';
 import { useEffect, useState, useMemo } from 'react';
+import AvatarCasado from '../components/AvatarCasado';
 
 type Categoria = 'GERAL' | 'PRESENCA' | 'VITAMINA' | 'TAREFAS';
 
@@ -10,6 +11,7 @@ export default function Desempenho() {
   const [casais, setCasais] = useState<Casal[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoria, setCategoria] = useState<Categoria>('GERAL');
+  const [fotoAmpliada, setFotoAmpliada] = useState<Casal | null>(null);
 
   useEffect(() => {
     dbService.getTurmas().then(res => {
@@ -57,7 +59,8 @@ export default function Desempenho() {
   }, [casais, categoria]);
 
   return (
-    <div className="page-container">
+    <>
+      <div className="page-container">
       <header className="page-header" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1rem' }}>
         <h1 style={{ margin: 0 }}>Desempenho Setorial</h1>
         
@@ -134,6 +137,13 @@ export default function Desempenho() {
                     <div style={{ fontSize: '1.5rem', fontWeight: 'bold', minWidth: '35px', color: index === 0 ? '#fbbf24' : index === 1 ? '#e2e8f0' : index === 2 ? '#b45309' : 'var(--text-muted)' }}>
                       #{index + 1}
                     </div>
+                    <AvatarCasado
+                      nomeEle={c.nomeEle}
+                      nomeEla={c.nomeEla}
+                      fotoUrl={c.fotoUrl}
+                      size={40}
+                      onClick={() => setFotoAmpliada(c)}
+                    />
                     <div style={{ flex: 1 }}>
                       <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{c.nomeEle} & {c.nomeEla}</h3>
                     </div>
@@ -149,5 +159,31 @@ export default function Desempenho() {
         </div>
       ) : null}
     </div>
+
+      {fotoAmpliada && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '2rem', cursor: 'pointer'
+        }} onClick={() => setFotoAmpliada(null)}>
+          <div style={{ textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+            {fotoAmpliada.fotoUrl ? (
+              <img src={fotoAmpliada.fotoUrl} alt={`${fotoAmpliada.nomeEle} e ${fotoAmpliada.nomeEla}`}
+                style={{ maxWidth: '300px', maxHeight: '300px', borderRadius: '16px', objectFit: 'cover' }} />
+            ) : (
+              <AvatarCasado nomeEle={fotoAmpliada.nomeEle} nomeEla={fotoAmpliada.nomeEla} size={120} />
+            )}
+            <p style={{ color: 'white', marginTop: '1rem', fontSize: '1.1rem' }}>
+              {fotoAmpliada.nomeEle} & {fotoAmpliada.nomeEla}
+            </p>
+            <button onClick={() => setFotoAmpliada(null)} style={{
+              background: 'var(--primary)', color: 'white', border: 'none',
+              padding: '0.5rem 2rem', borderRadius: '8px', cursor: 'pointer'
+            }}>Fechar</button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
