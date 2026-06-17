@@ -1,9 +1,11 @@
 import { Bell, Plane, LogOut, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSound } from '../contexts/SoundContext';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Ajustes() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const { isSoundEnabled, toggleSoundEnabled, soundFrequency, setSoundFrequency, playAirplaneSound } = useSound();
 
   return (
@@ -84,7 +86,10 @@ export default function Ajustes() {
         </div>
 
         <button 
-          onClick={() => navigate('/login')}
+          onClick={async () => {
+            await logout();
+            navigate('/login', { replace: true });
+          }}
           style={{ padding: '1rem', background: 'var(--danger-bg)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', marginTop: '1rem' }}>
           <LogOut size={20} />
           Sair da Conta
