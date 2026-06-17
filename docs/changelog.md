@@ -12,10 +12,9 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ### Added
 
 - Ordenação de turmas por data de criação (mais recentes primeiro) via `orderBy('createdAt', 'desc')` (HU-21)
-- Nova identidade visual com paleta de cores oficial 2=1 Brasil (HU-20)
-  - Primária: `#214991` (azul escuro), Secundária: `#44C1D7` (ciano), Destaque: `#FFC801` (dourado)
-  - Logotipo SVG com duas alianças douradas + texto "Casados Para Sempre"
-  - Componente `Logo.tsx` reutilizável
+- Nova identidade visual: componente `Logo.tsx` com duas alianças douradas + texto "Casados Para Sempre" (HU-20)
+  - Logo exibido no header (Layout) e na tela de Login
+  - **Nota:** A paleta 2=1 Brasil foi aplicada e posteriormente revertida para a paleta original (indigo/roxo `#6366f1`) por decisão do usuário. Apenas o logotipo permaneceu da identidade visual nova.
 - Upload de foto para cada casal no Firebase Storage com redimensionamento 400×400 via Canvas (HU-22)
   - Serviço `storage.ts` com upload, delete e validação de 5MB
   - Componente `AvatarCasado.tsx` com foto ou placeholder gradiente com iniciais
@@ -29,15 +28,14 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - `db.ts`: Método `getTurmas` agora usa `orderBy('createdAt', 'desc')`; `createTurma` salva `createdAt`
 - `db.ts`: Interface `Casal` ganhou campo `fotoUrl?`; `createCasal` agora retorna `id`
 - `firebase.ts`: Adicionado `getStorage` e export `storage`
-- `index.css`: Variáveis CSS atualizadas com nova paleta 2=1 Brasil; adicionado `--accent` e `--bg-light`
+- `index.css`: Variáveis CSS mantidas na paleta original (indigo/roxo). A paleta 2=1 Brasil foi aplicada e revertida por decisão do usuário.
 - `Layout.tsx`: Header agora exibe o logotipo `Logo.tsx`
 - `Login.tsx`: Tela de login agora exibe o logotipo
 - `Home.tsx`: Ordenação de turmas refletida automaticamente via Firestore
 - `TurmaDetail.tsx`: Adicionado upload de foto na criação e edição de casais; avatar nos cards
 - `Desempenho.tsx`: Ranking exibe fotos dos casais com lazy loading e modal ampliado
-- `home.css`, `login.css`: Cores atualizadas para nova paleta
-- `index.html`: `theme-color: #214991`
-- `manifest.json`: Cores e nome atualizados
+- `index.html`: `theme-color` mantido `#ffffff` (paleta 2=1 Brasil revertida)
+- `manifest.json`: Cores mantidas como `#ffffff` (paleta 2=1 Brasil revertida)
 
 ### Security
 
