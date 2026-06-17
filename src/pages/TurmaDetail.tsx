@@ -21,7 +21,6 @@ export default function TurmaDetail() {
 
   // States para Concluir/Reabrir Turma
   const [isConcluirTurmaOpen, setIsConcluirTurmaOpen] = useState(false);
-  const [confirmConcluirText, setConfirmConcluirText] = useState('');
 
   // States para Edição de Data da Lição
   const [isEditSemanaOpen, setIsEditSemanaOpen] = useState(false);
@@ -85,14 +84,13 @@ export default function TurmaDetail() {
   };
 
   const handleToggleConcluirTurma = async () => {
-    if (!id || !turma || confirmConcluirText !== 'Concluir') return;
+    if (!id || !turma) return;
     
     setProcessando(true);
     const ok = await dbService.toggleTurmaConcluida(id, !turma.concluida);
     setProcessando(false);
     if (ok) {
       setIsConcluirTurmaOpen(false);
-      setConfirmConcluirText('');
       carregarDados();
     } else {
       alert("Erro ao atualizar status da turma.");
@@ -499,37 +497,46 @@ export default function TurmaDetail() {
                 : `Deseja concluir a turma "${turma.nome}"? Ela será movida para a seção de turmas concluídas.`
               }
             </p>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                Digite <strong>"Concluir"</strong> para confirmar:
-              </label>
-              <input 
-                autoFocus
-                placeholder="Concluir" 
-                value={confirmConcluirText} 
-                onChange={e => setConfirmConcluirText(e.target.value)}
-                style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' }}
-              />
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button 
+                onClick={() => setIsConcluirTurmaOpen(false)}
+                disabled={processando}
+                style={{ 
+                  flex: 1,
+                  background: 'rgba(100, 116, 139, 0.2)', 
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  color: 'var(--text-muted)', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  fontWeight: 600, 
+                  cursor: 'pointer',
+                  fontFamily: 'inherit'
+                }}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleToggleConcluirTurma}
+                disabled={processando}
+                style={{ 
+                  flex: 1,
+                  background: turma.concluida ? 'var(--warning-bg)' : 'var(--success-bg)', 
+                  border: 'none', 
+                  color: 'white', 
+                  padding: '1rem', 
+                  borderRadius: '8px', 
+                  fontWeight: 600, 
+                  cursor: 'pointer',
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '0.5rem',
+                  fontFamily: 'inherit'
+                }}
+              >
+                {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : (turma.concluida ? 'Sim, Reabrir' : 'Sim, Concluir')}
+              </button>
             </div>
-            <button 
-              onClick={handleToggleConcluirTurma}
-              disabled={processando || confirmConcluirText !== 'Concluir'}
-              style={{ 
-                background: confirmConcluirText === 'Concluir' ? (turma.concluida ? 'var(--warning-bg)' : 'var(--success-bg)') : 'rgba(100, 116, 139, 0.3)', 
-                border: 'none', 
-                color: confirmConcluirText === 'Concluir' ? 'white' : '#94a3b8', 
-                padding: '1rem', 
-                borderRadius: '8px', 
-                fontWeight: 600, 
-                cursor: confirmConcluirText === 'Concluir' ? 'pointer' : 'not-allowed',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: '0.5rem' 
-              }}
-            >
-              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : (turma.concluida ? 'Confirmar Reabertura' : 'Confirmar Conclusão')}
-            </button>
           </div>
         </div>
       )}
