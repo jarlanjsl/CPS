@@ -1,6 +1,30 @@
 import { collection, getDocs, addDoc, query, where, orderBy, updateDoc, doc, getDoc, deleteDoc, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
 
+// Catálogo de vitaminas da turma — embutido em turmas/{turmaId}.vitaminas
+export interface Vitamina {
+  id: string;            // UUID gerado client-side (crypto.randomUUID())
+  nome: string;
+  descricao: string;
+  semanas: number[];     // semanas em que está ativa (ex: [1,3,5] ou [] = inativa)
+  createdAt: string;     // ISO timestamp
+}
+
+// Snapshot de uma vitamina sorteada para uma pessoa de um casal em uma semana
+export interface VitaminaSorteio {
+  vitaminaId: string;    // FK para turmas.vitaminas[id]
+  nome: string;          // DENORMALIZADO — snapshot no momento do sorteio
+  descricao: string;     // DENORMALIZADO — snapshot no momento do sorteio
+  check: boolean;        // HU-27: check individual (Ele ✅ ou Ela ✅)
+  sorteadoEm: string;    // ISO timestamp — usado para histórico HU-28
+}
+
+// Sorteio completo para um casal em uma semana (uma pra ele + uma pra ela)
+export interface SorteioVitaminas {
+  ele: VitaminaSorteio | null;
+  ela: VitaminaSorteio | null;
+}
+
 export interface Turma {
   id: string;
   nome: string;
@@ -8,13 +32,15 @@ export interface Turma {
   concluida: boolean;
   createdAt?: string;
   datasSemanas?: Record<number, string>;
+  vitaminas?: Record<string, Vitamina>;
 }
 
 export interface SemanaCheck {
   presenca: boolean;
-  vitaminas: boolean;
+  vitaminas?: boolean;          // Deprecated (compat retroativa) — substituído por sorteioVitaminas
   tarefas: boolean;
   tarefasExtras: boolean;
+  sorteioVitaminas?: SorteioVitaminas;
 }
 
 export interface Casal {
