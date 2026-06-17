@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, BarChart2, Bell, Settings } from 'lucide-react';
 import { useState } from 'react';
+import Logo from './Logo';
 import '../styles/layout.css';
 
 export default function Layout() {
@@ -34,7 +35,7 @@ export default function Layout() {
     <div className="layout-container">
       <header className="mobile-header glass-effect">
         <div className="header-content" style={{ position: 'relative' }}>
-          <span className="logo-text gradient-text" style={{ fontSize: '1.25rem', fontWeight: 700 }}>Casados para Sempre</span>
+          <Logo size={36} />
           
           <button className="icon-btn" onClick={() => setShowNotifications(!showNotifications)}>
             <Bell size={20} className={showNotifications ? "text-main" : "text-muted"} />

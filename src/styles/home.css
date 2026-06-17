@@ -69,7 +69,7 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--primary-light), #c084fc);
+  background: linear-gradient(90deg, var(--primary-light), var(--primary));
   opacity: 0;
   transition: opacity 0.3s;
 }

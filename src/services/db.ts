@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, query, where, updateDoc, doc, getDoc, deleteDoc, runTransaction } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, orderBy, updateDoc, doc, getDoc, deleteDoc, runTransaction } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface Turma {
@@ -6,6 +6,7 @@ export interface Turma {
   nome: string;
   dataInicio: string;
   concluida: boolean;
+  createdAt?: string;
   datasSemanas?: Record<number, string>;
 }
 
@@ -24,13 +25,15 @@ export interface Casal {
   nomeEla: string;
   pontuacaoTotal: number;
   semanas?: Record<string, SemanaCheck>;
+  fotoUrl?: string;
 }
 
 export const dbService = {
   getTurmas: async (): Promise<Turma[]> => {
     if (!db) return [];
     try {
-      const q = collection(db, "turmas");
+      const turmasRef = collection(db, "turmas");
+      const q = query(turmasRef, orderBy("createdAt", "desc"));
       const querySnapshot = await getDocs(q);
       const turmas: Turma[] = [];
       querySnapshot.forEach((doc) => {
@@ -49,7 +52,8 @@ export const dbService = {
       const refTurma = await addDoc(collection(db, "turmas"), {
         nome,
         dataInicio,
-        concluida: false
+        concluida: false,
+        createdAt: new Date().toISOString()
       });
       return refTurma.id;
     } catch (e) {
@@ -128,7 +132,7 @@ export const dbService = {
     }
   },
 
-  createCasal: async (turmaId: string, nomeEle: string, nomeEla: string, tipo: 'LIDER' | 'CO-LIDER' | 'ALUNO'): Promise<{success: boolean, error?: string}> => {
+  createCasal: async (turmaId: string, nomeEle: string, nomeEla: string, tipo: 'LIDER' | 'CO-LIDER' | 'ALUNO'): Promise<{success: boolean, error?: string, id?: string}> => {
     if (!db) return { success: false, error: 'DB não inicializado.' };
     try {
       // Regra de Trava e Verificação Limite
@@ -145,7 +149,7 @@ export const dbService = {
       if (tipo === 'CO-LIDER' && countCoLider >= limiteCoLider) return { success: false, error: 'Limite de 1 Casal Co-Líder excedido para esta turma.' };
       if (tipo === 'ALUNO' && countAluno >= limiteAluno) return { success: false, error: 'Limite de 5 Casais Alunos excedido para esta turma.' };
 
-      await addDoc(collection(db, "casais"), {
+      const ref = await addDoc(collection(db, "casais"), {
         turmaId,
         nomeEle,
         nomeEla,
@@ -153,7 +157,7 @@ export const dbService = {
         pontuacaoTotal: 0,
         semanas: {}
       });
-      return { success: true };
+      return { success: true, id: ref.id };
     } catch (e) {
       console.error("Erro ao criar casal:", e);
       return { success: false, error: 'Falha interna ao tentar salvar.' };
@@ -203,6 +207,17 @@ export const dbService = {
     } catch (e) {
       console.error("Erro ao editar casal:", e);
       return { success: false, error: 'Falha interna ao tentar salvar.' };
+    }
+  },
+
+  updateCasalFotoUrl: async (casalId: string, fotoUrl: string): Promise<boolean> => {
+    if (!db) return false;
+    try {
+      await updateDoc(doc(db, "casais", casalId), { fotoUrl });
+      return true;
+    } catch (e) {
+      console.error("Erro ao atualizar foto do casal:", e);
+      return false;
     }
   },
 
@@ -293,3 +308,6 @@ export const dbService = {
     }
   }
 };
+
+// @ts-ignore - Expor migração para console do navegador
+(window as any).migrateCreatedAt = () => import('./migrateCreatedAt').then(m => m.migrateCreatedAt());
