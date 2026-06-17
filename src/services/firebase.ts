@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // ATENÇÃO: Acesse o console do Firebase (console.firebase.google.com)
 // Crie um projeto Web e copie o objeto firebaseConfig colando os valores aqui:
@@ -22,3 +23,4 @@ export const isFirebaseConfigured = !!(
 export const app = isFirebaseConfigured ? initializeApp(firebaseConfig) : null;
 export const auth = app ? getAuth(app) : null;
 export const db = app ? getFirestore(app) : null;
+export const storage = app ? getStorage(app) : null;
