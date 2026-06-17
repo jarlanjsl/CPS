@@ -7,6 +7,7 @@ import VitaminasSection from '../components/VitaminasSection';
 import SorteioVitaminasModal from '../components/SorteioVitaminasModal';
 import { LoaderCircle, Pencil, Plus, X, Trash2, Camera, Dices, History } from 'lucide-react';
 import '../styles/home.css';
+import '../styles/turma-detail.css';
 
 export default function TurmaDetail() {
   const { id } = useParams();
@@ -248,35 +249,33 @@ export default function TurmaDetail() {
   // Gerador de array [1..14]
   const semanas = Array.from({ length: 14 }, (_, i) => i + 1);
 
-  if (loading && !turma) return <div className="page-container" style={{ textAlign: 'center', padding: '3rem' }}><LoaderCircle size={32} style={{ animation: 'spin 1s linear infinite' }} /></div>;
+  if (loading && !turma) return <div className="page-container turma-loading"><LoaderCircle size={32} className="spinner" /></div>;
   if (!turma) return <div className="page-container">Turma não encontrada no banco.</div>;
 
   return (
-    <div className="page-container" style={{ position: 'relative' }}>
+    <div className="page-container">
       <header className="page-header">
         <div>
-          <Link to="/" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem' }}>
+          <Link to="/" className="turma-back-link">
             ← Voltar
           </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }}>
-            <h1 style={{ margin: 0, color: 'var(--text-main)' }}>{turma.nome}</h1>
-            <button onClick={() => setIsEditTurmaOpen(true)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}>
+          <div className="turma-name-row">
+            <h1 className="turma-name">{turma.nome}</h1>
+            <button onClick={() => setIsEditTurmaOpen(true)} className="turma-edit-btn">
               <Pencil size={18} />
             </button>
           </div>
           {turma.concluida ? (
             <button 
               onClick={() => setIsConcluirTurmaOpen(true)} 
-              className="btn-primary" 
-              style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+              className="btn-primary btn-reabrir"
             >
               Reabrir Turma
             </button>
           ) : (
             <button 
               onClick={() => setIsConcluirTurmaOpen(true)} 
-              className="btn-primary" 
-              style={{ background: 'var(--success-bg)', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+              className="btn-primary btn-concluir"
             >
               Concluir Turma
             </button>
@@ -284,26 +283,20 @@ export default function TurmaDetail() {
         </div>
       </header>
 
-      <div style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ margin: 0, color: 'var(--text-muted)' }}>Membros</h3>
-          <button onClick={() => setIsAddCasalOpen(true)} className="btn-primary" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+      <div className="turma-section">
+        <div className="turma-section-header">
+          <h3 className="turma-section-title">Membros</h3>
+          <button onClick={() => setIsAddCasalOpen(true)} className="btn-primary turma-add-btn">
             <Plus size={16} />
             Cadastrar
           </button>
         </div>
 
-        <div className="glass-effect" style={{ overflow: 'hidden' }}>
-          {casais.map((c, idx) => (
-            <div key={c.id} style={{ 
-              padding: '1.25rem', 
-              borderBottom: idx === casais.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)', 
-              display: 'flex', 
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <div style={{ position: 'relative', flexShrink: 0 }}>
+        <div className="glass-effect turma-casais-container">
+          {casais.map((c) => (
+            <div key={c.id} className="turma-casal-item">
+              <div className="turma-casal-info">
+                <div className="turma-avatar-wrapper">
                   <AvatarCasado nomeEle={c.nomeEle} nomeEla={c.nomeEla} fotoUrl={c.fotoUrl} size={40}
                     onClick={() => {
                       document.getElementById(`foto-input-${c.id}`)?.click();
@@ -318,19 +311,14 @@ export default function TurmaDetail() {
                           carregarDados();
                         }
                       }}
-                      style={{
-                        position: 'absolute', top: -4, right: -4, background: 'rgba(239,68,68,0.8)',
-                        border: 'none', color: 'white', borderRadius: '50%', width: 16, height: 16,
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 10, padding: 0
-                      }}
+                      className="turma-remove-photo-btn"
                       title="Remover foto"
                     >
                       <X size={10} />
                     </button>
                   )}
                   <input id={`foto-input-${c.id}`} type="file" accept="image/*"
-                    style={{ display: 'none' }}
+                    className="hidden-input"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
@@ -353,10 +341,10 @@ export default function TurmaDetail() {
                   />
                 </div>
                 <div>
-                  <div style={{ fontWeight: 500 }}>{c.nomeEle} & {c.nomeEla}</div>
-                  {c.tipo === 'LIDER' && <span style={{ fontSize: '0.75rem', color: 'var(--primary-light)' }}>Líder</span>}
-                  {c.tipo === 'CO-LIDER' && <span style={{ fontSize: '0.75rem', color: '#fbbf24' }}>Co-Líder</span>}
-                  {c.tipo === 'ALUNO' && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Aluno</span>}
+                  <div className="turma-casal-names">{c.nomeEle} & {c.nomeEla}</div>
+                  {c.tipo === 'LIDER' && <span className="turma-tipo-lider">Líder</span>}
+                  {c.tipo === 'CO-LIDER' && <span className="turma-tipo-colider">Co-Líder</span>}
+                  {c.tipo === 'ALUNO' && <span className="turma-tipo-aluno">Aluno</span>}
                 </div>
                 <button
                   onClick={() => {
@@ -366,7 +354,7 @@ export default function TurmaDetail() {
                     setEditCasalTipo(c.tipo);
                     setIsEditCasalOpen(true);
                   }}
-                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                  className="turma-icon-btn"
                   title="Editar casal"
                 >
                   <Pencil size={14} />
@@ -379,33 +367,18 @@ export default function TurmaDetail() {
                     setConfirmDeleteCasalText('');
                     setIsDeleteCasalOpen(true);
                   }}
-                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                  className="turma-icon-btn"
                   title="Excluir casal"
                 >
                   <Trash2 size={14} />
                 </button>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pontos</span>
-                <span style={{ fontWeight: 'bold', color: 'var(--success)' }}>{c.pontuacaoTotal}</span>
+              <div className="turma-casal-pontos">
+                <span className="turma-pontos-label">Pontos</span>
+                <span className="turma-pontos-value">{c.pontuacaoTotal}</span>
                 <Link
                   to={`/aluno/${c.id}/vitaminas`}
-                  style={{
-                    marginTop: '0.5rem',
-                    fontSize: '0.72rem',
-                    fontFamily: 'inherit',
-                    fontWeight: 600,
-                    color: 'var(--primary-light)',
-                    background: 'rgba(99, 102, 241, 0.12)',
-                    border: '1px solid rgba(99, 102, 241, 0.3)',
-                    borderRadius: '8px',
-                    padding: '0.35rem 0.6rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.3rem',
-                    textDecoration: 'none',
-                    whiteSpace: 'nowrap'
-                  }}
+                  className="turma-vitaminas-link"
                   title="Ver histórico de vitaminas do casal"
                 >
                   <History size={13} />
@@ -415,7 +388,7 @@ export default function TurmaDetail() {
             </div>
           ))}
           {casais.length === 0 && (
-             <div style={{ padding: '2rem', color: 'var(--text-muted)', textAlign: 'center' }}>Sem casais na turma</div>
+             <div className="turma-casais-empty">Sem casais na turma</div>
           )}
         </div>
       </div>
@@ -423,54 +396,32 @@ export default function TurmaDetail() {
       {/* HU-26: Seção editável de Vitaminas da Semana */}
       {id && <VitaminasSection turmaId={id} />}
 
-      <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
-        <h3 style={{ color: 'var(--text-main)' }}>Acompanhamento (Semanas)</h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+      <div className="turma-semanas-section">
+        <h3 className="turma-semanas-title">Acompanhamento (Semanas)</h3>
+        <p className="turma-semanas-desc">
           Selecione a lição da semana do curso para preencher.
           {turma.dataInicio && (
-            <span style={{ display: 'block', marginTop: '0.5rem' }}>
+            <span className="turma-data-inicio">
               <strong>Data de início:</strong> {new Date(turma.dataInicio).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
             </span>
           )}
         </p>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.75rem' }}>
+        <div className="turma-semanas-grid">
           {semanas.map(sem => {
             const dataSemana = calcularDataSemana(sem);
             return (
-              <div key={sem} style={{ position: 'relative' }}>
+              <div key={sem} className="turma-semana-item">
                 <Link 
                   to={`/turma/${id}/semana/${sem}`} 
-                  className="btn-primary" 
-                  style={{ 
-                    textAlign: 'center', 
-                    textDecoration: 'none', 
-                    padding: '0.75rem 0.5rem',
-                    display: 'block'
-                  }}
+                  className="btn-primary turma-semana-link"
                 >
-                  <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Lição {sem}</div>
-                  <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>{dataSemana}</div>
+                  <div className="turma-semana-num">Lição {sem}</div>
+                  <div className="turma-semana-data">{dataSemana}</div>
                 </Link>
                 <button
                   onClick={() => setSemanaSorteio(sem)}
-                  style={{
-                    marginTop: '0.4rem',
-                    width: '100%',
-                    padding: '0.4rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.3rem',
-                    fontSize: '0.72rem',
-                    fontFamily: 'inherit',
-                    fontWeight: 600,
-                    color: 'var(--primary-light)',
-                    background: 'rgba(99, 102, 241, 0.16)',
-                    border: '1px solid rgba(99, 102, 241, 0.4)',
-                    borderRadius: '8px',
-                    cursor: 'pointer'
-                  }}
+                  className="turma-roleta-btn"
                   title="Sortear vitaminas desta semana"
                 >
                   <Dices size={13} />
@@ -482,20 +433,7 @@ export default function TurmaDetail() {
                     setNovaDataSemana(formatarDataInput(new Date(new Date(turma.dataInicio!).getTime() + (sem - 1) * 7 * 24 * 60 * 60 * 1000).toISOString()));
                     setIsEditSemanaOpen(true);
                   }}
-                  style={{
-                    position: 'absolute',
-                    top: '4px',
-                    right: '4px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: 'none',
-                    color: 'var(--text-muted)',
-                    cursor: 'pointer',
-                    padding: '2px',
-                    borderRadius: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
+                  className="turma-edit-semana-btn"
                   title="Editar data desta lição"
                 >
                   <Pencil size={12} />
@@ -508,35 +446,30 @@ export default function TurmaDetail() {
 
       {/* MODAL: EDITAR TURMA */}
       {isEditTurmaOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '1.5rem'
-        }}>
-          <form className="glass-effect" onSubmit={handleEditTurma} style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
-            <button type="button" onClick={() => setIsEditTurmaOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className="modal-overlay">
+          <form className="glass-effect modal-form--lg" onSubmit={handleEditTurma}>
+            <button type="button" onClick={() => setIsEditTurmaOpen(false)} className="modal-close-btn">
               <X size={24} />
             </button>
-            <h2 style={{ fontSize: '1.25rem', marginTop: 0 }}>Editar Turma</h2>
+            <h2 className="modal-title">Editar Turma</h2>
             <input 
               autoFocus placeholder="Novo nome da turma" value={novoNomeTurma} onChange={e => setNovoNomeTurma(e.target.value)}
-              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+              className="glass-input"
             />
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Data de Início</label>
+              <label className="modal-label">Data de Início</label>
               <input 
                 type="date" value={novaDataInicio} onChange={e => setNovaDataInicio(e.target.value)}
-                style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' }}
+                className="glass-input glass-input--full"
               />
             </div>
             <button type="submit" className="btn-primary" disabled={processando || !novoNomeTurma.trim()}>
-              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Salvar'}
+              {processando ? <LoaderCircle size={20} className="spinner" /> : 'Salvar'}
             </button>
             <button 
               type="button" 
               onClick={() => { setIsEditTurmaOpen(false); setIsDeleteTurmaOpen(true); }}
-              style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '1rem', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+              className="btn-delete"
             >
               <Trash2 size={20} />
               Excluir Turma
@@ -547,22 +480,17 @@ export default function TurmaDetail() {
 
       {/* MODAL: EXCLUIR TURMA */}
       {isDeleteTurmaOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '1.5rem'
-        }}>
-          <div className="glass-effect" style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
-            <button type="button" onClick={() => setIsDeleteTurmaOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className="modal-overlay">
+          <div className="glass-effect modal-form--lg">
+            <button type="button" onClick={() => setIsDeleteTurmaOpen(false)} className="modal-close-btn">
               <X size={24} />
             </button>
-            <h2 style={{ fontSize: '1.25rem', marginTop: 0, color: '#ef4444' }}>Excluir Turma</h2>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <h2 className="modal-title modal-title--danger">Excluir Turma</h2>
+            <p className="modal-desc">
               Tem certeza que deseja excluir a turma <strong>{turma.nome}</strong>? Esta ação não pode ser desfeita.
             </p>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+              <label className="modal-label">
                 Digite <strong>"Excluir"</strong> para confirmar:
               </label>
               <input 
@@ -570,7 +498,7 @@ export default function TurmaDetail() {
                 placeholder="Excluir" 
                 value={confirmDeleteText} 
                 onChange={e => setConfirmDeleteText(e.target.value)}
-                style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' }}
+                className="glass-input glass-input--full"
               />
             </div>
             <button 
@@ -590,7 +518,7 @@ export default function TurmaDetail() {
                 gap: '0.5rem' 
               }}
             >
-              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Confirmar Exclusão'}
+              {processando ? <LoaderCircle size={20} className="spinner" /> : 'Confirmar Exclusão'}
             </button>
           </div>
         </div>
@@ -598,32 +526,27 @@ export default function TurmaDetail() {
 
       {/* MODAL: EDITAR DATA DA LIÇÃO */}
       {isEditSemanaOpen && semanaEditando && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '1.5rem'
-        }}>
-          <div className="glass-effect" style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
-            <button type="button" onClick={() => setIsEditSemanaOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className="modal-overlay">
+          <div className="glass-effect modal-form--lg">
+            <button type="button" onClick={() => setIsEditSemanaOpen(false)} className="modal-close-btn">
               <X size={24} />
             </button>
-            <h2 style={{ fontSize: '1.25rem', marginTop: 0 }}>Editar Data da Lição {semanaEditando}</h2>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <h2 className="modal-title">Editar Data da Lição {semanaEditando}</h2>
+            <p className="modal-desc">
               Altere a data desta lição específica. Isso não afetará as outras lições.
             </p>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+              <label className="modal-label">
                 Nova data:
               </label>
               <input 
                 type="date" 
                 value={novaDataSemana} 
                 onChange={e => setNovaDataSemana(e.target.value)}
-                style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' }}
+                className="glass-input glass-input--full"
               />
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="modal-btn-row">
               <button 
                 type="button"
                 onClick={() => {
@@ -631,26 +554,16 @@ export default function TurmaDetail() {
                   handleEditSemanaData(semanaEditando, undefined);
                 }}
                 disabled={processando}
-                style={{ 
-                  flex: 1,
-                  background: 'rgba(239, 68, 68, 0.2)', 
-                  border: '1px solid rgba(239, 68, 68, 0.3)', 
-                  color: '#fca5a5', 
-                  padding: '1rem', 
-                  borderRadius: '8px', 
-                  fontWeight: 600, 
-                  cursor: 'pointer'
-                }}
+                className="btn-reset"
               >
                 Redefinir
               </button>
               <button 
                 onClick={() => handleEditSemanaData(semanaEditando, novaDataSemana)}
                 disabled={processando || !novaDataSemana}
-                className="btn-primary"
-                style={{ flex: 1 }}
+                className="btn-primary btn-flex"
               >
-                {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Salvar'}
+                {processando ? <LoaderCircle size={20} className="spinner" /> : 'Salvar'}
               </button>
             </div>
           </div>
@@ -659,68 +572,53 @@ export default function TurmaDetail() {
 
       {/* MODAL: CADASTRAR MEMBROS */}
       {isAddCasalOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '1.5rem'
-        }}>
-          <form className="glass-effect" onSubmit={handleCreateCasal} style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
-            <button type="button" onClick={() => setIsAddCasalOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className="modal-overlay">
+          <form className="glass-effect modal-form" onSubmit={handleCreateCasal}>
+            <button type="button" onClick={() => setIsAddCasalOpen(false)} className="modal-close-btn">
               <X size={24} />
             </button>
-            <h2 style={{ fontSize: '1.25rem', marginTop: 0 }}>Novo Casal</h2>
+            <h2 className="modal-title">Novo Casal</h2>
             
             <input 
               placeholder="Nome dEle (Ex: João)" value={nomeEle} onChange={e => setNomeEle(e.target.value)}
-              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+              className="glass-input"
             />
              <input 
               placeholder="Nome dEla (Ex: Maria)" value={nomeEla} onChange={e => setNomeEla(e.target.value)}
-              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+              className="glass-input"
             />
              <select 
               value={casalTipo} onChange={e => setCasalTipo(e.target.value as any)}
-              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+              className="glass-select"
             >
-              <option value="ALUNO" style={{ color: 'black' }}>Casal Membro/Aluno</option>
-              <option value="LIDER" style={{ color: 'black' }}>Casal Líder (Não pontua)</option>
-              <option value="CO-LIDER" style={{ color: 'black' }}>Casal Co-Líder (Não pontua)</option>
+              <option value="ALUNO">Casal Membro/Aluno</option>
+              <option value="LIDER">Casal Líder (Não pontua)</option>
+              <option value="CO-LIDER">Casal Co-Líder (Não pontua)</option>
             </select>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <label style={{
-                background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)',
-                color: 'var(--text-muted)', padding: '0.75rem 1rem', borderRadius: '8px',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                fontFamily: 'inherit', fontSize: '0.9rem', flex: 1
-              }}>
+            <div className="turma-foto-row">
+              <label className="turma-foto-label">
                 <Camera size={18} />
                 {fotoFile ? fotoFile.name : 'Adicionar foto'}
-                <input type="file" accept="image/*" onChange={handleFotoFileChange} style={{ display: 'none' }} />
+                <input type="file" accept="image/*" onChange={handleFotoFileChange} className="hidden-input" />
               </label>
               {fotoPreview && (
-                <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div className="turma-foto-preview-wrapper">
                   <img src={fotoPreview} alt="Preview" width={48} height={48}
-                    style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                    className="turma-foto-preview" />
                   <button type="button" onClick={() => { setFotoFile(null); setFotoPreview(''); }}
-                    style={{
-                      position: 'absolute', top: -4, right: -4, background: 'rgba(239,68,68,0.8)',
-                      border: 'none', color: 'white', borderRadius: '50%', width: 18, height: 18,
-                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 12, padding: 0
-                    }}>
+                    className="turma-foto-remove-btn">
                     <X size={12} />
                   </button>
                 </div>
               )}
             </div>
 
-            <button type="submit" className="btn-primary" disabled={processando || uploading || !nomeEle.trim() || !nomeEla.trim()}>
-              {processando || uploading ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Adicionar Casal'}
+            <button type="submit" className="btn-primary btn-primary--full" disabled={processando || uploading || !nomeEle.trim() || !nomeEla.trim()}>
+              {processando || uploading ? <LoaderCircle size={20} className="spinner" /> : 'Adicionar Casal'}
             </button>
             {uploading && (
-              <div style={{ height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
+              <div className="turma-upload-bar">
                 <div style={{ height: '100%', width: `${uploadProgress}%`, background: 'linear-gradient(90deg, var(--primary), var(--primary-light))', transition: 'width 0.3s' }} />
               </div>
             )}
@@ -730,63 +628,34 @@ export default function TurmaDetail() {
 
       {/* MODAL: CONCLUIR/REABRIR TURMA */}
       {isConcluirTurmaOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '1.5rem'
-        }}>
-          <div className="glass-effect" style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
-            <button type="button" onClick={() => setIsConcluirTurmaOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className="modal-overlay">
+          <div className="glass-effect modal-form--lg">
+            <button type="button" onClick={() => setIsConcluirTurmaOpen(false)} className="modal-close-btn">
               <X size={24} />
             </button>
-            <h2 style={{ fontSize: '1.25rem', marginTop: 0, color: turma.concluida ? 'var(--warning)' : 'var(--success)' }}>
+            <h2 className="modal-title" style={{ color: turma.concluida ? 'var(--warning)' : 'var(--success)' }}>
               {turma.concluida ? 'Reabrir Turma' : 'Concluir Turma'}
             </h2>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <p className="modal-desc">
               {turma.concluida 
                 ? `Deseja reabrir a turma "${turma.nome}"? Ela voltará a aparecer na seção de turmas ativas.`
                 : `Deseja concluir a turma "${turma.nome}"? Ela será movida para a seção de turmas concluídas.`
               }
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div className="modal-btn-row--lg">
               <button 
                 onClick={() => setIsConcluirTurmaOpen(false)}
                 disabled={processando}
-                style={{ 
-                  flex: 1,
-                  background: 'rgba(100, 116, 139, 0.2)', 
-                  border: '1px solid rgba(255,255,255,0.1)', 
-                  color: 'var(--text-muted)', 
-                  padding: '1rem', 
-                  borderRadius: '8px', 
-                  fontWeight: 600, 
-                  cursor: 'pointer',
-                  fontFamily: 'inherit'
-                }}
+                className="btn-cancel"
               >
                 Cancelar
               </button>
               <button 
                 onClick={handleToggleConcluirTurma}
                 disabled={processando}
-                style={{ 
-                  flex: 1,
-                  background: turma.concluida ? 'var(--warning-bg)' : 'var(--success-bg)', 
-                  border: 'none', 
-                  color: 'white', 
-                  padding: '1rem', 
-                  borderRadius: '8px', 
-                  fontWeight: 600, 
-                  cursor: 'pointer',
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  gap: '0.5rem',
-                  fontFamily: 'inherit'
-                }}
+                className={`btn-confirm ${turma.concluida ? 'btn-confirm--reabrir' : 'btn-confirm--concluir'}`}
               >
-                {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : (turma.concluida ? 'Sim, Reabrir' : 'Sim, Concluir')}
+                {processando ? <LoaderCircle size={20} className="spinner" /> : (turma.concluida ? 'Sim, Reabrir' : 'Sim, Concluir')}
               </button>
             </div>
           </div>
@@ -795,46 +664,36 @@ export default function TurmaDetail() {
 
       {/* MODAL: EDITAR CASAL */}
       {isEditCasalOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '1.5rem'
-        }}>
-          <form className="glass-effect" onSubmit={handleEditCasal} style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative' }}>
-            <button type="button" onClick={() => setIsEditCasalOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className="modal-overlay">
+          <form className="glass-effect modal-form" onSubmit={handleEditCasal}>
+            <button type="button" onClick={() => setIsEditCasalOpen(false)} className="modal-close-btn">
               <X size={24} />
             </button>
-            <h2 style={{ fontSize: '1.25rem', marginTop: 0 }}>Editar Casal</h2>
+            <h2 className="modal-title">Editar Casal</h2>
             
             <input 
               autoFocus
               placeholder="Nome dEle" value={editNomeEle} onChange={e => setEditNomeEle(e.target.value)}
-              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+              className="glass-input"
             />
              <input 
               placeholder="Nome dEla" value={editNomeEla} onChange={e => setEditNomeEla(e.target.value)}
-              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+              className="glass-input"
             />
              <select 
               value={editCasalTipo} onChange={e => setEditCasalTipo(e.target.value as any)}
-              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit' }}
+              className="glass-select"
             >
-              <option value="ALUNO" style={{ color: 'black' }}>Casal Membro/Aluno</option>
-              <option value="LIDER" style={{ color: 'black' }}>Casal Líder (Não pontua)</option>
-              <option value="CO-LIDER" style={{ color: 'black' }}>Casal Co-Líder (Não pontua)</option>
+              <option value="ALUNO">Casal Membro/Aluno</option>
+              <option value="LIDER">Casal Líder (Não pontua)</option>
+              <option value="CO-LIDER">Casal Co-Líder (Não pontua)</option>
             </select>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <label style={{
-                background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)',
-                color: 'var(--text-muted)', padding: '0.75rem 1rem', borderRadius: '8px',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                fontFamily: 'inherit', fontSize: '0.9rem', flex: 1
-              }}>
+            <div className="turma-foto-row">
+              <label className="turma-foto-label">
                 <Camera size={18} />
                 Alterar foto
-                <input type="file" accept="image/*" style={{ display: 'none' }}
+                <input type="file" accept="image/*" className="hidden-input"
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
@@ -860,8 +719,8 @@ export default function TurmaDetail() {
               </label>
             </div>
 
-            <button type="submit" className="btn-primary" disabled={processando || !editNomeEle.trim() || !editNomeEla.trim()}>
-              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Salvar'}
+            <button type="submit" className="btn-primary btn-primary--full" disabled={processando || !editNomeEle.trim() || !editNomeEla.trim()}>
+              {processando ? <LoaderCircle size={20} className="spinner" /> : 'Salvar'}
             </button>
           </form>
         </div>
@@ -869,32 +728,27 @@ export default function TurmaDetail() {
 
       {/* MODAL: EXCLUIR CASAL */}
       {isDeleteCasalOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '1.5rem'
-        }}>
-          <div className="glass-effect" style={{ width: '100%', maxWidth: '400px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
-            <button type="button" onClick={() => { setIsDeleteCasalOpen(false); setConfirmDeleteCasalText(''); }} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+        <div className="modal-overlay">
+          <div className="glass-effect modal-form--lg">
+            <button type="button" onClick={() => { setIsDeleteCasalOpen(false); setConfirmDeleteCasalText(''); }} className="modal-close-btn">
               <X size={24} />
             </button>
-            <h2 style={{ fontSize: '1.25rem', marginTop: 0, color: '#ef4444' }}>Excluir Casal</h2>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <h2 className="modal-title modal-title--danger">Excluir Casal</h2>
+            <p className="modal-desc">
               Tem certeza que deseja excluir o casal <strong>{deleteCasalNome}</strong>? Esta ação não pode ser desfeita.
             </p>
             {deleteCasalTipo === 'LIDER' && (
-              <p style={{ margin: 0, color: '#fbbf24', fontSize: '0.9rem', fontWeight: 600 }}>
+              <p className="modal-warning">
                 Atenção: esta turma ficará sem Líder!
               </p>
             )}
             {deleteCasalTipo === 'CO-LIDER' && (
-              <p style={{ margin: 0, color: '#fbbf24', fontSize: '0.9rem', fontWeight: 600 }}>
+              <p className="modal-warning">
                 Atenção: esta turma ficará sem Co-Líder!
               </p>
             )}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+              <label className="modal-label">
                 Digite <strong>"Excluir"</strong> para confirmar:
               </label>
               <input 
@@ -902,7 +756,7 @@ export default function TurmaDetail() {
                 placeholder="Excluir" 
                 value={confirmDeleteCasalText} 
                 onChange={e => setConfirmDeleteCasalText(e.target.value)}
-                style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '1rem', borderRadius: '8px', fontFamily: 'inherit', width: '100%', boxSizing: 'border-box' }}
+                className="glass-input glass-input--full"
               />
             </div>
             <button 
@@ -922,7 +776,7 @@ export default function TurmaDetail() {
                 gap: '0.5rem' 
               }}
             >
-              {processando ? <LoaderCircle size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Confirmar Exclusão'}
+              {processando ? <LoaderCircle size={20} className="spinner" /> : 'Confirmar Exclusão'}
             </button>
           </div>
         </div>

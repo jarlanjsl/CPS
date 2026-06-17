@@ -42,7 +42,7 @@ export default function Login() {
   return (
     <div className="login-container">
       <div className="login-card glass-effect">
-        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+        <div className="login-logo-wrapper">
           <Logo size={64} showText={false} />
         </div>
         <h1 className="login-title gradient-text">Casados Para Sempre</h1>
