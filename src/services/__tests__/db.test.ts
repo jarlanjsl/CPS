@@ -22,11 +22,13 @@ import {
   mockTransaction,
   mockTransactionDoc,
   resetFirebaseMocks,
+  simulateTransactionConflict,
 } from '../../test/mocks/firebase';
 import {
   mockCasal,
   mockTurma,
   mockVitamina,
+  mockVitaminaSorteio,
   mockSorteioVitaminas,
 } from '../../test/helpers/fixtures';
 
@@ -537,6 +539,47 @@ describe('dbService.saveChecklist', () => {
 
     await expect(dbService.saveChecklist('casal1', '1', checklist)).rejects.toThrow('Transaction failed');
   });
+
+  // ===== HU-05c: Retry em conflito de transação =====
+
+  it('should retry automatically when transaction fails due to conflict', async () => {
+    // simulateTransactionConflict(1): Falha 1 vez no retry interno do SDK,
+    // depois executa a updateFn com sucesso na 2ª tentativa
+    simulateTransactionConflict(1);
+
+    // Configurar dados da semana para o retry bem-sucedido
+    (mockTransactionDoc.data as any).mockReturnValue({ semanas: {} });
+    mockTransactionDoc.exists.mockReturnValue(true);
+
+    const checklist: SemanaCheck = {
+      presenca: true,
+      tarefas: true,
+      tarefasExtras: true,
+    };
+
+    // Deve resolver com sucesso após o retry interno
+    await dbService.saveChecklist('casal1', '1', checklist);
+
+    // Verificar que o documento foi atualizado após o retry
+    // Semana 1: presenca(1) + tarefas(1) + tarefasExtras(1) = 3
+    expect(mockTransaction.update).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ pontuacaoTotal: 3 })
+    );
+  });
+
+  it('should propagate error when transaction fails permanently', async () => {
+    // simulateTransactionConflict(99): Todas as tentativas de retry interno
+    // do SDK falham → a exceção deve ser propagada para o chamador
+    simulateTransactionConflict(99);
+
+    const checklist: SemanaCheck = { presenca: true, tarefas: true, tarefasExtras: false };
+
+    // Deve lançar exceção (não notificar usuário com toast — apenas propagar)
+    await expect(
+      dbService.saveChecklist('casal1', '1', checklist)
+    ).rejects.toThrow('Transaction failed due to conflict');
+  });
 });
 
 // ============================================================
@@ -648,6 +691,29 @@ describe('dbService.sortearVitaminas', () => {
     expect(sorteio.ela.sorteadoEm).toBeDefined();
     // Deve ser um ISO timestamp válido
     expect(new Date(sorteio.ele.sorteadoEm).toISOString()).toBe(sorteio.ele.sorteadoEm);
+  });
+
+  // ===== HU-05c: Edge case — catálogo vazio =====
+
+  it('should return false when catalog is empty (no vitaminas available)', async () => {
+    // Simula cenário onde o catálogo de vitaminas está vazio e não há
+    // vitaminas para sortear. O componente de roleta deve evitar chamar
+    // sortearVitaminas sem vitaminas, mas se isso ocorrer, a função deve
+    // lidar graciosamente (retornar false via catch).
+    (mockTransactionDoc.data as any).mockReturnValue({ semanas: {} });
+    mockTransactionDoc.exists.mockReturnValue(true);
+
+    // Passar undefined como vitaminas — simula catálogo vazio
+    const result = await dbService.sortearVitaminas(
+      'casal1',
+      '1',
+      undefined as unknown as any,
+      undefined as unknown as any
+    );
+
+    // Deve retornar false porque o acesso a propriedades de undefined
+    // lança erro dentro da transação, que é capturado pelo catch da função
+    expect(result).toBe(false);
   });
 });
 
@@ -786,6 +852,49 @@ describe('dbService.saveVitaminaCheck', () => {
     expect(elSnapshot.sorteadoEm).toBe(sorteio.ele!.sorteadoEm);
     // Apenas check foi alterado
     expect(elSnapshot.check).toBe(true);
+  });
+
+  // ===== HU-05c: Edge case — vitamina excluída do catálogo após sorteio =====
+
+  it('should still work when referenced vitamina was deleted from catalog after draw', async () => {
+    // Cenário:
+    // 1. Admin cadastra Vitamina X no catálogo da turma
+    // 2. sortearVitaminas() tira X para o casal — snapshot salvo em semanas
+    // 3. Admin exclui Vitamina X do catálogo
+    // 4. saveVitaminaCheck() é chamado — deve funcionar porque usa o snapshot
+    //
+    // saveVitaminaCheck NÃO consulta o catálogo da turma — apenas o snapshot
+    // no documento do casal. Isso é intencional (desacoplamento via denormalização).
+    const sorteio = mockSorteioVitaminas({
+      ele: mockVitaminaSorteio({
+        vitaminaId: 'vit-deletada-do-catalogo',
+        nome: 'Vitamina Excluída',
+        descricao: 'Já foi removida do catálogo',
+      }),
+    });
+    const semanasExistentes = {
+      '1': {
+        presenca: true,
+        tarefas: true,
+        tarefasExtras: false,
+        sorteioVitaminas: sorteio,
+      },
+    };
+    (mockTransactionDoc.data as any).mockReturnValue({ semanas: semanasExistentes });
+    mockTransactionDoc.exists.mockReturnValue(true);
+
+    const result = await dbService.saveVitaminaCheck('casal1', '1', 'ele', true);
+
+    expect(result).toBe(true);
+
+    const updateCall = (mockTransaction.update.mock.calls as any[])[0];
+    const semana1 = updateCall[1].semanas['1'];
+
+    // Check deve ser atualizado mesmo com vitaminaId que não existe mais no catálogo
+    expect(semana1.sorteioVitaminas.ele.check).toBe(true);
+    // Campos do snapshot preservados (incluindo ID que não existe no catálogo)
+    expect(semana1.sorteioVitaminas.ele.vitaminaId).toBe('vit-deletada-do-catalogo');
+    expect(semana1.sorteioVitaminas.ele.nome).toBe('Vitamina Excluída');
   });
 });
 

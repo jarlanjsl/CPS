@@ -50,26 +50,63 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
-## [Unreleased] - 2026-07-15
+## [Sprint 7] - 2026-06-18 (HU-05c + HU-12)
 
-### Added (previsto)
+### Added
 
-- HU-05c: Testes de integração + componentes UI
-  - Testes de integração do fluxo de Checklist (salvar + recalcular pontuação)
-  - Testes de integração do fluxo de Vitaminas (sortear + check + histórico)
-  - Testes de componentes UI: Home, Login, TurmaDetail, Acompanhamento, Desempenho, Ajustes
-  - Coverage alvo: ≥ 50% nas páginas
-  - Meta: ~45-60 testes criados
+- **HU-05c: Testes de integração + componentes UI**
+  - 101 novos testes automatizados (246 total)
+  - Testes de integração (Data Layer):
+    - `simulateTransactionConflict()` helper para simular conflitos de transação Firestore
+    - Retry automático de transação (falha 1x, sucesso na 2ª)
+    - Propagação de erro em falha definitiva
+    - Catálogo vazio de vitaminas (retorna false graciosamente)
+    - Vitamina excluída do catálogo após sorteio (snapshot denormalizado)
+  - Testes de componentes UI (6 páginas, 97 testes):
+    - `Home.tsx`: 12 testes — listagem, ordenação, turmas concluídas, modal criar, navegação
+    - `Login.tsx`: 12 testes — formulário, validação, submit, erros, redirecionamento
+    - `Ajustes.tsx`: 14 testes — toggle som, select frequência, logout
+    - `TurmaDetail.tsx`: 28 testes — CRUD casais, modais, validações 1/1/5, concluir/reabrir
+    - `Acompanhamento.tsx`: 11 testes — checkboxes, vitaminas sorteadas, save
+    - `Desempenho.tsx`: 24 testes — ranking, filtros, indicadores, lazy loading
+  - Coverage das páginas: Home 97.14%, Login 100%, Ajustes 100%, TurmaDetail 50%, Acompanhamento 85.36%, Desempenho 90.38%
 
-- HU-12: PWA completo (Service Worker + ícones)
-  - Ícones PWA reais (192x192 e 512x512) com identidade visual do CPS
-  - `manifest.json` atualizado (name, short_name, description, icons, theme_color, display)
-  - Service Worker com cache de assets estáticos (Cache First)
-  - Estratégia de cache para fonts e assets
-  - Prompt de instalação customizado (beforeinstallprompt)
-  - Meta tags PWA no `index.html` (theme-color, apple-touch-icon)
-  - Lighthouse PWA score ≥ 90
-  - App instalável na tela inicial (Android + iOS)
+- **HU-12: PWA completo (Service Worker + ícones + manifest)**
+  - Service Worker via `vite-plugin-pwa` (Workbox integrado)
+    - Precache automático de 17 entries (JS, CSS, HTML, imagens, áudio)
+    - Estratégia CacheFirst para Google Fonts (365 dias)
+    - Auto-update do SW com `registerType: 'autoUpdate'`
+    - Cleanup automático de caches antigos
+  - Ícones PWA reais:
+    - SVG mestre em `public/logo-cps.svg` (alianças douradas, versionável)
+    - Script `scripts/generate-pwa-icons.mjs` (sharp) para gerar PNGs
+    - `icon-192x192.png` e `icon-512x512.png` gerados
+  - `manifest.json` atualizado:
+    - `name`: "Casados Para Sempre", `short_name`: "CPS"
+    - `theme_color`: `#6366f1`, `display`: `standalone`
+    - Ícones 192x192 e 512x512 reais
+  - Meta tags PWA no `index.html`:
+    - `theme-color: #6366f1`, `apple-touch-icon`, `apple-mobile-web-app-capable`
+  - Componente `InstallPrompt.tsx`:
+    - Escuta `beforeinstallprompt` com botão "Instalar App"
+    - Fallback para iOS com instruções manuais (Safari → Compartilhar → Adicionar à Tela de Início)
+    - Estilo glassmorphism consistente com o design system
+
+### Changed
+
+- `index.html`: `lang="pt-BR"`, meta tags PWA adicionadas, `theme-color` corrigido para `#6366f1`
+- `vite.config.ts`: Plugin `VitePWA` adicionado com configuração completa
+- `manifest.json`: Ícones reais (PNG), theme_color `#6366f1`, display standalone, scope definido
+- `tsconfig.app.json`: Testes excluídos do build (`exclude` adicionado)
+- `src/test/mocks/firebase.ts`: Helper `simulateTransactionConflict()` adicionado
+- `src/components/Layout.tsx`: `InstallPrompt` adicionado ao layout
+
+### Fixed
+
+- Manifest `theme-color` corrigido de `#ffffff` para `#6366f1`
+- Meta tags iOS ausentes adicionadas ao `index.html`
+- Build falhando por TypeScript errors nos testes (excluídos do tsc)
+- Testes de conflito de transação não existentes (adicionados 4 casos)
 
 ---
 

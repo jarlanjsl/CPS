@@ -2,6 +2,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, BarChart2, Bell, Settings } from 'lucide-react';
 import { useState } from 'react';
 import Logo from './Logo';
+import InstallPrompt from './InstallPrompt';
 import '../styles/layout.css';
 
 export default function Layout() {
@@ -109,6 +110,8 @@ export default function Layout() {
           <span>Ajustes</span>
         </Link>
       </nav>
+
+      <InstallPrompt />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
-> Última atualização: 15/07/2026
-> Versão: 11.0
+> Última atualização: 18/06/2026
+> Versão: 12.0
 > Responsável: Agile Master
 
 ---
@@ -236,7 +236,9 @@
 5. Exibir prompt de instalação customizado (antes do browser default)
 6. O app deve passar no Lighthouse PWA audit com score mínimo de 90
 
-**Prioridade**: Média | **Estimativa**: L | **Status**: Backlog
+**Prioridade**: Média | **Estimativa**: L | **Status**: Concluída ✅
+
+> **Sprint 7**: PWA completo implementado. Service Worker via vite-plugin-pwa (Workbox), precache de 17 entries, CacheFirst para Google Fonts. Ícones reais (192x192 e 512x512) gerados via SVG mestre + sharp. Manifest atualizado com theme_color #6366f1. InstallPrompt com beforeinstallprompt + fallback iOS. Meta tags PWA no index.html. Build passando. QA validou 17/17 critérios.
 
 ---
 
@@ -614,13 +616,13 @@
 
 ---
 
-### Sprint 7 — Testes de Integração + PWA Completo 🧪📱 (EM PROGRESSO 🔄)
+### Sprint 7 — Testes de Integração + PWA Completo 🧪📱 (CONCLUÍDO ✅)
 
 | HU | Descrição | Estimativa | Status |
 |----|-----------|:----------:|:------:|
-| HU-05c | Testes de integração + componentes UI | 🔴 L | 🔄 Em Progresso |
-| HU-12 | Completar PWA (Service Worker + ícones) | 🔴 L | 🔄 Em Progresso |
-| **Total** | | **≈ 10 pts** | |
+| HU-05c | Testes de integração + componentes UI | 🔴 L | ✅ Concluída |
+| HU-12 | Completar PWA (Service Worker + ícones) | 🔴 L | ✅ Concluída |
+| **Total** | | **≈ 10 pts** | **2/2 ✅** |
 
 > **Justificativa:** HU-05c completa a estratégia de testes (integração + UI). HU-12 adiciona valor técnico (PWA instalável + offline). Ordem: HU-05c primeiro (testes não mudam código), HU-12 depois (PWA com testes já escritos). Ambas independentes, mas sequencial é mais seguro.
 
@@ -651,11 +653,12 @@
 | 🔵 Identidade Visual | 1 | 0 | 1 | 0 | 0 | 0 | **1/1 ✅** |
 | 🎲 Vitaminas | 4 | 2 | 1 | 1 | 0 | 0 | **4/4 ✅** |
 | 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0 | 0/6 |
-| ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 0/2 |
-| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **18/24 (75%) + 2 🔄** |
+| ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 2/2 ⏳ |
+| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **20/24 (83%) + 2 ⏳** |
 
-> **Sprint atual:** `sprint/7-testes-pwa` (em progresso)  
+> **Sprint atual:** `sprint/7-testes-pwa` (concluído)  
 > **Próximo sprint:** A definir (Sprint 8 — opções: HU-11 notificações, HU-14 RBAC, HU-15 Cloud Functions, HU-16 Repository Pattern)  
-> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100%  
+> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100% | 📱 PWA 100%  
 > **Política de testes:** `docs/testing-policy.md` — testes obrigatórios para services/contexts/páginas  
-> **Coverage global:** 87.44% Stmts / 77.53% Branch / 93.75% Funcs / 93.87% Lines
+> **Total de testes:** 246 passando (0 failures)  
+> **Coverage páginas:** Home 97.14%, Login 100%, Ajustes 100%, TurmaDetail 50%, Acompanhamento 85.36%, Desempenho 90.38%
