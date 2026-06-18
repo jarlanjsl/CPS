@@ -50,6 +50,29 @@ e este projeto adere a [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [Unreleased] - 2026-07-15
+
+### Added (previsto)
+
+- HU-05c: Testes de integração + componentes UI
+  - Testes de integração do fluxo de Checklist (salvar + recalcular pontuação)
+  - Testes de integração do fluxo de Vitaminas (sortear + check + histórico)
+  - Testes de componentes UI: Home, Login, TurmaDetail, Acompanhamento, Desempenho, Ajustes
+  - Coverage alvo: ≥ 50% nas páginas
+  - Meta: ~45-60 testes criados
+
+- HU-12: PWA completo (Service Worker + ícones)
+  - Ícones PWA reais (192x192 e 512x512) com identidade visual do CPS
+  - `manifest.json` atualizado (name, short_name, description, icons, theme_color, display)
+  - Service Worker com cache de assets estáticos (Cache First)
+  - Estratégia de cache para fonts e assets
+  - Prompt de instalação customizado (beforeinstallprompt)
+  - Meta tags PWA no `index.html` (theme-color, apple-touch-icon)
+  - Lighthouse PWA score ≥ 90
+  - App instalável na tela inicial (Android + iOS)
+
+---
+
 ## [Unreleased]
 
 ---
