@@ -1,0 +1,169 @@
+/* Ajustes - Layout principal */
+.ajustes-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Card com padding */
+.ajustes-card {
+  padding: 1.5rem;
+}
+
+/* Cabeçalho do card */
+.ajustes-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Título do card */
+.ajustes-card-title {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.ajustes-card-title--mb {
+  margin-bottom: 1.5rem;
+}
+
+/* Botão Testar */
+.btn-test {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--text-main);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+/* Linha com toggle */
+.ajustes-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 1rem;
+}
+
+.ajustes-toggle-row--no-border {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Label do toggle */
+.ajustes-toggle-label {
+  font-weight: 500;
+}
+
+/* Descrição do toggle */
+.ajustes-toggle-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Toggle track (base) */
+.toggle-track {
+  width: 40px;
+  height: 24px;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle-track--active {
+  background: var(--primary);
+}
+
+.toggle-track--inactive {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.toggle-track--disabled {
+  width: 40px;
+  height: 24px;
+  border-radius: 12px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Toggle knob (base) */
+.toggle-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  transition: all 0.3s;
+}
+
+.toggle-knob--active {
+  background: white;
+  left: 18px;
+}
+
+.toggle-knob--inactive {
+  background: #94a3b8;
+  left: 2px;
+}
+
+.toggle-knob--static {
+  background: #94a3b8;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+}
+
+/* Label de frequência */
+.ajustes-freq-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Select de frequência */
+.ajustes-select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-family: inherit;
+}
+
+/* Aviso de frequência aleatória */
+.ajustes-freq-warning {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--primary-light);
+}
+
+/* Botão de logout */
+.btn-logout {
+  padding: 1rem;
+  background: var(--danger-bg);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}

@@ -1,0 +1,200 @@
+/* Desempenho - Header */
+.desempenho-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.desempenho-title {
+  margin: 0;
+}
+
+/* Select de turma */
+.desempenho-select {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--primary-dark);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  width: 100%;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+/* Mensagem sem turma */
+.desempenho-empty {
+  color: var(--text-muted);
+}
+
+/* Container de loading */
+.desempenho-loading {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.desempenho-loading .spinner {
+  color: var(--text-muted);
+}
+
+/* Conteúdo principal */
+.desempenho-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Seletor de semana */
+.desempenho-week-selector {
+  padding: 1rem 1.5rem;
+}
+
+.desempenho-week-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.desempenho-week-label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.desempenho-week-select {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--primary-dark);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+/* Card do ranking */
+.desempenho-ranking-card {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.desempenho-star {
+  color: #fbbf24;
+  margin: 0 auto 0.5rem;
+}
+
+.desempenho-ranking-title {
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+}
+
+/* Tabs de filtro */
+.desempenho-tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+/* Tab button (base) */
+.desempenho-tab {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.desempenho-tab-label {
+  font-size: 0.75rem;
+}
+
+/* Mensagem sem alunos */
+.desempenho-no-alunos {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Card do casal no ranking */
+.desempenho-card {
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Info do casal */
+.desempenho-casal-info {
+  flex: 1;
+}
+
+.desempenho-casal-name {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Pontuação */
+.desempenho-pontos {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--primary-light);
+}
+
+.desempenho-pts-label {
+  font-size: 0.8rem;
+  font-weight: normal;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+/* Overlay de foto ampliada */
+.desempenho-photo-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+  cursor: pointer;
+}
+
+.desempenho-photo-container {
+  text-align: center;
+}
+
+.desempenho-photo {
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.desempenho-photo-caption {
+  color: white;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+.desempenho-photo-close {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
