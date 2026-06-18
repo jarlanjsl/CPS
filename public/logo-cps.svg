@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Casados Para Sempre">
+  <rect width="512" height="512" fill="#ffffff"/>
+  <g transform="translate(256, 256)">
+    <!-- Aliança esquerda -->
+    <circle cx="-24" cy="0" r="64" fill="none" stroke="#F59E0B" stroke-width="14"/>
+    <!-- Aliança direita (entrelaçada) -->
+    <circle cx="24" cy="0" r="64" fill="none" stroke="#F59E0B" stroke-width="14"
+            stroke-dasharray="100 300" stroke-dashoffset="80"/>
+  </g>
+</svg>

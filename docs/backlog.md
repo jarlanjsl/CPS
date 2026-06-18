@@ -1,7 +1,7 @@
 # Product Backlog — CPS (Casados Para Sempre)
 
-> Última atualização: 01/07/2026
-> Versão: 10.0
+> Última atualização: 18/06/2026
+> Versão: 12.0
 > Responsável: Agile Master
 
 ---
@@ -25,6 +25,7 @@
 | 17/06/2026 | 8.0 | Sprint 5 concluído: HU-05a e HU-24 aprovadas pelo QA (20/20 critérios). 108 testes passando. Coverage global 87.44% |
 | 01/07/2026 | 9.0 | Sprint 6 iniciado: HU-05b (testes de Contexts) e HU-06 (extrair inline styles) em progresso |
 | 01/07/2026 | 10.0 | Sprint 6 concluído: HU-05b e HU-06 aprovadas pelo QA (22/22 critérios). 33 testes de Contexts criados. 6 arquivos CSS criados (192 classes). 141 testes passando |
+| 15/07/2026 | 11.0 | Sprint 7 iniciado: HU-05c (testes de integração + UI) e HU-12 (PWA completo) em progresso |
 | 17/06/2026 | 8.0 | Sprint 5 concluído: HU-05a (testes + fórmula pura) e HU-24 (animação ranking) aprovadas pelo QA. 108 testes passando. Coverage global 87%. Ver `docs/testing-policy.md` |
 
 ---
@@ -235,7 +236,9 @@
 5. Exibir prompt de instalação customizado (antes do browser default)
 6. O app deve passar no Lighthouse PWA audit com score mínimo de 90
 
-**Prioridade**: Média | **Estimativa**: L | **Status**: Backlog
+**Prioridade**: Média | **Estimativa**: L | **Status**: Concluída ✅
+
+> **Sprint 7**: PWA completo implementado. Service Worker via vite-plugin-pwa (Workbox), precache de 17 entries, CacheFirst para Google Fonts. Ícones reais (192x192 e 512x512) gerados via SVG mestre + sharp. Manifest atualizado com theme_color #6366f1. InstallPrompt com beforeinstallprompt + fallback iOS. Meta tags PWA no index.html. Build passando. QA validou 17/17 critérios.
 
 ---
 
@@ -611,6 +614,18 @@
 
 > **Justificativa:** HU-05b completa a estratégia de testes (contexts são obrigatórios conforme testing-policy.md). HU-06 melhora manutenibilidade do código. Ordem: HU-05b primeiro (testes não mudam código), HU-06 depois (refatoração CSS com testes já escritos). QA: 22/22 critérios aprovados. 141 testes passando.
 
+---
+
+### Sprint 7 — Testes de Integração + PWA Completo 🧪📱 (CONCLUÍDO ✅)
+
+| HU | Descrição | Estimativa | Status |
+|----|-----------|:----------:|:------:|
+| HU-05c | Testes de integração + componentes UI | 🔴 L | ✅ Concluída |
+| HU-12 | Completar PWA (Service Worker + ícones) | 🔴 L | ✅ Concluída |
+| **Total** | | **≈ 10 pts** | **2/2 ✅** |
+
+> **Justificativa:** HU-05c completa a estratégia de testes (integração + UI). HU-12 adiciona valor técnico (PWA instalável + offline). Ordem: HU-05c primeiro (testes não mudam código), HU-12 depois (PWA com testes já escritos). Ambas independentes, mas sequencial é mais seguro.
+
 ### Sprint 7+ — Futuro
 
 | HU | Descrição | Status |
@@ -638,11 +653,12 @@
 | 🔵 Identidade Visual | 1 | 0 | 1 | 0 | 0 | 0 | **1/1 ✅** |
 | 🎲 Vitaminas | 4 | 2 | 1 | 1 | 0 | 0 | **4/4 ✅** |
 | 🟢 Crescimento | 6 | 0 | 1 | 3 | 2 | 0 | 0/6 |
-| ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 0/2 |
-| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **18/24 (75%)** |
+| ⏳ Futuro | 2 | 0 | 0 | 1 | 1 | 2 | 2/2 ⏳ |
+| **Total** | **24** | **6** | **6** | **7** | **3** | **2** | **20/24 (83%) + 2 ⏳** |
 
-> **Sprint atual:** `sprint/6-testes-animacao` (concluído)  
-> **Próximo sprint:** A definir (Sprint 7 — opções: HU-05c testes de integração, HU-11 notificações, HU-12 PWA, HU-14 RBAC)  
-> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100%  
-> **Política de testes:** `docs/testing-policy.md` — testes obrigatórios para services/contexts  
-> **Coverage global:** 87.44% Stmts / 77.53% Branch / 93.75% Funcs / 93.87% Lines
+> **Sprint atual:** `sprint/7-testes-pwa` (concluído)  
+> **Próximo sprint:** A definir (Sprint 8 — opções: HU-11 notificações, HU-14 RBAC, HU-15 Cloud Functions, HU-16 Repository Pattern)  
+> **Status dos eixos concluídos:** 🔴 Estabilização 100% | 🟡 Evolução 100% | 🔵 Identidade Visual 100% | 🎲 Vitaminas 100% | 📱 PWA 100%  
+> **Política de testes:** `docs/testing-policy.md` — testes obrigatórios para services/contexts/páginas  
+> **Total de testes:** 246 passando (0 failures)  
+> **Coverage páginas:** Home 97.14%, Login 100%, Ajustes 100%, TurmaDetail 50%, Acompanhamento 85.36%, Desempenho 90.38%

@@ -244,6 +244,63 @@ export function resetFirebaseMocks(): void {
 }
 
 /**
+ * Simula conflito de transação Firestore para testar retry automático.
+ *
+ * Diferente da versão anterior (que contava chamadas externas ao mockRunTransaction),
+ * esta versão simula o **retry interno** do Firestore SDK: a `updateFn` é reexecutada
+ * automaticamente até `failAttempts` vezes (máximo 5, igual ao SDK real).
+ *
+ * Isso permite testar que funções como `saveChecklist` se beneficiam do retry
+ * automático do SDK sem precisar modificar o código de produção.
+ *
+ * @param failAttempts - Número de tentativas que devem falhar antes do sucesso
+ *                       (limitado a 5 internamente, igual ao Firestore SDK real).
+ *                       Valores > 5 simulam falha definitiva.
+ *
+ * @example
+ * simulateTransactionConflict(1) // Falha 1x internamente, sucesso na 2ª → operação OK
+ * simulateTransactionConflict(5) // Falha 5x (máx SDK), propaga exceção → operação falha
+ * simulateTransactionConflict(99) // Falha sempre (limitado a 5 tentativas internas)
+ */
+export function simulateTransactionConflict(failAttempts: number = 1): void {
+  mockRunTransaction.mockImplementation(
+    async (_db: unknown, updateFn: (transaction: typeof mockTransaction) => Promise<unknown>) => {
+      let lastError: Error | null = null;
+      // Firestore SDK real: máximo de 5 tentativas de retry interno
+      const MAX_SDK_RETRIES = 5;
+
+      for (let attempt = 1; attempt <= Math.min(failAttempts, MAX_SDK_RETRIES) + 1; attempt++) {
+        // Limpa estado por tentativa — cada retry começa do zero
+        mockTransaction.get.mockClear();
+        mockTransaction.update.mockClear();
+
+        if (attempt <= failAttempts && attempt <= MAX_SDK_RETRIES) {
+          // Simula conflito: transaction.get() rejeita
+          mockTransaction.get.mockRejectedValue(
+            new Error('Transaction failed due to conflict')
+          );
+        } else {
+          // Tentativa de sucesso: transaction.get() funciona
+          mockTransaction.get.mockResolvedValue(mockTransactionDoc);
+        }
+
+        try {
+          const result = await updateFn(mockTransaction);
+          return result; // Sucesso!
+        } catch (e) {
+          lastError = e as Error;
+          // Se estourou o limite de retries, propaga o erro
+          if (attempt > failAttempts || attempt >= MAX_SDK_RETRIES) throw e;
+          // Caso contrário, continua para a próxima tentativa (retry interno)
+        }
+      }
+
+      throw lastError || new Error('Transaction failed after exhausting retries');
+    }
+  );
+}
+
+/**
  * Simula erro do Firebase em um módulo específico.
  * Útil para testar caminhos de erro (catch blocks).
  *
